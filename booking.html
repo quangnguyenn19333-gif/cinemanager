@@ -40,10 +40,16 @@
         <div id="step-1" class="step-content active">
             <h2>🎬 Chọn Suất Chiếu</h2>
             <div id="movie-info-banner" class="movie-banner"></div>
-            <p style="color: #ccc; margin-top: 10px; font-size: 14px; margin-bottom: 20px;">
-                <i class="fa-solid fa-location-dot" style="color: #ff3333; margin-right: 5px;"></i>
-                Địa chỉ: TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội
-            </p>
+            <!-- CHỌN CƠ SỞ RẠP ĐỘNG -->
+            <div style="margin: 15px 0;">
+                <label for="cinema-select" style="color: #ff3333; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-location-dot"></i> Chọn cơ sở rạp:
+                </label>
+                <select id="cinema-select" onchange="changeCinema()" style="width: 100%; max-width: 400px; padding: 10px; background: #222; color: white; border: 1px solid var(--glass); border-radius: 5px; outline: none; font-size: 15px;">
+                    <option value="">Đang tải danh sách rạp...</option>
+                </select>
+                <p id="cinema-address" style="color: #aaa; font-size: 13px; margin-top: 5px;"></p>
+            </div>
 
             <!-- THANH CHỌN NGÀY THÁNG ĐỘNG (TỰ ĐỘNG CHẠY 7 NGÀY) -->
             <div class="date-selector-container">
