@@ -16,6 +16,10 @@ let state = {
     seatRefreshInterval: null,
     allShowtimes: [],       // Lưu trữ toàn bộ suất chiếu để lọc theo ngày
     selectedDateStr: null   // Ngày đang được chọn (YYYY-MM-DD)
+    allShowtimes: [],       
+    selectedDateStr: null,
+    cinemas: [],            // Thêm biến lưu danh sách rạp
+    selectedCinemaId: null  // Thêm biến lưu rạp đang chọn
 };
 
 // =============================================
@@ -43,11 +47,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!state.movie) { alert('Phim không tồn tại!'); window.location.href = 'index.html'; return; }
 
     renderMovieBanner();
+    await loadCinemas();
     renderDateTabs(); // Khởi tạo thanh ngày tháng động
     await loadShowtimes();
     loadCombos();
 });
-
 
 // =============================================
 // BƯỚC 1: SUẤT CHIẾU & THANH NGÀY THÁNG ĐỘNG
@@ -66,7 +70,55 @@ function renderMovieBanner() {
         </div>
     `;
 }
+// =============================================
+// LẤY DANH SÁCH CƠ SỞ RẠP TỪ DATABASE
+// =============================================
+async function loadCinemas() {
+    try {
+        const res = await fetch('api/cinemas.php');
+        const cinemas = await res.json();
+        state.cinemas = cinemas;
 
+        const selectEl = document.getElementById('cinema-select');
+        const addressEl = document.getElementById('cinema-address');
+
+        if (!cinemas.length) {
+            selectEl.innerHTML = '<option value="">Hệ thống đang bảo trì, chưa có rạp</option>';
+            return;
+        }
+
+        // Tạo các option cho thẻ select
+        selectEl.innerHTML = cinemas.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+        // Mặc định chọn rạp đầu tiên
+        if (cinemas.length > 0) {
+            selectEl.value = cinemas[0].id;
+            state.selectedCinemaId = cinemas[0].id;
+            addressEl.innerText = '📍 ' + cinemas[0].address;
+        }
+    } catch (error) {
+        console.error("Lỗi khi tải danh sách rạp:", error);
+    }
+}
+
+// Xử lý khi người dùng chọn một rạp khác
+function changeCinema() {
+    const selectEl = document.getElementById('cinema-select');
+    const addressEl = document.getElementById('cinema-address');
+    
+    state.selectedCinemaId = selectEl.value;
+    
+    // Tìm địa chỉ của rạp vừa chọn để hiển thị
+    const selectedCinema = state.cinemas.find(c => c.id == state.selectedCinemaId);
+    if (selectedCinema) {
+        addressEl.innerText = '📍 ' + selectedCinema.address;
+    }
+
+    // GỌI LẠI HÀM LỌC SUẤT CHIẾU ĐỂ UPDATE DANH SÁCH SUẤT CHIẾU
+    //khi đổi rạp thì danh sách suất chiếu cũng phải đổi theo
+    // do dữ liệu suất chiếu đang fix sẵn, chúng ta có thể load lại hoặc thông báo
+    displayShowtimesForSelectedDate(); 
+}
 // Tự động sinh ra 7 ngày liên tiếp từ ngày hiện tại
 function renderDateTabs() {
     const container = document.getElementById('date-tabs');
