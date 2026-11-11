@@ -331,7 +331,7 @@
             document.getElementById('terms-modal').classList.remove('show');
         }
 
-        // Xử lý Login
+       // Xử lý Login
         document.getElementById('login-form').onsubmit = async (e) => {
             e.preventDefault();
             const res = await fetch('api/auth.php?action=login', {
@@ -342,9 +342,17 @@
                 })
             });
             const data = await res.json();
+            
             if(res.ok) {
                 showToast('Đăng nhập thành công!');
-                setTimeout(() => window.location.href = 'index.html', 800);
+                setTimeout(() => {
+                    // Trạm phân luồng: Check xem role là gì
+                    if (data.role === 'admin') {
+                        window.location.href = 'dashboard.html'; // Bế Admin sang nhà mới
+                    } else {
+                        window.location.href = 'index.html'; // Khách thường về trang chủ
+                    }
+                }, 800);
             } else {
                 showToast(data.error || 'Lỗi đăng nhập', 'error');
             }

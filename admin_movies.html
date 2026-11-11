@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Phim | CineManager Admin</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .admin-layout { display: flex; min-height: 100vh; }
+        /* Sidebar Menu */
+        .sidebar { width: 260px; background: #111; border-right: 1px solid var(--glass); padding: 2rem 0; display: flex; flex-direction: column; }
+        .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; }
+        .sidebar-logo span { color: white; }
+        .nav-item { padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: var(--transition); border-left: 4px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: rgba(229, 9, 20, 0.1); color: white; border-left-color: var(--primary); }
+        
+        /* Main Content */
+        .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        
+        /* Table Style */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass); padding: 1.5rem; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass); font-size: 0.85rem; text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        .action-btn { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.85rem; margin-right: 5px; font-weight: 600; }
+        .btn-edit { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
+        .btn-delete { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- MENU DỌC -->
+        <div class="sidebar">
+            <div class="sidebar-logo">Cine<span>Manager</span></div>
+            <a href="dashboard.html" class="nav-item">📊 Thống kê doanh thu</a>
+            <a href="admin_movies.html" class="nav-item active">🎬 Quản lý Phim</a>
+            <a href="showtimes.html" class="nav-item">📅 Quản lý Suất chiếu</a>
+        </div>
+
+        <!-- NỘI DUNG CHÍNH -->
+        <div class="main-content">
+            <div class="page-header">
+                <h2>🎬 Quản Lý Danh Sách Phim</h2>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span id="display-username" style="color:var(--primary); font-weight:bold;"></span>
+                    <button onclick="openModal('add-movie-modal')" style="background: #28a745; border-radius: 8px;">➕ Thêm Phim Mới</button>
+                    <!-- NÚT ĐĂNG XUẤT LÊN GÓC VIP -->
+                    <button onclick="handleLogout()" style="background: rgba(220, 53, 69, 0.15); color: #ff5555; border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; transition: 0.3s; padding: 8px 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background='#dc3545'; this.style.color='white'" onmouseout="this.style.background='rgba(220, 53, 69, 0.15)'; this.style.color='#ff5555'">🚪 Đăng xuất</button>
+                </div>
+            </div>
+
+            <!-- THANH TÌM KIẾM VÀ LỌC CỦA ADMIN -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; background: var(--card-bg); padding: 1rem; border-radius: 12px; border: 1px solid var(--glass);">
+                <input type="text" id="admin-search" placeholder="🔍 Nhập tên phim hoặc thể loại..." style="flex: 1; padding: 0.8rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none;">
+                <select id="admin-status-filter" style="padding: 0.8rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none; min-width: 200px;">
+                    <option value="all">🌟 Tất cả trạng thái</option>
+                    <option value="dang-chieu">🟢 Đang chiếu</option>
+                    <option value="sap-chieu">🟡 Sắp chiếu</option>
+                    <option value="suat-chieu-som">🟣 Suất chiếu sớm</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                <table id="admin-movies-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Poster</th>
+                            <th>Tên Phim</th>
+                            <th>Thể Loại</th>
+                            <th>Thời lượng</th>
+                            <th>Ngày phát hành</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-movie-tbody">
+                        <!-- Data đổ bằng JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL THÊM PHIM -->
+    <div id="add-movie-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('add-movie-modal')">&times;</span>
+            <h2>🎬 Thêm Phim Mới</h2>
+            <form id="add-movie-form" style="margin-top: 1.5rem;">
+                <div class="form-group"><label>Tên phim</label><input type="text" id="add-title" required></div>
+                <div class="form-group"><label>Thể loại</label><input type="text" id="add-genre"></div>
+                <div class="form-group"><label>Thời lượng (phút)</label><input type="number" id="add-duration"></div>
+                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="add-date"></div>
+                <div class="form-group"><label>Poster URL</label><input type="url" id="add-poster"></div>
+                <div class="form-group"><label>Trailer URL</label><input type="url" id="add-trailer"></div>
+                <button type="submit" style="width: 100%; background: #28a745;">Lưu Phim</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL SỬA PHIM -->
+    <div id="edit-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('edit-modal')">&times;</span>
+            <h2>✏️ Chỉnh sửa phim</h2>
+            <form id="edit-movie-form" style="margin-top: 1.5rem;">
+                <input type="hidden" id="edit-id">
+                <div class="form-group"><label>Tên phim</label><input type="text" id="edit-title" required></div>
+                <div class="form-group"><label>Thể loại</label><input type="text" id="edit-genre"></div>
+                <div class="form-group"><label>Thời lượng</label><input type="number" id="edit-duration"></div>
+                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="edit-date"></div>
+                <div class="form-group"><label>Poster URL</label><input type="url" id="edit-poster"></div>
+                <div class="form-group"><label>Trailer URL</label><input type="url" id="edit-trailer"></div>
+                <button type="submit" style="width: 100%;">Cập nhật thay đổi</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/script.js?v=999"></script>
+</body>
+</html>
