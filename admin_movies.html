@@ -29,6 +29,45 @@
         .action-btn { padding: 5px 10px; border-radius: 4px; border: none; cursor: pointer; font-size: 0.85rem; margin-right: 5px; font-weight: 600; }
         .btn-edit { background: rgba(255, 193, 7, 0.2); color: #ffc107; }
         .btn-delete { background: rgba(220, 53, 69, 0.2); color: #dc3545; }
+
+        /* Badge trạng thái chuẩn đẹp, chống rớt dòng */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            border-radius: 20px;
+            text-align: center;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+        .status-badge.early {
+            background: rgba(155, 89, 182, 0.25);
+            color: #e056fd;
+            border: 1px solid rgba(155, 89, 182, 0.4);
+        }
+        .status-badge.coming {
+            background: rgba(241, 196, 15, 0.15);
+            color: #f1c40f;
+            border: 1px solid rgba(241, 196, 15, 0.3);
+        }
+        .status-badge.showing {
+            background: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        /* Modal CSS */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
+        .modal:not(.hidden) { display: flex; }
+        .modal-content { background: #1a1a1a; padding: 2rem; border-radius: 12px; border: 1px solid var(--glass); width: 100%; max-width: 500px; position: relative; color: white; max-height: 90vh; overflow-y: auto; }
+        .close-modal { position: absolute; top: 1rem; right: 1.2rem; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); }
+        .close-modal:hover { color: white; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+        .form-group input { width: 100%; padding: 10px; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none; }
     </style>
 </head>
 <body>
@@ -47,7 +86,7 @@
                 <h2>🎬 Quản Lý Danh Sách Phim</h2>
                 <div style="display: flex; gap: 1rem; align-items: center;">
                     <span id="display-username" style="color:var(--primary); font-weight:bold;"></span>
-                    <button onclick="openModal('add-movie-modal')" style="background: #28a745; border-radius: 8px;">➕ Thêm Phim Mới</button>
+                    <button onclick="openModal('add-movie-modal')" style="background: #28a745; border-radius: 8px; padding: 8px 16px; font-weight: 600; border: none; cursor: pointer; color: white;">➕ Thêm Phim Mới</button>
                     <!-- NÚT ĐĂNG XUẤT LÊN GÓC VIP -->
                     <button onclick="handleLogout()" style="background: rgba(220, 53, 69, 0.15); color: #ff5555; border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; transition: 0.3s; padding: 8px 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background='#dc3545'; this.style.color='white'" onmouseout="this.style.background='rgba(220, 53, 69, 0.15)'; this.style.color='#ff5555'">🚪 Đăng xuất</button>
                 </div>
@@ -98,7 +137,7 @@
                 <div class="form-group"><label>Ngày chiếu</label><input type="date" id="add-date"></div>
                 <div class="form-group"><label>Poster URL</label><input type="url" id="add-poster"></div>
                 <div class="form-group"><label>Trailer URL</label><input type="url" id="add-trailer"></div>
-                <button type="submit" style="width: 100%; background: #28a745;">Lưu Phim</button>
+                <button type="submit" style="width: 100%; background: #28a745; padding: 10px; border:none; border-radius:8px; font-weight:600; cursor:pointer; color:white; margin-top:1rem;">Lưu Phim</button>
             </form>
         </div>
     </div>
@@ -116,12 +155,30 @@
                 <div class="form-group"><label>Ngày chiếu</label><input type="date" id="edit-date"></div>
                 <div class="form-group"><label>Poster URL</label><input type="url" id="edit-poster"></div>
                 <div class="form-group"><label>Trailer URL</label><input type="url" id="edit-trailer"></div>
-                <button type="submit" style="width: 100%;">Cập nhật thay đổi</button>
+                <button type="submit" style="width: 100%; background: var(--primary); padding: 10px; border:none; border-radius:8px; font-weight:600; cursor:pointer; color:white; margin-top:1rem;">Cập nhật thay đổi</button>
             </form>
         </div>
     </div>
 
     <script src="assets/js/common.js"></script>
+    <script>
+        // Hàm modal hỗ trợ trực tiếp
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.style.display = 'flex';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }
+        }
+    </script>
     <script src="assets/js/script.js?v=999"></script>
 </body>
 </html>

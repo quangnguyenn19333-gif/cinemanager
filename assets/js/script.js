@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             movies.forEach(movie => {
-                // Tự động phân loại trạng thái để tô màu nhãn
+                // Tự động phân loại trạng thái chuẩn bằng class .status-badge
                 const todayStr = new Date().toISOString().split('T')[0];
                 let movieDateStr = '';
                 if (movie.release_date) {
@@ -196,14 +196,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const titleLower = movie.title.toLowerCase();
                 
                 let sText = 'Đang chiếu';
-                let sBg = 'rgba(58,123,213,0.2)'; let sColor = '#3a7bd5'; // Xanh
+                let sClass = 'showing';
                 
                 if (titleLower.includes('sớm') || titleLower.includes('interstellar') || titleLower.includes('inception')) {
                     sText = 'Chiếu sớm';
-                    sBg = 'rgba(229,116,188,0.2)'; sColor = '#e574bc'; // Tím
+                    sClass = 'early';
                 } else if (movieDateStr && movieDateStr > todayStr) {
                     sText = 'Sắp chiếu';
-                    sBg = 'rgba(200,162,23,0.2)'; sColor = '#c8a217'; // Vàng
+                    sClass = 'coming';
                 }
 
                 adminTbody.innerHTML += `
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <td>${movie.genre}</td>
                         <td>${movie.duration} phút</td>
                         <td>${new Date(movie.release_date).toLocaleDateString('vi-VN')}</td>
-                        <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: ${sBg}; color: ${sColor};">${sText}</span></td>
+                        <td><span class="status-badge ${sClass}">${sText}</span></td>
                         <td>
                             <button class="action-btn btn-edit" onclick='openEditModal(${JSON.stringify(movie).replace(/'/g, "&#39;")})'>Sửa</button>
                             <button class="action-btn btn-delete" onclick="deleteMovie(${movie.id})">Xóa</button>
