@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allMovies = []; 
     let currentTab = 'dang-chieu'; 
 
-    // --- LOGIC ĐIỀU KHIỂN NÚT TRƯỢT TABS ---
+    // --- LOGIC ĐIỀU KHIỂN NÚT TRƯỢT TABS (CLIENT) ---
     const tabs = document.querySelectorAll(".tab-btn-item");
     const line = document.querySelector(".tab-pill-line");
 
@@ -80,22 +80,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 old_password: document.getElementById('old-pass').value,
                 new_password: document.getElementById('new-pass').value
             };
-            const res = await fetch('api/auth.php?action=change_password', {
-                method: 'POST',
-                body: JSON.stringify(formData)
-            });
+            const res = await fetch('api/auth.php?action=change_password', { method: 'POST', body: JSON.stringify(formData) });
             const data = await res.json();
             if (res.ok) {
                 showToast(data.message || 'Đổi mật khẩu thành công');
                 closeModal('change-pass-modal');
                 changePassForm.reset();
-            } else {
-                showToast(data.error || 'Lỗi đổi mật khẩu', 'error');
-            }
+            } else { showToast(data.error || 'Lỗi đổi mật khẩu', 'error'); }
         };
     }
 
-    // --- MOVIE CRUD & FILTER ---
+    // --- MOVIE CRUD & BỘ LỌC THÔNG MINH ---
     const fetchMovies = async () => {
         const res = await fetch('api/movies.php');
         allMovies = await res.json();
@@ -103,65 +98,152 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const applyMovieFilter = () => {
-        const searchInput = document.getElementById('search-movie');
-        const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        const isAdminPage = document.getElementById('admin-movie-tbody') !== null;
         const todayStr = new Date().toISOString().split('T')[0];
 
-        const filtered = allMovies.filter(movie => {
-            const matchesSearch = movie.title.toLowerCase().includes(term) || movie.genre.toLowerCase().includes(term);
-            let movieDateStr = '';
-            if (movie.release_date) {
-                movieDateStr = movie.release_date.replace(/\//g, '-');
-                if (movieDateStr.includes('-') && movieDateStr.split('-')[0].length !== 4) {
-                    const parts = movieDateStr.split('-');
-                    movieDateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
-                }
-            }
-            let matchesTab = false;
-            const titleLower = movie.title.toLowerCase();
+        if (isAdminPage) {
+            // LỌC Ở TRANG ADMIN
+            const adminSearch = document.getElementById('admin-search');
+            const adminStatus = document.getElementById('admin-status-filter');
+            const term = adminSearch ? adminSearch.value.toLowerCase().trim() : '';
+            const filterVal = adminStatus ? adminStatus.value : 'all';
 
-            if (currentTab === 'dang-chieu') {
-                matchesTab = movieDateStr && movieDateStr <= todayStr && !titleLower.includes('sớm');
-            } else if (currentTab === 'sap-chieu') {
-                matchesTab = movieDateStr && movieDateStr > todayStr && !titleLower.includes('sớm');
-            } else if (currentTab === 'suat-chieu-som') {
-                matchesTab = titleLower.includes('sớm') || titleLower.includes('interstellar') || titleLower.includes('inception');
-            }
-            return matchesSearch && matchesTab;
-        });
-        renderMovies(filtered);
+            const filtered = allMovies.filter(movie => {
+                const matchesSearch = movie.title.toLowerCase().includes(term) || movie.genre.toLowerCase().includes(term);
+                
+                // Xác định trạng thái phim
+                let movieDateStr = '';
+                if (movie.release_date) {
+                    movieDateStr = movie.release_date.replace(/\//g, '-');
+                    if (movieDateStr.includes('-') && movieDateStr.split('-')[0].length !== 4) {
+                        const parts = movieDateStr.split('-');
+                        movieDateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    }
+                }
+                const titleLower = movie.title.toLowerCase();
+                let status = 'dang-chieu';
+                
+                if (titleLower.includes('sớm') || titleLower.includes('interstellar') || titleLower.includes('inception')) {
+                    status = 'suat-chieu-som';
+                } else if (movieDateStr && movieDateStr > todayStr) {
+                    status = 'sap-chieu';
+                }
+
+                const matchesStatus = (filterVal === 'all' || filterVal === status);
+                return matchesSearch && matchesStatus;
+            });
+            renderMovies(filtered);
+        } else {
+            // LỌC Ở TRANG KHÁCH HÀNG (Client)
+            const searchInput = document.getElementById('search-movie');
+            const term = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+            const filtered = allMovies.filter(movie => {
+                const matchesSearch = movie.title.toLowerCase().includes(term) || movie.genre.toLowerCase().includes(term);
+                
+                let movieDateStr = '';
+                if (movie.release_date) {
+                    movieDateStr = movie.release_date.replace(/\//g, '-');
+                    if (movieDateStr.includes('-') && movieDateStr.split('-')[0].length !== 4) {
+                        const parts = movieDateStr.split('-');
+                        movieDateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    }
+                }
+                let matchesTab = false;
+                const titleLower = movie.title.toLowerCase();
+
+                if (currentTab === 'dang-chieu') {
+                    matchesTab = movieDateStr && movieDateStr <= todayStr && !titleLower.includes('sớm');
+                } else if (currentTab === 'sap-chieu') {
+                    matchesTab = movieDateStr && movieDateStr > todayStr && !titleLower.includes('sớm');
+                } else if (currentTab === 'suat-chieu-som') {
+                    matchesTab = titleLower.includes('sớm') || titleLower.includes('interstellar') || titleLower.includes('inception');
+                }
+                return matchesSearch && matchesTab;
+            });
+            renderMovies(filtered);
+        }
     };
 
-    const searchInput = document.getElementById('search-movie');
-    if (searchInput) {
-        searchInput.addEventListener('input', applyMovieFilter);
-    }
+    // Gắn sự kiện cho các ô tìm kiếm để gõ phát là lọc luôn
+    const clientSearch = document.getElementById('search-movie');
+    const adminSearch = document.getElementById('admin-search');
+    const adminStatus = document.getElementById('admin-status-filter');
+    if (clientSearch) clientSearch.addEventListener('input', applyMovieFilter);
+    if (adminSearch) adminSearch.addEventListener('input', applyMovieFilter);
+    if (adminStatus) adminStatus.addEventListener('change', applyMovieFilter);
 
     const renderMovies = (movies) => {
+        // 1. DÀNH CHO TRANG QUẢN TRỊ (ADMIN_MOVIES.HTML)
+        const adminTbody = document.getElementById('admin-movie-tbody');
+        if (adminTbody) {
+            adminTbody.innerHTML = '';
+            if (movies.length === 0) {
+                adminTbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 2rem; color: #888;">Không tìm thấy phim nào khớp với điều kiện</td></tr>`;
+                return;
+            }
+            movies.forEach(movie => {
+                // Tự động phân loại trạng thái để tô màu nhãn
+                const todayStr = new Date().toISOString().split('T')[0];
+                let movieDateStr = '';
+                if (movie.release_date) {
+                    movieDateStr = movie.release_date.replace(/\//g, '-');
+                    if (movieDateStr.includes('-') && movieDateStr.split('-')[0].length !== 4) {
+                        const parts = movieDateStr.split('-');
+                        movieDateStr = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                    }
+                }
+                const titleLower = movie.title.toLowerCase();
+                
+                let sText = 'Đang chiếu';
+                let sBg = 'rgba(58,123,213,0.2)'; let sColor = '#3a7bd5'; // Xanh
+                
+                if (titleLower.includes('sớm') || titleLower.includes('interstellar') || titleLower.includes('inception')) {
+                    sText = 'Chiếu sớm';
+                    sBg = 'rgba(229,116,188,0.2)'; sColor = '#e574bc'; // Tím
+                } else if (movieDateStr && movieDateStr > todayStr) {
+                    sText = 'Sắp chiếu';
+                    sBg = 'rgba(200,162,23,0.2)'; sColor = '#c8a217'; // Vàng
+                }
+
+                adminTbody.innerHTML += `
+                    <tr>
+                        <td style="color:var(--text-muted)">#${movie.id}</td>
+                        <td><img src="${movie.poster_url || 'https://via.placeholder.com/50'}" style="width:40px; height:60px; object-fit:cover; border-radius:4px;"></td>
+                        <td style="font-weight:bold; color:white;">${movie.title}</td>
+                        <td>${movie.genre}</td>
+                        <td>${movie.duration} phút</td>
+                        <td>${new Date(movie.release_date).toLocaleDateString('vi-VN')}</td>
+                        <td><span style="padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; background: ${sBg}; color: ${sColor};">${sText}</span></td>
+                        <td>
+                            <button class="action-btn btn-edit" onclick='openEditModal(${JSON.stringify(movie).replace(/'/g, "&#39;")})'>Sửa</button>
+                            <button class="action-btn btn-delete" onclick="deleteMovie(${movie.id})">Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            return;
+        }
+
+        // 2. DÀNH CHO TRANG KHÁCH HÀNG (INDEX.HTML)
         if (!movieGrid) return;
         movieGrid.innerHTML = '';
         if (movies.length === 0) {
-            movieGrid.innerHTML = `<p style="color: #999; grid-column: 1/-1; text-align: center; padding: 3rem; font-size: 16px;">🍿 Hiện tại chưa có phim nào thuộc mục này...</p>`;
+            movieGrid.innerHTML = `<p style="color: #999; grid-column: 1/-1; text-align: center; padding: 3rem;">🍿 Hiện tại chưa có phim nào thuộc mục này...</p>`;
             return;
         }
+        
         movies.forEach(movie => {
             const card = document.createElement('div');
             card.className = 'movie-card';
-            const isAdmin = currentUser && currentUser.role === 'admin';
             card.innerHTML = `
                 <div class="poster-container">
-                    <img src="${movie.poster_url || 'https://via.placeholder.com/300x450?text=No+Poster'}" alt="${movie.title}">
+                    <img src="${movie.poster_url || 'https://via.placeholder.com/300x450'}" alt="${movie.title}">
                     <div class="overlay">
                         <button onclick="playTrailer('${movie.trailer_url}')">▶ Xem Trailer</button>
-                        ${!isAdmin ? `
                         <a href="booking.html?movie_id=${movie.id}" style="display:block; width:100%;">
                             <button style="background:#e50914; width:100%;">🎫 Đặt Vé</button>
                         </a>
-                        ` : ''}
-                        ${isAdmin ? `
-                            <button class="secondary" onclick="openEditModal(${JSON.stringify(movie).replace(/"/g, '&quot;')})">✏️ Sửa</button>
-                            <button style="background:rgba(255,0,0,0.5)" onclick="deleteMovie(${movie.id})">🗑️ Xóa</button>
-                        ` : ''}
                     </div>
                 </div>
                 <div class="movie-info">
@@ -184,18 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 poster_url: document.getElementById('add-poster').value,
                 trailer_url: document.getElementById('add-trailer').value
             };
-            const res = await fetch('api/movies.php', {
-                method: 'POST',
-                body: JSON.stringify(formData)
-            });
+            const res = await fetch('api/movies.php', { method: 'POST', body: JSON.stringify(formData) });
             if (res.ok) {
                 showToast('Thêm phim thành công!');
                 addMovieForm.reset();
                 closeModal('add-movie-modal');
                 fetchMovies();
-            } else {
-                showToast('Lỗi khi thêm phim', 'error');
-            }
+            } else { showToast('Lỗi khi thêm phim', 'error'); }
         };
     }
 
@@ -222,17 +299,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 poster_url: document.getElementById('edit-poster').value,
                 trailer_url: document.getElementById('edit-trailer').value
             };
-            const res = await fetch(`api/movies.php?id=${id}`, {
-                method: 'PUT',
-                body: JSON.stringify(formData)
-            });
+            const res = await fetch(`api/movies.php?id=${id}`, { method: 'PUT', body: JSON.stringify(formData) });
             if (res.ok) {
                 showToast('Cập nhật phim thành công!');
                 closeModal('edit-modal');
                 fetchMovies();
-            } else {
-                showToast('Lỗi khi cập nhật phim', 'error');
-            }
+            } else { showToast('Lỗi khi cập nhật phim', 'error'); }
         };
     }
 
@@ -242,9 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 showToast('Đã xóa phim thành công');
                 fetchMovies();
-            } else {
-                showToast('Lỗi khi xóa phim', 'error');
-            }
+            } else { showToast('Lỗi khi xóa phim', 'error'); }
         }
     };
 
@@ -265,13 +335,9 @@ document.addEventListener('DOMContentLoaded', () => {
         else if (url.includes('youtu.be/')) videoId = url.split('youtu.be/')[1].split('?')[0];
 
         if (videoId) {
-            document.getElementById('video-player').innerHTML = `
-                <iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-            `;
+            document.getElementById('video-player').innerHTML = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
             openModal('trailer-modal');
-        } else {
-            showToast('Link Youtube không hợp lệ', 'error');
-        }
+        } else { showToast('Link Youtube không hợp lệ', 'error'); }
     };
 
     window.stopTrailer = () => {
@@ -282,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SHOWTIME MANAGEMENT ---
     const addShowtimeForm = document.getElementById('add-showtime-form');
-
     const loadShowtimeSelects = async () => {
         const movRes = await fetch('api/movies.php');
         const movies = await movRes.json();
@@ -314,49 +379,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 price_vip: document.getElementById('st-price-vip').value,
                 price_couple: document.getElementById('st-price-cp').value,
             };
-            if (!formData.show_date || !formData.show_time) {
-                showToast('Vui lòng chọn ngày và giờ chiếu!', 'error'); return;
-            }
-            const res = await fetch('api/showtimes.php', {
-                method: 'POST',
-                body: JSON.stringify(formData)
-            });
+            if (!formData.show_date || !formData.show_time) { showToast('Vui lòng chọn ngày và giờ chiếu!', 'error'); return; }
+            const res = await fetch('api/showtimes.php', { method: 'POST', body: JSON.stringify(formData) });
             const data = await res.json();
             if (res.ok) {
                 showToast(data.message || 'Thêm suất chiếu thành công');
                 addShowtimeForm.reset();
                 closeModal('add-showtime-modal');
-            } else {
-                showToast(data.error || 'Có lỗi xảy ra', 'error');
-            }
+            } else { showToast(data.error || 'Có lỗi xảy ra', 'error'); }
         };
     }
 
     // --- BANNER SLIDER LOGIC ---
     const slidesContainer = document.querySelector('.hero-slides');
     const slides = document.querySelectorAll('.hero-slide');
-    
     if (slidesContainer && slides.length > 0) {
         const totalSlides = slides.length;
         let index = 0;
-
         function moveToSlide(n) {
             if (n >= totalSlides) index = 0;
             else if (n < 0) index = totalSlides - 1;
             else index = n;
-            
             slidesContainer.style.transform = `translateX(-${index * 100}%)`;
         }
-
         const nextBtn = document.querySelector('.next-btn');
         const prevBtn = document.querySelector('.prev-btn');
-        
         if (nextBtn) nextBtn.addEventListener('click', () => moveToSlide(index + 1));
         if (prevBtn) prevBtn.addEventListener('click', () => moveToSlide(index - 1));
-
-        setInterval(() => {
-            moveToSlide(index + 1);
-        }, 3500);
+        setInterval(() => { moveToSlide(index + 1); }, 3500);
     }
 
     // Khởi động chạy kiểm tra phân quyền tài khoản

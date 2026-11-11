@@ -25,7 +25,7 @@
         .promo-card-modern p { color: #dddddd; font-size: 0.9rem; line-height: 1.5; margin: 0; }
         .promo-highlight { color: #ffcc00; font-weight: 800; font-size: 1.15rem; }
         
-   /* ===== 2. CSS BANNER ĐỘC LẬP (STYLE NHƯ BETA CINEMAS) ===== */
+   /* ===== 2. CSS BANNER ĐỘC LẬP */
         .pro-banner-container {
             position: relative; 
             width: 85%; 
@@ -181,24 +181,7 @@
 
     <!-- NỘI DUNG CHÍNH -->
     <main>
-        <section id="admin-panel" class="hidden" style="margin-bottom: 2rem; display:flex; gap:1rem; flex-wrap:wrap;">
-            <button onclick="openModal('add-movie-modal')" style="background: #28a745; display: flex; align-items: center; gap: 0.5rem;">
-                <span>➕</span> Thêm Phim Mới
-            </button>
-            <button onclick="openModal('add-showtime-modal')" style="background: #1a6bbf; display: flex; align-items: center; gap: 0.5rem;">
-                <span>📅</span> Thêm Suất Chiếu
-            </button>
-            <a href="showtimes.html">
-                <button style="background: #6f42c1; display: flex; align-items: center; gap: 0.5rem;">
-                    <span>📋</span> Quản lý Suất Chiếu
-                </button>
-            </a>
-            <a href="dashboard.html">
-                <button style="background: #ffc107; color: #111; display: flex; align-items: center; gap: 0.5rem;">
-                    <span>📊</span> Thống kê doanh thu
-                </button>
-            </a>
-        </section>
+      
 
         <section>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
@@ -212,22 +195,7 @@
     </main>
 
     <!-- MODALS GIAO DIỆN -->
-    <div id="add-movie-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('add-movie-modal')">&times;</span>
-            <h2>🎬 Thêm Phim Mới</h2>
-            <form id="add-movie-form" style="margin-top: 1.5rem;">
-                <div class="form-group"><label>Tên phim</label><input type="text" id="add-title" required></div>
-                <div class="form-group"><label>Thể loại</label><input type="text" id="add-genre"></div>
-                <div class="form-group"><label>Thời lượng (phút)</label><input type="number" id="add-duration"></div>
-                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="add-date"></div>
-                <div class="form-group"><label>Poster URL</label><input type="url" id="add-poster"></div>
-                <div class="form-group"><label>Trailer URL</label><input type="url" id="add-trailer"></div>
-                <button type="submit" style="width: 100%; background: #28a745;">Lưu Phim</button>
-            </form>
-        </div>
-    </div>
-
+    
     <div id="change-pass-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('change-pass-modal')">&times;</span>
@@ -240,50 +208,13 @@
         </div>
     </div>
 
-    <div id="edit-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('edit-modal')">&times;</span>
-            <h2>Chỉnh sửa phim</h2>
-            <form id="edit-movie-form" style="margin-top: 1.5rem;">
-                <input type="hidden" id="edit-id">
-                <div class="form-group"><label>Tên phim</label><input type="text" id="edit-title" required></div>
-                <div class="form-group"><label>Thể loại</label><input type="text" id="edit-genre"></div>
-                <div class="form-group"><label>Thời lượng</label><input type="number" id="edit-duration"></div>
-                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="edit-date"></div>
-                <div class="form-group"><label>Poster URL</label><input type="url" id="edit-poster"></div>
-                <div class="form-group"><label>Trailer URL</label><input type="url" id="edit-trailer"></div>
-                <button type="submit" style="width: 100%;">Cập nhật thay đổi</button>
-            </form>
-        </div>
-    </div>
-
     <div id="trailer-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-modal" onclick="stopTrailer()">&times;</span>
             <div id="video-player" class="video-container"></div>
         </div>
     </div>
-
-    <div id="add-showtime-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('add-showtime-modal')">&times;</span>
-            <h2>📅 Thêm Suất Chiếu</h2>
-            <form id="add-showtime-form" style="margin-top: 1.5rem;">
-                <div class="form-group"><label>Chọn phim</label><select id="st-movie" style="width:100%; padding:0.8rem; background:#111; color:white; border:1px solid var(--glass); border-radius:8px;"></select></div>
-                <div class="form-group"><label>Chọn phòng</label><select id="st-room" style="width:100%; padding:0.8rem; background:#111; color:white; border:1px solid var(--glass); border-radius:8px;"></select></div>
-                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="st-date"></div>
-                <div class="form-group"><label>Giờ chiếu</label><input type="time" id="st-time"></div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.75rem;">
-                    <div class="form-group"><label>Giá thường (đ)</label><input type="number" id="st-price-std" value="90000"></div>
-                    <div class="form-group"><label>Giá VIP (đ)</label><input type="number" id="st-price-vip" value="130000"></div>
-                    <div class="form-group"><label>Giá Couple (đ)</label><input type="number" id="st-price-cp" value="220000"></div>
-                </div>
-                <button type="submit" style="width:100%; background:#1a6bbf;">Thêm suất chiếu</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- SCRIPTS CŨ CỦA NHÓM -->
+    <!-- SCRIPTS  -->
     <script src="assets/js/common.js"></script>
     <script src="assets/js/script.js"></script>
 
