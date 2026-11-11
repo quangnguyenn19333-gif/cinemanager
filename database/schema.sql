@@ -12,6 +12,14 @@ CREATE TABLE IF NOT EXISTS movies (
     trailer_url TEXT, -- Link Youtube
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- Bảng cơ sở rạp (Cinemas)
+CREATE TABLE IF NOT EXISTS cinemas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 
 -- Bảng người dùng
 CREATE TABLE IF NOT EXISTS users (
@@ -162,3 +170,12 @@ INSERT IGNORE INTO showtimes (id, movie_id, room_id, show_date, show_time, price
 (3, 1, 2, CURDATE(), '16:00:00', 90000, 130000, 220000),
 (4, 2, 1, CURDATE(), '19:30:00', 90000, 130000, 220000),
 (5, 2, 3, DATE_ADD(CURDATE(), INTERVAL 1 DAY), '14:00:00', 110000, 150000, 260000);
+
+-- Thêm dữ liệu 6 cơ sở rạp phim tại Hà Nội 
+INSERT IGNORE INTO cinemas (name, address) VALUES
+('CineManager AEON MALL Xuân Thủy', 'TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội'),
+('CineManager Lotte Thăng Long', 'TTTM Big C Thăng Long, 222 Trần Duy Hưng, Cầu Giấy, Hà Nội'),
+('CineManager CGV Aeon Hà Đông', 'AEON Mall Hà Đông, Phường Dương Nội, Hà Đông, Hà Nội'),
+('CineManager Beta Đan Phượng', 'Khu Đô Thị XPHomes, Tân Tây Đô, Đan Phượng, Hà Nội'),
+('CineManager Vincom Royal City', 'Tầng B2-VCCA, Vincom Mega Mall Royal City, 72A Nguyễn Trãi, Thanh Xuân, Hà Nội'),
+('CineManager Mỹ Đình', 'Tầng 5, TTTM The Garden, Khu đô thị The Manor, Nam Từ Liêm, Hà Nội');
