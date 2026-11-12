@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Gắn sự kiện cho các ô tìm kiếm để gõ phát là lọc luôn
+    // Gắn sự kiện cho các ô tìm kiếm
     const clientSearch = document.getElementById('search-movie');
     const adminSearch = document.getElementById('admin-search');
     const adminStatus = document.getElementById('admin-status-filter');
@@ -183,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             movies.forEach(movie => {
-                // Tự động phân loại trạng thái chuẩn bằng class .status-badge
                 const todayStr = new Date().toISOString().split('T')[0];
                 let movieDateStr = '';
                 if (movie.release_date) {
@@ -348,12 +347,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- SHOWTIME MANAGEMENT ---
     const addShowtimeForm = document.getElementById('add-showtime-form');
+    
     const loadShowtimeSelects = async () => {
+        // Đổ danh sách Phim
         const movRes = await fetch('api/movies.php');
         const movies = await movRes.json();
         const stMovie = document.getElementById('st-movie');
         if (stMovie) stMovie.innerHTML = movies.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
 
+        // Đổ danh sách Cơ Sở Rạp (Mới bổ sung)
+        const cinRes = await fetch('api/cinemas.php');
+        const cinemas = await cinRes.json();
+        const stCinema = document.getElementById('st-cinema');
+        if (stCinema) stCinema.innerHTML = cinemas.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+        // Đổ danh sách Phòng chiếu
         const roomRes = await fetch('api/rooms.php');
         const rooms = await roomRes.json();
         const stRoom = document.getElementById('st-room');
@@ -370,8 +378,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addShowtimeForm) {
         addShowtimeForm.onsubmit = async (e) => {
             e.preventDefault();
+            const cinemaSelect = document.getElementById('st-cinema');
             const formData = {
                 movie_id: document.getElementById('st-movie').value,
+                cinema_id: cinemaSelect ? cinemaSelect.value : 1, // Đẩy ID Rạp vào
                 room_id: document.getElementById('st-room').value,
                 show_date: document.getElementById('st-date').value,
                 show_time: document.getElementById('st-time').value,
@@ -380,13 +390,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 price_couple: document.getElementById('st-price-cp').value,
             };
             if (!formData.show_date || !formData.show_time) { showToast('Vui lòng chọn ngày và giờ chiếu!', 'error'); return; }
+            
             const res = await fetch('api/showtimes.php', { method: 'POST', body: JSON.stringify(formData) });
             const data = await res.json();
+            
             if (res.ok) {
                 showToast(data.message || 'Thêm suất chiếu thành công');
                 addShowtimeForm.reset();
                 closeModal('add-showtime-modal');
-            } else { showToast(data.error || 'Có lỗi xảy ra', 'error'); }
+                // Tự động load lại bảng suất chiếu nếu đang ở trang Quản lý suất chiếu
+                if (typeof loadShowtimes === 'function') loadShowtimes(typeof selectedMovieId !== 'undefined' ? selectedMovieId : null);
+            } else { 
+                showToast(data.error || 'Có lỗi xảy ra', 'error'); 
+            }
         };
     }
 
@@ -400,6 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (n >= totalSlides) index = 0;
             else if (n < 0) index = totalSlides - 1;
             else index = n;
+            // Khắc phục lỗi gãy dòng phép tính nhân
             slidesContainer.style.transform = `translateX(-${index * 100}%)`;
         }
         const nextBtn = document.querySelector('.next-btn');

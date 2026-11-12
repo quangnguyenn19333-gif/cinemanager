@@ -5,7 +5,7 @@
 const params = new URLSearchParams(window.location.search);
 const MOVIE_ID = params.get('movie_id');
 
-// Trạng thái toàn cục
+// Trạng thái toàn cục (Đã fix sạch lỗi khai báo trùng lặp)
 let state = {
     movie: null,
     selectedShowtime: null,
@@ -15,11 +15,9 @@ let state = {
     countdownInterval: null,
     seatRefreshInterval: null,
     allShowtimes: [],       // Lưu trữ toàn bộ suất chiếu để lọc theo ngày
-    selectedDateStr: null   // Ngày đang được chọn (YYYY-MM-DD)
-    allShowtimes: [],       
-    selectedDateStr: null,
-    cinemas: [],            // Thêm biến lưu danh sách rạp
-    selectedCinemaId: null  // Thêm biến lưu rạp đang chọn
+    selectedDateStr: null,  // Ngày đang được chọn (YYYY-MM-DD)
+    cinemas: [],            // Danh sách rạp
+    selectedCinemaId: null  // Rạp đang chọn
 };
 
 // =============================================
@@ -63,13 +61,10 @@ function renderMovieBanner() {
             <h3>${state.movie.title}</h3>
             <p>🎭 ${state.movie.genre}</p>
             <p>⏰ ${state.movie.duration} phút</p>
-            <p style="color: #ccc; margin-top: 8px; font-size: 14px;">
-                <i class="fa-solid fa-location-dot" style="color: #ff3333; margin-right: 5px;"></i>
-                Địa chỉ: TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội
-            </p>
         </div>
     `;
 }
+
 // =============================================
 // LẤY DANH SÁCH CƠ SỞ RẠP TỪ DATABASE
 // =============================================
@@ -114,11 +109,9 @@ function changeCinema() {
         addressEl.innerText = '📍 ' + selectedCinema.address;
     }
 
-    // GỌI LẠI HÀM LỌC SUẤT CHIẾU ĐỂ UPDATE DANH SÁCH SUẤT CHIẾU
-    //khi đổi rạp thì danh sách suất chiếu cũng phải đổi theo
-    // do dữ liệu suất chiếu đang fix sẵn, chúng ta có thể load lại hoặc thông báo
     displayShowtimesForSelectedDate(); 
 }
+
 // Tự động sinh ra 7 ngày liên tiếp từ ngày hiện tại
 function renderDateTabs() {
     const container = document.getElementById('date-tabs');
@@ -145,7 +138,7 @@ function renderDateTabs() {
         li.setAttribute('data-date', fullDateStr);
         li.innerHTML = `
             <span class="date-number">${dayNum}</span>
-            <span class="date-month">/${monthNum} - ${dayOfWeek}</span>
+            <span class="date-month">/${monthNum} <br>${dayOfWeek}</span>
         `;
 
         li.addEventListener('click', function() {
@@ -168,14 +161,19 @@ async function loadShowtimes() {
 }
 
 // Lọc và hiển thị suất chiếu ứng với ngày đang chọn trên thanh tab
+// Lọc và hiển thị suất chiếu ứng với ngày VÀ RẠP đang chọn
 function displayShowtimesForSelectedDate() {
     const grid = document.getElementById('showtimes-grid');
     if (!grid) return;
 
-    const filteredList = state.allShowtimes.filter(st => st.show_date === state.selectedDateStr);
+    // QUAN TRỌNG: Lọc theo cả Ngày chiếu VÀ ID Rạp đang chọn
+    const filteredList = state.allShowtimes.filter(st => 
+        st.show_date === state.selectedDateStr && 
+        st.cinema_id == state.selectedCinemaId
+    );
 
     if (!filteredList.length) {
-        grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Hiện không có suất chiếu nào vào ngày này.</p>';
+        grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Hiện không có suất chiếu nào tại rạp này vào ngày bạn chọn.</p>';
         return;
     }
 
@@ -191,7 +189,6 @@ function displayShowtimesForSelectedDate() {
     });
     grid.innerHTML = html;
 }
-
 async function selectShowtime(id) {
     state.selectedShowtime = state.allShowtimes.find(s => s.id == id);
 
