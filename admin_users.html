@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Khách Hàng | CineManager Admin</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .admin-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #111; border-right: 1px solid var(--glass); padding: 2rem 0; display: flex; flex-direction: column; }
+        .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; }
+        .sidebar-logo span { color: white; }
+        .nav-item { padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: var(--transition); border-left: 4px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: rgba(229, 9, 20, 0.1); color: white; border-left-color: var(--primary); }
+        
+        .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass); padding: 1.5rem; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass); font-size: 0.85rem; text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
+        tr:hover td { background: rgba(255,255,255,0.02); }
+        
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; display: inline-block; }
+        .badge.admin { background: rgba(229, 9, 20, 0.2); color: var(--primary); border: 1px solid rgba(229, 9, 20, 0.5); }
+        .badge.customer { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.5); }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- MENU DỌC -->
+        <div class="sidebar">
+            <div class="sidebar-logo">Cine<span>Manager</span></div>
+            <a href="dashboard.html" class="nav-item">📊 Thống kê doanh thu</a>
+            <a href="admin_movies.html" class="nav-item">🎬 Quản lý Phim</a>
+            <a href="showtimes.html" class="nav-item">📅 Quản lý Suất chiếu</a>
+            <a href="admin_users.html" class="nav-item active">👥 Quản lý Khách hàng</a>
+        </div>
+
+        <!-- NỘI DUNG CHÍNH -->
+        <div class="main-content">
+            <div class="page-header">
+                <h2>👥 Quản Lý Khách Hàng Hệ Thống</h2>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span id="display-username" style="color:var(--primary); font-weight:bold;"></span>
+                    <button onclick="handleLogout()" style="background: rgba(220, 53, 69, 0.15); color: #ff5555; border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; transition: 0.3s; padding: 8px 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background='#dc3545'; this.style.color='white'" onmouseout="this.style.background='rgba(220, 53, 69, 0.15)'; this.style.color='#ff5555'">🚪 Đăng xuất</button>
+                </div>
+            </div>
+
+            <!-- BẢNG DANH SÁCH -->
+            <div class="table-container">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; color: white;">📋 Toàn bộ tài khoản & Lịch sử chi tiêu</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên khách hàng</th>
+                            <th>Email</th>
+                            <th>Số Điện Thoại</th>
+                            <th>Ngày Đăng Ký</th>
+                            <th>Vai Trò</th>
+                            <th>Tổng Chi Tiêu</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <!-- Dữ liệu đổ bằng JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authRes = await fetch('api/auth.php?action=check');
+            const authData = await authRes.json();
+            if (!authData.isLoggedIn || authData.role !== 'admin') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('display-username').innerText = authData.username + ' (Admin)';
+            loadUsers();
+        });
+
+        async function loadUsers() {
+            const res = await fetch('api/users.php');
+            let users = await res.json();
+            const tbody = document.getElementById('users-tbody');
+
+            if (users.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: #888;">Hệ thống chưa có khách hàng nào</td></tr>`;
+                return;
+            }
+
+            // Ghim Admin lên đầu bảng tuyệt đối
+            users.sort((a, b) => {
+                if (a.role === 'admin' && b.role !== 'admin') return -1;
+                if (a.role !== 'admin' && b.role === 'admin') return 1;
+                return 0;
+            });
+
+            tbody.innerHTML = users.map((u, index) => {
+                let displayName = u.full_name;
+                if (!displayName || displayName.trim() === '') {
+                    displayName = (u.role === 'admin') ? 'Lương Quang Nguyên' : u.username;
+                }
+
+                return `
+                <tr>
+                    <td style="color:var(--text-muted)">#${index + 1}</td>
+                    <td style="font-weight:bold; color:white;">${displayName}</td>
+                    <td style="color: #ccc;">${u.email}</td>
+                    <td style="color: #ccc;">${u.phone ? u.phone : '<span style="color:#666;font-style:italic">Chưa cập nhật</span>'}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString('vi-VN')}</td>
+                    <td>
+                        <span class="badge ${u.role}">${u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'}</span>
+                    </td>
+                    <td style="color:#28a745; font-weight:bold; font-size:1.05rem;">
+                        ${Number(u.total_spent).toLocaleString('vi-VN')} đ
+                    </td>
+                </tr>
+            `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>

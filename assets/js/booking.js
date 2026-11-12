@@ -476,19 +476,32 @@ function showOnlyStep(num) {
     const target = num === 'success' ? document.getElementById('step-success') : document.getElementById(`step-${num}`);
     if (target) target.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Khi sang màn hình thành công, ép toàn bộ 4 bước sang trạng thái hoàn thành (done)
+    if (num === 'success') {
+        [1, 2, 3, 4].forEach(i => {
+            const el = document.getElementById(`step-indicator-${i}`);
+            if (el) {
+                el.className = 'step done'; // Giữ nguyên hình khối, chỉ đổi sang trạng thái hoàn thành màu xanh của CSS
+            }
+        });
+    }
 }
 
 function updateStepBar(num) {
     [1, 2, 3, 4].forEach(i => {
         const el = document.getElementById(`step-indicator-${i}`);
         if(el) {
-            el.classList.remove('active', 'done');
-            if (i < num) el.classList.add('done');
-            if (i === num) el.classList.add('active');
+            el.className = 'step'; // Reset về mặc định
+            if (i < num) {
+                el.classList.add('done'); // Các bước đã qua (chuyển xanh giữ nguyên hình khối)
+            }
+            if (i === num) {
+                el.classList.add('active'); // Bước hiện tại
+            }
         }
     });
 }
-
 // =============================================
 // POPUP XÁC NHẬN ĐỘ TUỔI
 // =============================================
