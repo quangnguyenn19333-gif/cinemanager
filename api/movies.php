@@ -15,7 +15,7 @@ function checkAuth() {
 
 switch ($method) {
     case 'GET':
-        $stmt = $pdo->query("SELECT * FROM movies ORDER BY created_at DESC");
+        $stmt = $pdo->query("SELECT * FROM movies ORDER BY (title = 'Chị Chị Em Em 3') DESC, id DESC");
         $movies = $stmt->fetchAll();
         echo json_encode($movies);
         break;
