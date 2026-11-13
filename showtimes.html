@@ -22,8 +22,8 @@
         
         /* Compact Movie Selector Box */
         .movie-selector-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass); padding: 1.2rem; margin-bottom: 1.5rem; }
-        .movie-selector-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem; }
-        .movie-search-input { flex: 1; padding: 0.7rem 1rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none; font-size: 0.9rem; }
+        .movie-selector-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
+        .movie-search-input { flex: 1; padding: 0.7rem 1rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none; font-size: 0.9rem; min-width: 180px; }
         
         /* Scrollable Movie Pills Grid */
         .movie-pills-scroll { max-height: 140px; overflow-y: auto; display: flex; flex-wrap: wrap; gap: 8px; padding-right: 5px; }
@@ -79,16 +79,22 @@
                 </div>
             </div>
 
-            <!-- KHUNG LỌC THÔNG MINH ĐÃ ĐƯỢC CHUẨN HÓA CÓ BỘ LỌC RẠP -->
+            <!-- KHUNG LỌC THÔNG MINH ĐÃ BỔ SUNG LỌC THEO NGÀY -->
+           <!-- BỘ LỌC TỔNG HỢP NẰM GỌN TRÊN 1 HÀNG -->
             <div class="movie-selector-container">
-                <div class="movie-selector-header" style="display: flex; gap: 15px; margin-bottom: 1rem; align-items: center;">
-                    <span style="font-weight: 600; color: white; font-size: 0.95rem; white-space: nowrap;">🎯 Bộ lọc nhanh:</span>
-                    <!-- THÊM DROPDOWN LỌC RẠP -->
-                    <select id="filter-cinema-select" style="padding: 0.7rem 1rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none; min-width: 220px;">
+                <div class="movie-selector-header" style="display: flex; gap: 12px; margin-bottom: 1rem; align-items: center; flex-wrap: nowrap;">
+                    <span style="font-weight: 600; color: white; font-size: 0.95rem; white-space: nowrap;">🎯 Bộ lọc:</span>
+                    
+                    <!-- Dropdown lọc rạp (đặt kích thước vừa vặn) -->
+                    <select id="filter-cinema-select" style="padding: 0.7rem 1rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none; width: 220px; flex-shrink: 0;">
                         <option value="all">📍 Tất cả cơ sở rạp</option>
                     </select>
-                    <!-- Ô Tìm kiếm phim -->
-                    <input type="text" id="movie-filter-search" class="movie-search-input" placeholder="🔍 Tìm nhanh tên phim..." style="flex: 1;">
+
+                    <!-- Ô lọc theo ngày (cố định độ rộng cho cân) -->
+                    <input type="date" id="filter-date-input" style="padding: 0.65rem 1rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none; color-scheme: dark; width: 170px; flex-shrink: 0;" title="Lọc theo ngày chiếu">
+
+                    <!-- Ô tìm kiếm phim (chiếm phần không gian còn lại) -->
+                    <input type="text" id="movie-filter-search" class="movie-search-input" placeholder="🔍 Tìm nhanh tên phim..." style="flex: 1; padding: 0.7rem 1rem; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; outline: none;">
                 </div>
                 <div id="movie-pills-container" class="movie-pills-scroll">
                     <!-- Danh sách phim đổ bằng JS -->
@@ -193,6 +199,11 @@
             // Lắng nghe sự kiện lọc theo rạp
             document.getElementById('filter-cinema-select').addEventListener('change', (e) => {
                 currentCinemaFilter = e.target.value;
+                loadShowtimes(selectedMovieId);
+            });
+
+            // Lắng nghe sự kiện lọc theo ngày (Mới thêm)
+            document.getElementById('filter-date-input').addEventListener('change', () => {
                 loadShowtimes(selectedMovieId);
             });
 
@@ -301,8 +312,15 @@
             let showtimes = await res.json();
             const tbody = document.getElementById('showtime-tbody');
 
+            // Lọc theo cơ sở rạp
             if (currentCinemaFilter !== 'all') {
                 showtimes = showtimes.filter(st => st.cinema_id == currentCinemaFilter);
+            }
+
+            // Lọc theo ngày chọn (Mới thêm)
+            const selectedDate = document.getElementById('filter-date-input').value;
+            if (selectedDate) {
+                showtimes = showtimes.filter(st => st.show_date === selectedDate);
             }
 
             if (showtimes.length === 0) {
