@@ -5,7 +5,7 @@
 const params = new URLSearchParams(window.location.search);
 const MOVIE_ID = params.get('movie_id');
 
-// Trạng thái toàn cục (Đã fix sạch lỗi khai báo trùng lặp)
+// Trạng thái toàn cục
 let state = {
     movie: null,
     selectedShowtime: null,
@@ -15,9 +15,11 @@ let state = {
     countdownInterval: null,
     seatRefreshInterval: null,
     allShowtimes: [],       // Lưu trữ toàn bộ suất chiếu để lọc theo ngày
-    selectedDateStr: null,  // Ngày đang được chọn (YYYY-MM-DD)
-    cinemas: [],            // Danh sách rạp
-    selectedCinemaId: null  // Rạp đang chọn
+    selectedDateStr: null   // Ngày đang được chọn (YYYY-MM-DD)
+    allShowtimes: [],       
+    selectedDateStr: null,
+    cinemas: [],            // Thêm biến lưu danh sách rạp
+    selectedCinemaId: null  // Thêm biến lưu rạp đang chọn
 };
 
 // =============================================
@@ -61,9 +63,10 @@ function renderMovieBanner() {
             <h3>${state.movie.title}</h3>
             <p>🎭 ${state.movie.genre}</p>
             <p>⏰ ${state.movie.duration} phút</p>
-            <button onclick="showMovieDetails()" style="margin-top: 12px; background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 6px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.3s;">
-                <i class="fa-solid fa-circle-info"></i> Chi tiết phim
-            </button>
+            <p style="color: #ccc; margin-top: 8px; font-size: 14px;">
+                <i class="fa-solid fa-location-dot" style="color: #ff3333; margin-right: 5px;"></i>
+                Địa chỉ: TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội
+            </p>
         </div>
     `;
 }
@@ -111,9 +114,11 @@ function changeCinema() {
         addressEl.innerText = '📍 ' + selectedCinema.address;
     }
 
+    // GỌI LẠI HÀM LỌC SUẤT CHIẾU ĐỂ UPDATE DANH SÁCH SUẤT CHIẾU
+    //khi đổi rạp thì danh sách suất chiếu cũng phải đổi theo
+    // do dữ liệu suất chiếu đang fix sẵn, chúng ta có thể load lại hoặc thông báo
     displayShowtimesForSelectedDate(); 
 }
-
 // Tự động sinh ra 7 ngày liên tiếp từ ngày hiện tại
 function renderDateTabs() {
     const container = document.getElementById('date-tabs');
@@ -140,7 +145,7 @@ function renderDateTabs() {
         li.setAttribute('data-date', fullDateStr);
         li.innerHTML = `
             <span class="date-number">${dayNum}</span>
-            <span class="date-month">/${monthNum} <br>${dayOfWeek}</span>
+            <span class="date-month">/${monthNum} - ${dayOfWeek}</span>
         `;
 
         li.addEventListener('click', function() {
@@ -163,19 +168,14 @@ async function loadShowtimes() {
 }
 
 // Lọc và hiển thị suất chiếu ứng với ngày đang chọn trên thanh tab
-// Lọc và hiển thị suất chiếu ứng với ngày VÀ RẠP đang chọn
 function displayShowtimesForSelectedDate() {
     const grid = document.getElementById('showtimes-grid');
     if (!grid) return;
 
-    // QUAN TRỌNG: Lọc theo cả Ngày chiếu VÀ ID Rạp đang chọn
-    const filteredList = state.allShowtimes.filter(st => 
-        st.show_date === state.selectedDateStr && 
-        st.cinema_id == state.selectedCinemaId
-    );
+    const filteredList = state.allShowtimes.filter(st => st.show_date === state.selectedDateStr);
 
     if (!filteredList.length) {
-        grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Hiện không có suất chiếu nào tại rạp này vào ngày bạn chọn.</p>';
+        grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Hiện không có suất chiếu nào vào ngày này.</p>';
         return;
     }
 
@@ -191,6 +191,7 @@ function displayShowtimesForSelectedDate() {
     });
     grid.innerHTML = html;
 }
+
 async function selectShowtime(id) {
     state.selectedShowtime = state.allShowtimes.find(s => s.id == id);
 
@@ -478,32 +479,19 @@ function showOnlyStep(num) {
     const target = num === 'success' ? document.getElementById('step-success') : document.getElementById(`step-${num}`);
     if (target) target.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Khi sang màn hình thành công, ép toàn bộ 4 bước sang trạng thái hoàn thành (done)
-    if (num === 'success') {
-        [1, 2, 3, 4].forEach(i => {
-            const el = document.getElementById(`step-indicator-${i}`);
-            if (el) {
-                el.className = 'step done'; // Giữ nguyên hình khối, chỉ đổi sang trạng thái hoàn thành màu xanh của CSS
-            }
-        });
-    }
 }
 
 function updateStepBar(num) {
     [1, 2, 3, 4].forEach(i => {
         const el = document.getElementById(`step-indicator-${i}`);
         if(el) {
-            el.className = 'step'; // Reset về mặc định
-            if (i < num) {
-                el.classList.add('done'); // Các bước đã qua (chuyển xanh giữ nguyên hình khối)
-            }
-            if (i === num) {
-                el.classList.add('active'); // Bước hiện tại
-            }
+            el.classList.remove('active', 'done');
+            if (i < num) el.classList.add('done');
+            if (i === num) el.classList.add('active');
         }
     });
 }
+
 // =============================================
 // POPUP XÁC NHẬN ĐỘ TUỔI
 // =============================================
@@ -527,23 +515,4 @@ function closeAgeModal() {
 function confirmAgeAndProceed() {
     closeAgeModal();
     goToStep(nextStepTarget);
-}
-// =============================================
-// POPUP CHI TIẾT PHIM
-// =============================================
-function showMovieDetails() {
-    document.getElementById('modal-movie-title').innerText = state.movie.title;
-    document.getElementById('modal-movie-director').innerText = state.movie.director || 'Đang cập nhật';
-    document.getElementById('modal-movie-cast').innerText = state.movie.cast || 'Đang cập nhật';
-    document.getElementById('modal-movie-desc').innerText = state.movie.description || 'Chưa có thông tin mô tả chi tiết cho bộ phim này.';
-
-    const modal = document.getElementById('movie-detail-modal');
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-}
-
-function closeMovieDetails() {
-    const modal = document.getElementById('movie-detail-modal');
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
 }
