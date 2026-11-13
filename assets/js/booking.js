@@ -61,10 +61,12 @@ function renderMovieBanner() {
             <h3>${state.movie.title}</h3>
             <p>🎭 ${state.movie.genre}</p>
             <p>⏰ ${state.movie.duration} phút</p>
+            <button onclick="showMovieDetails()" style="margin-top: 12px; background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 6px 15px; border-radius: 5px; cursor: pointer; font-size: 0.85rem; font-weight: bold; transition: 0.3s;">
+                <i class="fa-solid fa-circle-info"></i> Chi tiết phim
+            </button>
         </div>
     `;
 }
-
 // =============================================
 // LẤY DANH SÁCH CƠ SỞ RẠP TỪ DATABASE
 // =============================================
@@ -525,4 +527,23 @@ function closeAgeModal() {
 function confirmAgeAndProceed() {
     closeAgeModal();
     goToStep(nextStepTarget);
+}
+// =============================================
+// POPUP CHI TIẾT PHIM
+// =============================================
+function showMovieDetails() {
+    document.getElementById('modal-movie-title').innerText = state.movie.title;
+    document.getElementById('modal-movie-director').innerText = state.movie.director || 'Đang cập nhật';
+    document.getElementById('modal-movie-cast').innerText = state.movie.cast || 'Đang cập nhật';
+    document.getElementById('modal-movie-desc').innerText = state.movie.description || 'Chưa có thông tin mô tả chi tiết cho bộ phim này.';
+
+    const modal = document.getElementById('movie-detail-modal');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+}
+
+function closeMovieDetails() {
+    const modal = document.getElementById('movie-detail-modal');
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
 }
