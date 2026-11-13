@@ -5,7 +5,7 @@
 const params = new URLSearchParams(window.location.search);
 const MOVIE_ID = params.get('movie_id');
 
-// Trạng thái toàn cục (Đã fix sạch lỗi khai báo trùng lặp)
+// Trạng thái toàn cục
 let state = {
     movie: null,
     selectedShowtime: null,
@@ -15,9 +15,9 @@ let state = {
     countdownInterval: null,
     seatRefreshInterval: null,
     allShowtimes: [],       // Lưu trữ toàn bộ suất chiếu để lọc theo ngày
-    selectedDateStr: null,  // Ngày đang được chọn (YYYY-MM-DD)
-    cinemas: [],            // Danh sách rạp
-    selectedCinemaId: null  // Rạp đang chọn
+    selectedDateStr: null,
+    cinemas: [],            // Thêm biến lưu danh sách rạp
+    selectedCinemaId: null  // Thêm biến lưu rạp đang chọn
 };
 
 // =============================================
@@ -54,17 +54,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 // =============================================
 // BƯỚC 1: SUẤT CHIẾU & THANH NGÀY THÁNG ĐỘNG
 // =============================================
+// BƯỚC 1: SUẤT CHIẾU & THANH NGÀY THÁNG ĐỘNG
 function renderMovieBanner() {
     document.getElementById('movie-info-banner').innerHTML = `
-        <img src="${state.movie.poster_url || ''}" alt="${state.movie.title}">
+        <img src="${state.movie.poster_url || ''}" alt="${state.movie.title}" onclick="openMovieDetailModal()" style="cursor: pointer;" title="Xem chi tiết phim">
         <div>
             <h3>${state.movie.title}</h3>
             <p>🎭 ${state.movie.genre}</p>
             <p>⏰ ${state.movie.duration} phút</p>
+            <button onclick="openMovieDetailModal()" style="margin-top: 10px; background-color: #e50914; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b80710'" onmouseout="this.style.background='#e50914'">
+                <i class="fa-solid fa-circle-info"></i> Chi tiết phim
+            </button>
         </div>
     `;
 }
-
 // =============================================
 // LẤY DANH SÁCH CƠ SỞ RẠP TỪ DATABASE
 // =============================================
@@ -109,9 +112,11 @@ function changeCinema() {
         addressEl.innerText = '📍 ' + selectedCinema.address;
     }
 
+    // GỌI LẠI HÀM LỌC SUẤT CHIẾU ĐỂ UPDATE DANH SÁCH SUẤT CHIẾU
+    //khi đổi rạp thì danh sách suất chiếu cũng phải đổi theo
+    // do dữ liệu suất chiếu đang fix sẵn, chúng ta có thể load lại hoặc thông báo
     displayShowtimesForSelectedDate(); 
 }
-
 // Tự động sinh ra 7 ngày liên tiếp từ ngày hiện tại
 function renderDateTabs() {
     const container = document.getElementById('date-tabs');
@@ -138,7 +143,7 @@ function renderDateTabs() {
         li.setAttribute('data-date', fullDateStr);
         li.innerHTML = `
             <span class="date-number">${dayNum}</span>
-            <span class="date-month">/${monthNum} <br>${dayOfWeek}</span>
+            <span class="date-month">/${monthNum} - ${dayOfWeek}</span>
         `;
 
         li.addEventListener('click', function() {
@@ -160,20 +165,27 @@ async function loadShowtimes() {
     displayShowtimesForSelectedDate();
 }
 
-// Lọc và hiển thị suất chiếu ứng với ngày đang chọn trên thanh tab
-// Lọc và hiển thị suất chiếu ứng với ngày VÀ RẠP đang chọn
+// Lọc và hiển thị suất chiếu ứng với ngày và rạp đang chọn
 function displayShowtimesForSelectedDate() {
     const grid = document.getElementById('showtimes-grid');
     if (!grid) return;
 
-    // QUAN TRỌNG: Lọc theo cả Ngày chiếu VÀ ID Rạp đang chọn
-    const filteredList = state.allShowtimes.filter(st => 
-        st.show_date === state.selectedDateStr && 
-        st.cinema_id == state.selectedCinemaId
-    );
+    const filteredList = state.allShowtimes.filter(st => {
+        // 1. Điều kiện 1: Trùng ngày
+        let matchDate = st.show_date === state.selectedDateStr;
+        
+        // 2. Điều kiện 2: Trùng cơ sở rạp (nếu có chọn rạp)
+        let matchCinema = true;
+        if (state.selectedCinemaId && state.selectedCinemaId !== 'all') {
+            matchCinema = st.cinema_id == state.selectedCinemaId;
+        }
+
+        // Phải thỏa mãn cả 2 điều kiện mới lấy suất chiếu đó
+        return matchDate && matchCinema;
+    });
 
     if (!filteredList.length) {
-        grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Hiện không có suất chiếu nào tại rạp này vào ngày bạn chọn.</p>';
+        grid.innerHTML = '<p style="color:var(--text-muted); grid-column: 1/-1; text-align: center; padding: 2rem;">Hiện không có suất chiếu nào vào ngày này tại rạp đã chọn.</p>';
         return;
     }
 
@@ -189,6 +201,7 @@ function displayShowtimesForSelectedDate() {
     });
     grid.innerHTML = html;
 }
+
 async function selectShowtime(id) {
     state.selectedShowtime = state.allShowtimes.find(s => s.id == id);
 
@@ -476,32 +489,19 @@ function showOnlyStep(num) {
     const target = num === 'success' ? document.getElementById('step-success') : document.getElementById(`step-${num}`);
     if (target) target.classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
-
-    // Khi sang màn hình thành công, ép toàn bộ 4 bước sang trạng thái hoàn thành (done)
-    if (num === 'success') {
-        [1, 2, 3, 4].forEach(i => {
-            const el = document.getElementById(`step-indicator-${i}`);
-            if (el) {
-                el.className = 'step done'; // Giữ nguyên hình khối, chỉ đổi sang trạng thái hoàn thành màu xanh của CSS
-            }
-        });
-    }
 }
 
 function updateStepBar(num) {
     [1, 2, 3, 4].forEach(i => {
         const el = document.getElementById(`step-indicator-${i}`);
         if(el) {
-            el.className = 'step'; // Reset về mặc định
-            if (i < num) {
-                el.classList.add('done'); // Các bước đã qua (chuyển xanh giữ nguyên hình khối)
-            }
-            if (i === num) {
-                el.classList.add('active'); // Bước hiện tại
-            }
+            el.classList.remove('active', 'done');
+            if (i < num) el.classList.add('done');
+            if (i === num) el.classList.add('active');
         }
     });
 }
+
 // =============================================
 // POPUP XÁC NHẬN ĐỘ TUỔI
 // =============================================
@@ -525,4 +525,55 @@ function closeAgeModal() {
 function confirmAgeAndProceed() {
     closeAgeModal();
     goToStep(nextStepTarget);
+}
+// Mở popup chi tiết phim động theo từng phim
+function openMovieDetailModal() {
+    const m = state.movie;
+    if (!m) return;
+
+    document.getElementById('modal-movie-title').innerText = m.title;
+    document.getElementById('m-genre').innerText = m.genre || 'Đang cập nhật';
+    document.getElementById('m-duration').innerText = (m.duration || '120') + ' phút';
+
+    // Tạo kho thông tin riêng biệt cho từng phim tránh bị code cứng một kiểu
+    let extraInfo = {};
+    
+    if (m.title.includes('Chị Chị Em Em')) {
+        extraInfo = {
+            director: "Nguyễn Hữu Hoàng",
+            cast: "Kỳ Duyên, Steven Nguyễn, Chi Pu, Quốc Anh, Ninh Dương Lan Ngọc...",
+            language: "Tiếng Việt",
+            release: "30/10/2026"
+        };
+    } else if (m.title.includes('Spider-Man') || m.title.includes('Spider')) {
+        extraInfo = {
+            director: "Joaquim Dos Santos, Kemp Powers",
+            cast: "Shameik Moore, Hailee Steinfeld, Oscar Isaac, Daniel Kaluuya...",
+            language: "Tiếng Việt (Lồng tiếng & Phụ đề)",
+            release: "02/06/2026"
+        };
+    } else {
+        // Dữ liệu mặc định tự động cho các phim khác trong hệ thống
+        extraInfo = {
+            director: "Đang cập nhật",
+            cast: "Diễn viên chính thức theo đoàn làm phim",
+            language: "Tiếng Việt",
+            release: "15/11/2026"
+        };
+    }
+
+    // Đổ dữ liệu tương ứng lên giao diện
+    document.getElementById('m-director').innerText = extraInfo.director;
+    document.getElementById('m-cast').innerText = extraInfo.cast;
+    document.getElementById('m-language').innerText = extraInfo.language;
+    document.getElementById('m-release').innerText = extraInfo.release;
+    
+    // Lấy nội dung tóm tắt từ cơ sở dữ liệu (cột description) ra
+    document.getElementById('m-desc').innerText = m.description || m.desc || "Bộ phim mang đến những thước phim mãn nhãn, cốt truyện hấp dẫn và nhiều cảm xúc đọng lại cho khán giả tại rạp.";
+
+    document.getElementById('movie-detail-modal').classList.remove('hidden');
+}
+
+function closeMovieDetailModal() {
+    document.getElementById('movie-detail-modal').classList.add('hidden');
 }

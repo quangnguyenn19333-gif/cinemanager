@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Về Chúng Tôi | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/header-extra.css">
+    <link rel="stylesheet" href="assets/css/pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script src="assets/js/site-data.js"></script>
+    <script src="assets/js/site-header.js"></script>
+
+    <main class="page" id="page-root"></main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/header.js"></script>
+    <script>
+        (function () {
+            const S = window.SITE, C = S.company;
+            const root = document.getElementById('page-root');
+            const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const ic = (id) => `<svg class="ic"><use href="#i-${id}"/></svg>`;
+            const TABS = S.aboutLinks.map(l => ({ key: l.tab, label: l.title }));
+            const qs = new URLSearchParams(location.search);
+            let tab = qs.get('tab');
+            if (!TABS.some(t => t.key === tab)) tab = 'intro';
+            const fmtDate = d => new Date(d).toLocaleDateString('vi-VN');
+
+            const hqQuery = encodeURIComponent(C.address);
+            const hqMap = `<iframe class="map-frame" src="https://www.google.com/maps?q=${hqQuery}&output=embed&hl=vi" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen title="Bản đồ trụ sở"></iframe>`;
+
+            const contactInfo = () => `
+                <ul class="info-list">
+                    <li>${ic('briefcase')}<div><small>Công ty</small>${esc(C.name)}</div></li>
+                    <li>${ic('pin')}<div><small>Trụ sở</small>${esc(C.address)}</div></li>
+                    <li>${ic('phone')}<div><small>Hotline</small><a href="tel:${esc(C.hotline.replace(/\s/g, ''))}">${esc(C.hotline)}</a></div></li>
+                    <li>${ic('mail')}<div><small>Email</small><a href="mailto:${esc(C.email)}">${esc(C.email)}</a></div></li>
+                    <li>${ic('clock')}<div><small>Giờ hỗ trợ</small>${esc(C.supportHours)}</div></li>
+                </ul>`;
+
+            const views = {
+                intro: () => `
+                    <div class="detail-layout">
+                        <div>
+                            <section class="panel">
+                                <h2>${ic('film')} CineManager là ai?</h2>
+                                <p style="color:#d6d6d6;margin-bottom:.8rem">CineManager Việt Nam là hệ thống đặt vé và quản lý rạp chiếu phim hiện đại, mang đến trải nghiệm điện ảnh trọn vẹn: chọn suất chiếu, chọn ghế theo thời gian thực, thêm combo bắp nước và nhận vé điện tử QR chỉ trong vài bước.</p>
+                                <p style="color:#d6d6d6">Hiện hệ thống có ${S.cinemas.length} cơ sở tại Hà Nội, phục vụ khán giả từ trung tâm đến các khu đô thị phía Tây.</p>
+                            </section>
+                            <div class="stat-row">
+                                <div class="stat"><b>${S.cinemas.length}</b><span>Cơ sở rạp</span></div>
+                                <div class="stat"><b>${S.cinemas.reduce((a, c) => a + c.rooms, 0)}</b><span>Phòng chiếu</span></div>
+                                <div class="stat"><b>${S.cinemas.reduce((a, c) => a + c.seats, 0).toLocaleString('vi-VN')}</b><span>Ghế ngồi</span></div>
+                            </div>
+                            <section class="value-grid">
+                                <div class="panel"><h3>🎯 Sứ mệnh</h3><p class="muted" style="margin-top:.5rem">Đưa điện ảnh đến gần mọi người với dịch vụ tiện lợi, minh bạch.</p></div>
+                                <div class="panel"><h3>⚡ Nhanh chóng</h3><p class="muted" style="margin-top:.5rem">Đặt vé trong vài phút, giữ ghế 5 phút để thanh toán.</p></div>
+                                <div class="panel"><h3>🤝 Tận tâm</h3><p class="muted" style="margin-top:.5rem">Hỗ trợ khách hàng mỗi ngày qua hotline và email.</p></div>
+                            </section>
+                            <section class="panel" style="margin-top:1.5rem"><h2>${ic('pin')} Trụ sở công ty</h2>${hqMap}</section>
+                        </div>
+                        <aside>
+                            <div class="panel"><h2>Thông tin doanh nghiệp</h2>${contactInfo()}
+                                <p class="form-note">${esc(C.license)}.</p>
+                            </div>
+                            <div class="panel side-list"><h2>Khám phá thêm</h2>
+                                <a href="about.html?tab=news">📰 Tin tức mới nhất</a>
+                                <a href="about.html?tab=careers">💼 Cơ hội nghề nghiệp</a>
+                                <a href="about.html?tab=contact">✉️ Liên hệ & góp ý</a>
+                                <a href="cinemas.html">📍 Hệ thống rạp</a>
+                            </div>
+                        </aside>
+                    </div>`,
+
+                news: () => `
+                    ${S.news.map(n => `
+                        <article class="news-item" id="${esc(n.id)}">
+                            <div><span class="badge tag">${esc(n.tag)}</span><div class="news-date" style="margin-top:.5rem">${fmtDate(n.date)}</div></div>
+                            <div>
+                                <h3>${esc(n.title)}</h3>
+                                <p class="muted" style="margin-top:.4rem">${esc(n.summary)}</p>
+                                <details ${location.hash === '#' + n.id ? 'open' : ''}><summary>Đọc tiếp</summary>${n.body.map(p => `<p>${esc(p)}</p>`).join('')}</details>
+                            </div>
+                        </article>`).join('')}`,
+
+                careers: () => `
+                    <div class="detail-layout">
+                        <div>
+                            <h2>Vị trí đang tuyển</h2>
+                            ${S.jobs.map(j => `
+                                <div class="job">
+                                    <div style="flex:1;min-width:220px">
+                                        <h3>${esc(j.title)}</h3>
+                                        <p class="muted" style="font-size:.9rem;margin:.3rem 0">${esc(j.desc)}</p>
+                                        <div class="tags"><span class="badge tag">${esc(j.place)}</span><span class="badge tag">${esc(j.type)}</span></div>
+                                    </div>
+                                    <button type="button" class="btn-outline" onclick="pickJob('${esc(j.id)}')">Ứng tuyển</button>
+                                </div>`).join('')}
+                        </div>
+                        <aside>
+                            <form class="panel" id="job-form" novalidate>
+                                <h2>${ic('briefcase')} Gửi hồ sơ ứng tuyển</h2>
+                                <div class="form-grid">
+                                    <div class="field full"><label>Vị trí ứng tuyển *</label>
+                                        <select id="job-pos" required>${S.jobs.map(j => `<option value="${esc(j.id)}">${esc(j.title)}</option>`).join('')}</select></div>
+                                    <div class="field full"><label>Họ và tên *</label><input id="job-name" required placeholder="Nguyễn Văn A"></div>
+                                    <div class="field"><label>Email *</label><input type="email" id="job-email" required placeholder="email@vidu.com"></div>
+                                    <div class="field"><label>Số điện thoại *</label><input type="tel" id="job-phone" required placeholder="09xx xxx xxx"></div>
+                                    <div class="field full"><label>Link CV (Google Drive, LinkedIn...)</label><input type="url" id="job-cv" placeholder="https://"></div>
+                                    <div class="field full"><label>Giới thiệu ngắn</label><textarea id="job-msg" placeholder="Kinh nghiệm, mong muốn..."></textarea></div>
+                                </div>
+                                <div class="btn-row"><button type="submit" class="btn">Gửi hồ sơ</button></div>
+                                <p class="form-note">Hoặc gửi CV trực tiếp tới <a href="mailto:${esc(C.hrEmail)}" class="text-red">${esc(C.hrEmail)}</a>.</p>
+                            </form>
+                        </aside>
+                    </div>`,
+
+                contact: () => `
+                    <div class="detail-layout">
+                        <form class="panel" id="contact-form" novalidate>
+                            <h2>${ic('mail')} Gửi liên hệ / góp ý</h2>
+                            <div class="form-grid">
+                                <div class="field"><label>Họ và tên *</label><input id="ct-name" required placeholder="Nguyễn Văn A"></div>
+                                <div class="field"><label>Email *</label><input type="email" id="ct-email" required placeholder="email@vidu.com"></div>
+                                <div class="field"><label>Số điện thoại</label><input type="tel" id="ct-phone" placeholder="09xx xxx xxx"></div>
+                                <div class="field"><label>Chủ đề *</label>
+                                    <select id="ct-topic"><option>Góp ý dịch vụ</option><option>Hỗ trợ đặt vé / thanh toán</option><option>Khiếu nại</option><option>Hợp tác - quảng cáo</option><option>Khác</option></select></div>
+                                <div class="field full"><label>Nội dung *</label><textarea id="ct-msg" required placeholder="Nhập nội dung bạn muốn gửi..."></textarea></div>
+                            </div>
+                            <div class="btn-row"><button type="submit" class="btn">Gửi liên hệ</button></div>
+                        </form>
+                        <aside>
+                            <div class="panel"><h2>Thông tin liên lạc</h2>${contactInfo()}</div>
+                            <div class="panel"><h2>${ic('pin')} Bản đồ</h2>${hqMap}</div>
+                        </aside>
+                    </div>`
+            };
+
+            const current = TABS.find(t => t.key === tab);
+            document.title = current.label + ' | CineManager';
+            const heroText = {
+                intro: 'Tìm hiểu về CineManager, công ty chịu trách nhiệm vận hành và thông tin liên hệ.',
+                news: 'Cập nhật hoạt động, chương trình và tính năng mới của hệ thống.',
+                careers: 'Cùng xây dựng trải nghiệm điện ảnh tốt nhất cho khán giả Việt.',
+                contact: 'Mọi thắc mắc, góp ý của bạn đều được đội ngũ CineManager lắng nghe.'
+            };
+            root.innerHTML = `
+                <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="sep">/</span><a href="about.html">Về chúng tôi</a><span class="sep">/</span><span>${esc(current.label)}</span></nav>
+                <section class="page-hero">
+                    <span class="eyebrow">Về chúng tôi</span>
+                    <h1>${esc(current.label)}</h1>
+                    <p>${heroText[tab]}</p>
+                </section>
+                <div class="tabbar">${TABS.map(t => `<a href="about.html?tab=${t.key}" class="${t.key === tab ? 'active' : ''}">${esc(t.label)}</a>`).join('')}</div>
+                ${views[tab]()}`;
+
+            if (location.hash) {
+                const el = document.querySelector(location.hash);
+                if (el) el.scrollIntoView({ block: 'center' });
+            }
+
+            /* ---------- Form: kiểm tra + lưu ----------
+               Chưa có API phía server cho form, nên tạm lưu vào localStorage (trình duyệt).
+               Khi có api/contact.php chỉ cần thay hàm saveSubmission() bằng fetch POST. */
+            function saveSubmission(kind, data) {
+                try {
+                    const key = 'cm_' + kind;
+                    const list = JSON.parse(localStorage.getItem(key) || '[]');
+                    list.push({ ...data, created_at: new Date().toISOString() });
+                    localStorage.setItem(key, JSON.stringify(list));
+                } catch (e) { /* bỏ qua nếu trình duyệt chặn localStorage */ }
+                return Promise.resolve(true);
+            }
+            const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            const val = id => (document.getElementById(id)?.value || '').trim();
+
+            window.pickJob = (jobId) => {
+                const sel = document.getElementById('job-pos');
+                if (sel) { sel.value = jobId; document.getElementById('job-form').scrollIntoView({ behavior: 'smooth', block: 'center' }); document.getElementById('job-name').focus(); }
+            };
+
+            const jobForm = document.getElementById('job-form');
+            if (jobForm) jobForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!val('job-name') || !val('job-phone')) return showToast('Vui lòng nhập họ tên và số điện thoại', 'error');
+                if (!isEmail(val('job-email'))) return showToast('Email không hợp lệ', 'error');
+                await saveSubmission('applications', { position: val('job-pos'), name: val('job-name'), email: val('job-email'), phone: val('job-phone'), cv: val('job-cv'), message: val('job-msg') });
+                showToast('Đã gửi hồ sơ! Chúng tôi sẽ liên hệ sớm nhất.');
+                jobForm.reset();
+            });
+
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) contactForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!val('ct-name') || !val('ct-msg')) return showToast('Vui lòng nhập họ tên và nội dung', 'error');
+                if (!isEmail(val('ct-email'))) return showToast('Email không hợp lệ', 'error');
+                await saveSubmission('feedback', { name: val('ct-name'), email: val('ct-email'), phone: val('ct-phone'), topic: val('ct-topic'), message: val('ct-msg') });
+                showToast('Cảm ơn bạn! CineManager đã nhận được góp ý.');
+                contactForm.reset();
+            });
+        })();
+    </script>
+</body>
+</html>

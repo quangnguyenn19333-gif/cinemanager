@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống Rạp | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/header-extra.css">
+    <link rel="stylesheet" href="assets/css/pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script src="assets/js/site-data.js"></script>
+    <script src="assets/js/site-header.js"></script>
+
+    <main class="page" id="page-root"></main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/header.js"></script>
+    <script>
+        (function () {
+            const S = window.SITE;
+            const root = document.getElementById('page-root');
+            const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const ic = (id) => `<svg class="ic"><use href="#i-${id}"/></svg>`;
+            const id = new URLSearchParams(location.search).get('id');
+            const cinema = S.cinemas.find(c => c.slug === id);
+
+            /* ---------- DANH SÁCH TẤT CẢ RẠP ---------- */
+            function renderList() {
+                document.title = 'Hệ Thống Rạp | CineManager';
+                root.innerHTML = `
+                    <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="sep">/</span><span>Hệ thống rạp</span></nav>
+                    <section class="page-hero">
+                        <span class="eyebrow">Hệ thống rạp</span>
+                        <h1>${S.cinemas.length} cơ sở CineManager tại Hà Nội</h1>
+                        <p>Chọn cơ sở gần bạn để xem địa chỉ, giờ mở cửa, tiện ích và chỉ đường.</p>
+                    </section>
+                    <div class="grid-cards">
+                        ${S.cinemas.map(c => `
+                            <a class="card" href="cinemas.html?id=${encodeURIComponent(c.slug)}">
+                                ${cover(c)}
+                                <div class="card-pad">
+                                    <h3>${esc(c.name)}</h3>
+                                    <div class="meta">${ic('pin')}<span>${esc(c.address)}</span></div>
+                                    <div class="meta">${ic('clock')}<span>${esc(c.hours)}</span></div>
+                                    <div class="tags">${c.formats.map(f => `<span class="badge tag">${esc(f)}</span>`).join('')}</div>
+                                </div>
+                            </a>`).join('')}
+                    </div>`;
+            }
+
+            /* Ảnh rạp: nếu có file assets/images/cinema-<slug>.jpg thì dùng, không thì hiện nền gradient */
+            function cover(c) {
+                return `<div class="cover" style="background:linear-gradient(135deg,#2a0f0f,#6b0d12)">
+                    <img src="assets/images/cinema-${esc(c.slug)}.jpg" alt="${esc(c.name)}" onerror="this.remove()">
+                    <span class="cover-fallback">🎬</span></div>`;
+            }
+
+            /* ---------- CHI TIẾT 1 RẠP ---------- */
+            function renderDetail(c) {
+                document.title = c.name + ' | CineManager';
+                const q = encodeURIComponent(c.venue + ', ' + c.address);
+                const mapSrc = `https://www.google.com/maps?q=${q}&output=embed&hl=vi`;
+                const dirUrl = `https://www.google.com/maps/dir/?api=1&destination=${q}`;
+                const mapUrl = `https://www.google.com/maps/search/?api=1&query=${q}`;
+                root.innerHTML = `
+                    <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="sep">/</span><a href="cinemas.html">Hệ thống rạp</a><span class="sep">/</span><span>${esc(c.name)}</span></nav>
+                    <section class="page-hero">
+                        <span class="eyebrow">${esc(c.district)}</span>
+                        <h1>${esc(c.name)}</h1>
+                        <p>${esc(c.intro)}</p>
+                        <div class="btn-row">
+                            <a class="btn" href="index.html#movie-grid">${ic('ticket')} Xem phim & đặt vé</a>
+                            <a class="btn-outline" href="${dirUrl}" target="_blank" rel="noopener">${ic('pin')} Chỉ đường</a>
+                            <a class="btn-outline" href="tel:${esc(c.phone.replace(/\s/g, ''))}">${ic('phone')} Gọi ${esc(c.phone)}</a>
+                        </div>
+                    </section>
+
+                    <div class="detail-layout">
+                        <div>
+                            <div class="panel">
+                                <h2>${ic('pin')} Bản đồ & chỉ đường</h2>
+                                <iframe class="map-frame" src="${mapSrc}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen title="Bản đồ ${esc(c.name)}"></iframe>
+                                <div class="btn-row"><a class="btn-outline" href="${mapUrl}" target="_blank" rel="noopener">Mở bằng Google Maps</a></div>
+                            </div>
+                            <div class="panel">
+                                <h2>${ic('film')} Phòng chiếu & định dạng</h2>
+                                <div class="stat-row" style="margin:0 0 1rem">
+                                    <div class="stat"><b>${c.rooms}</b><span>Phòng chiếu</span></div>
+                                    <div class="stat"><b>${c.seats}</b><span>Tổng số ghế</span></div>
+                                </div>
+                                <div class="chips">${c.formats.map(f => `<span class="chip">${esc(f)}</span>`).join('')}</div>
+                            </div>
+                            <div class="panel">
+                                <h2>${ic('gift')} Tiện ích tại rạp</h2>
+                                <ul class="check-list">${c.facilities.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+                            </div>
+                            <div class="panel">
+                                <h2>${ic('info')} Hướng dẫn di chuyển</h2>
+                                <ul class="info-list">
+                                    <li>${ic('pin')}<div><small>Gửi xe</small>${esc(c.parking)}</div></li>
+                                    <li>${ic('users')}<div><small>Phương tiện công cộng</small>${esc(c.transport)}</div></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <aside>
+                            <div class="panel">
+                                <h2>Thông tin liên hệ</h2>
+                                <ul class="info-list">
+                                    <li>${ic('pin')}<div><small>Địa chỉ</small>${esc(c.address)}</div></li>
+                                    <li>${ic('phone')}<div><small>Hotline</small><a href="tel:${esc(c.phone.replace(/\s/g, ''))}">${esc(c.phone)}</a></div></li>
+                                    <li>${ic('mail')}<div><small>Email</small><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></div></li>
+                                    <li>${ic('clock')}<div><small>Giờ mở cửa</small>${esc(c.hours)} (hằng ngày)</div></li>
+                                </ul>
+                            </div>
+                            <div class="panel side-list">
+                                <h2>Rạp khác</h2>
+                                ${S.cinemas.map(x => `<a href="cinemas.html?id=${encodeURIComponent(x.slug)}" class="${x.slug === c.slug ? 'current' : ''}">📍 ${esc(x.name)}</a>`).join('')}
+                                <div class="btn-row"><a class="btn-outline" href="cinemas.html">Xem tất cả rạp</a></div>
+                            </div>
+                        </aside>
+                    </div>`;
+                window.scrollTo(0, 0);
+            }
+
+            if (id && !cinema) {
+                root.innerHTML = `<div class="empty"><div style="font-size:3rem">🏛️</div><p>Không tìm thấy rạp này.</p><div class="btn-row" style="justify-content:center"><a class="btn" href="cinemas.html">Xem tất cả rạp</a></div></div>`;
+            } else if (cinema) {
+                renderDetail(cinema);
+            } else {
+                renderList();
+            }
+        })();
+    </script>
+</body>
+</html>

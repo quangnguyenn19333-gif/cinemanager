@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>CineManager | Quản Lý Rạp Phim Pro</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/header-extra.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         /* ===== 1. CSS ƯU ĐÃI HIỆN ĐẠI ===== */
         .promo-card-modern {
@@ -24,18 +26,18 @@
         .promo-card-modern h4 { color: #ff4d4d; font-size: 1.4rem; font-weight: 700; margin: 0 0 12px 0; }
         .promo-card-modern p { color: #dddddd; font-size: 0.9rem; line-height: 1.5; margin: 0; }
         .promo-highlight { color: #ffcc00; font-weight: 800; font-size: 1.15rem; }
-        
+
    /* ===== 2. CSS BANNER ĐỘC LẬP */
         .pro-banner-container {
-            position: relative; 
-            width: 85%; 
-            max-width: 1100px; 
-            aspect-ratio: 2.8 / 1; 
-            margin: 2rem auto; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            background-color: #0a0a0a; 
-            box-shadow: 0 15px 30px rgba(0,0,0,0.6); 
+            position: relative;
+            width: 85%;
+            max-width: 1100px;
+            aspect-ratio: 2.8 / 1;
+            margin: 2rem auto;
+            border-radius: 20px;
+            overflow: hidden;
+            background-color: #0a0a0a;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
         }
         .pro-slide {
             position: absolute; top: 0; left: 0;
@@ -47,7 +49,7 @@
             opacity: 1; visibility: visible; z-index: 1;
         }
         .pro-slide img {
-            width: 100%; height: 100%; 
+            width: 100%; height: 100%;
             object-fit: contain; /* CHÌA KHÓA: Hiển thị trọn vẹn 100% nội dung ảnh, tuyệt đối không cắt xén */
             object-position: center;
         }
@@ -80,7 +82,7 @@
             border-radius: 25px; transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1; box-shadow: 0 4px 12px rgba(229, 9, 20, 0.4);
         }
-        
+
         @media (max-width: 768px) {
             .promo-card-modern { min-width: 100%; }
             .tabs-container-safe { text-align: center; padding: 0 1rem; }
@@ -89,39 +91,28 @@
     </style>
 </head>
 <body>
-    <!-- HEADER -->
-    <header>
-        <div class="logo">
-            <h1>Cine<span>Manager</span></h1>
-        </div>
-        <div class="auth-controls">
-            <div id="user-info" class="hidden">
-                Chào, <span id="display-username" style="color: var(--primary); font-weight: bold;"></span>
-                <span id="my-tickets-link"><a href="my-tickets.html"><button class="secondary">🎫 Vé của tôi</button></a></span>
-                <button class="secondary" onclick="openModal('change-pass-modal')">Đổi mật khẩu</button>
-                <button onclick="handleLogout()">Đăng xuất</button>
-            </div>
-        </div>
-    </header>
+    <!-- HEADER DÙNG CHUNG: toàn bộ menu/dropdown được sinh từ assets/js/site-data.js -->
+    <script src="assets/js/site-data.js"></script>
+    <script src="assets/js/site-header.js"></script>
 
  <!-- BANNER TRƯỢT 5 ẢNH (BỘ SƯU TẬP PHIM & ƯU ĐÃI CHUẨN LOGIC) -->
     <div class="pro-banner-container">
         <div class="pro-slides">
-            
-            <!-- Banner 1: Đã thêm active và sửa link -->
+
+            <!-- Banner 1 -->
             <div class="pro-slide active">
                 <a href="booking.html?movie_id=25" style="display: block; width: 100%; height: 100%; position: relative; z-index: 50;">
                     <img src="assets/images/banner-thang11.png" alt="Phim Hay Tháng 11">
                 </a>
             </div>
-            
+
             <!-- Banner 2: Combo CCEM 3 (ID = 25) -->
             <div class="pro-slide">
                 <a href="booking.html?movie_id=25" style="display: block; width: 100%; height: 100%; position: relative; z-index: 50;">
                     <img src="assets/images/banner-combo.png" alt=" Chị Chị Em Em 3">
                 </a>
             </div>
-            
+
             <!-- Banner 3: Godzilla (ID = 26) -->
             <div class="pro-slide">
                 <a href="booking.html?movie_id=26" style="display: block; width: 100%; height: 100%; position: relative; z-index: 50;">
@@ -129,16 +120,16 @@
                 </a>
             </div>
 
-            <!-- Banner 4: Flash Deal Cực Choáy (Black Friday) -->
+            <!-- Banner 4: Flash Deal Black Friday -> trang chi tiết khuyến mãi -->
             <div class="pro-slide">
-                <a href="#" style="display: block; width: 100%; height: 100%; position: relative; z-index: 50;">
+                <a href="promotions.html?id=flash-deal-black-friday" style="display: block; width: 100%; height: 100%; position: relative; z-index: 50;">
                     <img src="assets/images/uu-dai-flash.png" alt="Flash Deal Black Friday">
                 </a>
             </div>
 
-            <!-- Banner 5: Cine Party Combo (Mua 2 tặng 1) -->
+            <!-- Banner 5: Cine Party Combo -> trang chi tiết khuyến mãi -->
             <div class="pro-slide">
-                <a href="#" style="display: block; width: 100%; height: 100%; position: relative; z-index: 50;">
+                <a href="promotions.html?id=cine-party-combo" style="display: block; width: 100%; height: 100%; position: relative; z-index: 50;">
                     <img src="assets/images/uu-dai-party.png" alt="Cine Party Combo">
                 </a>
             </div>
@@ -151,23 +142,21 @@
     <script>
         let currentProSlide = 0;
         const proSlidesList = document.querySelectorAll('.pro-slide');
-        
+
         function showProSlide(index) {
             proSlidesList.forEach(slide => slide.classList.remove('active'));
             currentProSlide = (index + proSlidesList.length) % proSlidesList.length;
             proSlidesList[currentProSlide].classList.add('active');
         }
-        
+
         function moveProSlide(step) {
             showProSlide(currentProSlide + step);
         }
-        
+
         setInterval(() => moveProSlide(1), 4000);
     </script>
-    
-    <div class="red-divider"></div>
 
-   
+    <div class="red-divider"></div>
 
     <!-- TABS PHIM -->
     <div class="tabs-container-safe" style="max-width: 1200px; margin: 2rem auto 0 auto; padding: 0 2rem;">
@@ -181,21 +170,16 @@
 
     <!-- NỘI DUNG CHÍNH -->
     <main>
-      
-
         <section>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
                 <h2 id="main-section-title">🍿 Phim Đang Chiếu</h2>
-                <div class="search-box">
-                    <input type="text" id="search-movie" placeholder="Tìm tên phim hoặc thể loại..." style="padding: 0.6rem 1.2rem; border-radius: 20px; border: 1px solid var(--glass); background: var(--card-bg); color: white; width: 250px;">
-                </div>
             </div>
             <div id="movie-grid" class="movie-grid"></div>
         </section>
     </main>
 
     <!-- MODALS GIAO DIỆN -->
-    
+
     <div id="change-pass-modal" class="modal hidden">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('change-pass-modal')">&times;</span>
@@ -217,6 +201,7 @@
     <!-- SCRIPTS  -->
     <script src="assets/js/common.js"></script>
     <script src="assets/js/script.js"></script>
+    <script src="assets/js/header.js"></script>
 
     <!-- FOOTER CHUẨN -->
     <footer class="cinema-footer">
@@ -234,19 +219,19 @@
                 <p>CineManager Việt Nam là hệ thống đặt vé và quản lý rạp chiếu phim hiện đại tại Việt Nam.</p>
                 <h4>Kết nối với chúng tôi</h4>
                 <div class="social-icons">
-                    <a href="#"><img src="assets/images/fb.png" alt="Facebook"></a>
-                    <a href="#"><img src="assets/images/ig.png" alt="instagram"></a>
-                    <a href="#"><img src="assets/images/youtube.png" alt="youtube"></a>
-                    <a href="#"><img src="assets/images/zalo.png" alt="zalo"></a>
+                    <a href="about.html?tab=contact"><img src="assets/images/fb.png" alt="Facebook"></a>
+                    <a href="about.html?tab=contact"><img src="assets/images/ig.png" alt="instagram"></a>
+                    <a href="about.html?tab=contact"><img src="assets/images/youtube.png" alt="youtube"></a>
+                    <a href="about.html?tab=contact"><img src="assets/images/zalo.png" alt="zalo"></a>
                 </div>
             </div>
             <div class="footer-col">
-                <h3>Điều khoản sử dụng</h3>
+                <h3>Khám phá</h3>
                 <ul>
-                    <li>Điều khoản chung</li>
-                    <li>Điều khoản giao dịch</li>
-                    <li>Chính sách bảo mật</li>
-                    <li>Câu hỏi thường gặp</li>
+                    <li><a href="cinemas.html" style="color:inherit;text-decoration:none">Hệ thống rạp</a></li>
+                    <li><a href="promotions.html" style="color:inherit;text-decoration:none">Khuyến mãi</a></li>
+                    <li><a href="membership.html" style="color:inherit;text-decoration:none">Thành viên</a></li>
+                    <li><a href="about.html?tab=careers" style="color:inherit;text-decoration:none">Tuyển dụng</a></li>
                 </ul>
             </div>
             <div class="footer-col">
@@ -254,6 +239,7 @@
                 <p>Hotline: 1900 6017</p>
                 <p>Giờ hoạt động: 8:00 - 22:00</p>
                 <p>Email: support@cinemanager.com</p>
+                <p><a href="about.html?tab=contact" style="color:#ff4d4d">Gửi liên hệ / góp ý</a></p>
             </div>
             <div class="footer-col">
                 <h3>Công Ty TNHH CineManager Việt Nam</h3>

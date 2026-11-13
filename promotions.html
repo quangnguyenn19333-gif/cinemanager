@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khuyến Mãi | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/header-extra.css">
+    <link rel="stylesheet" href="assets/css/pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script src="assets/js/site-data.js"></script>
+    <script src="assets/js/site-header.js"></script>
+
+    <main class="page" id="page-root"></main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/header.js"></script>
+    <script>
+        (function () {
+            const S = window.SITE;
+            const root = document.getElementById('page-root');
+            const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const ic = (id) => `<svg class="ic"><use href="#i-${id}"/></svg>`;
+            const id = new URLSearchParams(location.search).get('id');
+            const promo = S.promotions.find(p => p.id === id);
+            const today = new Date().toISOString().slice(0, 10);
+
+            function status(p) {
+                if (p.start && today < p.start) return { cls: 'soon', text: 'Sắp diễn ra' };
+                if (p.end && today > p.end) return { cls: 'ended', text: 'Đã kết thúc' };
+                return { cls: 'live', text: 'Đang diễn ra' };
+            }
+
+            /* Banner: dùng ảnh nếu có; không có (hoặc lỗi tải) thì hiện nền gradient + icon */
+            function cover(p, contain) {
+                return `<div class="cover ${contain ? 'contain' : ''}" style="background:${p.gradient}">
+                    ${p.banner ? `<img src="${esc(p.banner)}" alt="${esc(p.title)}" onerror="this.remove()">` : ''}
+                    <span class="cover-fallback">${esc(p.icon)}</span></div>`;
+            }
+
+            function renderList() {
+                document.title = 'Khuyến Mãi | CineManager';
+                const filter = new URLSearchParams(location.search).get('filter') || 'all';
+                const list = S.promotions.filter(p => filter === 'all' || status(p).cls === filter);
+                const tab = (key, label) => `<a href="promotions.html${key === 'all' ? '' : '?filter=' + key}" class="${filter === key ? 'active' : ''}">${label}</a>`;
+                root.innerHTML = `
+                    <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="sep">/</span><span>Khuyến mãi</span></nav>
+                    <section class="page-hero">
+                        <span class="eyebrow">Khuyến mãi</span>
+                        <h1>Ưu đãi & sự kiện tại CineManager</h1>
+                        <p>Cập nhật các chương trình giảm giá vé, combo bắp nước và quà tặng thành viên.</p>
+                    </section>
+                    <div class="tabbar">${tab('all', 'Tất cả')}${tab('live', 'Đang diễn ra')}${tab('soon', 'Sắp diễn ra')}${tab('ended', 'Đã kết thúc')}</div>
+                    ${list.length ? `<div class="grid-cards">${list.map(p => {
+                        const st = status(p);
+                        return `<a class="card" href="promotions.html?id=${encodeURIComponent(p.id)}">
+                            ${cover(p, true)}
+                            <div class="card-pad">
+                                <span class="badge ${st.cls}">${st.text}</span>
+                                <h3>${esc(p.title)}</h3>
+                                <p>${esc(p.headline)}</p>
+                                <div class="meta">${ic('clock')}<span>${esc(p.when)}</span></div>
+                            </div></a>`;
+                    }).join('')}</div>` : `<div class="empty"><div style="font-size:3rem">🎟️</div><p>Chưa có chương trình nào trong mục này.</p></div>`}`;
+            }
+
+            function renderDetail(p) {
+                document.title = p.title + ' | Khuyến mãi CineManager';
+                const st = status(p);
+                const others = S.promotions.filter(x => x.id !== p.id).slice(0, 4);
+                root.innerHTML = `
+                    <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="sep">/</span><a href="promotions.html">Khuyến mãi</a><span class="sep">/</span><span>${esc(p.title)}</span></nav>
+                    <div class="promo-banner">${cover(p, true)}</div>
+                    <div class="detail-layout">
+                        <div>
+                            <section class="panel">
+                                <span class="badge ${st.cls}">${st.text}</span>
+                                <h1 style="margin-top:.6rem">${esc(p.title)}</h1>
+                                <div class="highlight">${esc(p.headline)}</div>
+                                <div class="tags">${p.tags.map(t => `<span class="badge tag">${esc(t)}</span>`).join('')}</div>
+                            </section>
+                            <section class="panel"><h2>${ic('gift')} Nội dung ưu đãi</h2><ul class="check-list">${p.benefits.map(b => `<li>${esc(b)}</li>`).join('')}</ul></section>
+                            <section class="panel"><h2>${ic('ticket')} Cách nhận ưu đãi</h2><ol class="steps">${p.howto.map(b => `<li>${esc(b)}</li>`).join('')}</ol></section>
+                            <section class="panel"><h2>${ic('info')} Điều kiện & lưu ý</h2><ul class="check-list warn">${p.conditions.map(b => `<li>${esc(b)}</li>`).join('')}</ul></section>
+                        </div>
+                        <aside>
+                            <div class="panel">
+                                <h2>Thông tin chương trình</h2>
+                                <ul class="info-list">
+                                    <li>${ic('clock')}<div><small>Thời gian áp dụng</small>${esc(p.when)}</div></li>
+                                    <li>${ic('users')}<div><small>Đối tượng</small>${esc(p.audience)}</div></li>
+                                    <li>${ic('pin')}<div><small>Phạm vi</small>Tất cả ${S.cinemas.length} rạp CineManager</div></li>
+                                </ul>
+                                <div class="btn-row"><a class="btn" href="index.html#movie-grid">${ic('ticket')} Đặt vé ngay</a></div>
+                            </div>
+                            <div class="panel side-list">
+                                <h2>Ưu đãi khác</h2>
+                                ${others.map(x => `<a href="promotions.html?id=${encodeURIComponent(x.id)}">${esc(String(x.icon).length > 2 ? '🎁' : x.icon)} ${esc(x.title)}</a>`).join('')}
+                                <div class="btn-row"><a class="btn-outline" href="promotions.html">Xem tất cả</a></div>
+                            </div>
+                        </aside>
+                    </div>`;
+                window.scrollTo(0, 0);
+            }
+
+            if (id && !promo) {
+                root.innerHTML = `<div class="empty"><div style="font-size:3rem">🎟️</div><p>Không tìm thấy chương trình khuyến mãi này.</p><div class="btn-row" style="justify-content:center"><a class="btn" href="promotions.html">Xem tất cả khuyến mãi</a></div></div>`;
+            } else if (promo) renderDetail(promo);
+            else renderList();
+        })();
+    </script>
+</body>
+</html>

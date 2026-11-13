@@ -161,5 +161,58 @@
 
     <script src="assets/js/common.js"></script>
     <script src="assets/js/booking.js"></script>
+<!-- MODAL CHI TIẾT PHIM ĐỘNG THEO TỪNG PHIM -->
+<div id="movie-detail-modal" class="modal hidden" style="background: rgba(0,0,0,0.85); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center;">
+    <div class="modal-content" style="background: #1a1a1a; padding: 35px; border-radius: 16px; width: 90%; max-width: 580px; max-height: 85vh; overflow-y: auto; color: #fff; position: relative; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
+        
+        <!-- Nút đóng X -->
+        <span onclick="closeMovieDetailModal()" style="position: absolute; top: 20px; right: 25px; font-size: 24px; cursor: pointer; color: #aaa;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">&times;</span>
+        
+        <!-- Tiêu đề phim -->
+        <h2 id="modal-movie-title" style="margin-bottom: 25px; color: #e50914; font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 12px; font-weight: 700;">Chi Tiết Phim</h2>
+        
+        <!-- Danh sách thông tin -->
+        <div style="display: flex; flex-direction: column; gap: 14px; font-size: 14.5px;">
+            
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                <span style="color: #888; font-weight: 600; min-width: 120px;">ĐẠO DIỄN:</span>
+                <span id="m-director" style="color: #fff; text-align: right; font-weight: 500;">Đang cập nhật</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                <span style="color: #888; font-weight: 600;">DIỄN VIÊN:</span>
+                <span id="m-cast" style="color: #ddd; line-height: 1.5; font-size: 14px;">Đang cập nhật</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                <span style="color: #888; font-weight: 600;">THỂ LOẠI:</span>
+                <span id="m-genre" style="color: #fff; text-align: right;"></span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                <span style="color: #888; font-weight: 600;">THỜI LƯỢNG:</span>
+                <span id="m-duration" style="color: #fff; text-align: right;"></span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                <span style="color: #888; font-weight: 600;">NGÔN NGỮ:</span>
+                <span id="m-language" style="color: #fff; text-align: right;">Tiếng Việt</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
+                <span style="color: #888; font-weight: 600;">NGÀY KHỞI CHIẾU:</span>
+                <span id="m-release" style="color: #fff; text-align: right;">30/10/2026</span>
+            </div>
+
+        </div>
+
+        <!-- Phần nội dung tóm tắt -->
+        <div style="margin-top: 25px;">
+            <p style="font-weight: 700; margin-bottom: 10px; color: #e50914; font-size: 15px;">NỘI DUNG TÓM TẮT</p>
+            <p id="m-desc" style="color: #ccc; text-align: justify; line-height: 1.7; font-size: 14px; background: #222; padding: 15px; border-radius: 8px; border-left: 4px solid #e50914;"></p>
+        </div>
+
+    </div>
+</div>
 </body>
 </html>
