@@ -163,16 +163,13 @@
                 if (el) el.scrollIntoView({ block: 'center' });
             }
 
-            /* ---------- Form: kiểm tra + lưu ----------
-               Chưa có API phía server cho form, nên tạm lưu vào localStorage (trình duyệt).
-               Khi có api/contact.php chỉ cần thay hàm saveSubmission() bằng fetch POST. */
             function saveSubmission(kind, data) {
                 try {
                     const key = 'cm_' + kind;
                     const list = JSON.parse(localStorage.getItem(key) || '[]');
                     list.push({ ...data, created_at: new Date().toISOString() });
                     localStorage.setItem(key, JSON.stringify(list));
-                } catch (e) { /* bỏ qua nếu trình duyệt chặn localStorage */ }
+                } catch (e) { /* bỏ qua nếu trình duyệt chặn */ }
                 return Promise.resolve(true);
             }
             const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -193,14 +190,39 @@
                 jobForm.reset();
             });
 
+            // Xử lý gửi góp ý / liên hệ kết nối thẳng tới api/contact_handler.php
             const contactForm = document.getElementById('contact-form');
             if (contactForm) contactForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 if (!val('ct-name') || !val('ct-msg')) return showToast('Vui lòng nhập họ tên và nội dung', 'error');
                 if (!isEmail(val('ct-email'))) return showToast('Email không hợp lệ', 'error');
-                await saveSubmission('feedback', { name: val('ct-name'), email: val('ct-email'), phone: val('ct-phone'), topic: val('ct-topic'), message: val('ct-msg') });
-                showToast('Cảm ơn bạn! CineManager đã nhận được góp ý.');
-                contactForm.reset();
+                
+                try {
+                    const formData = {
+                        full_name: val('ct-name'),
+                        email: val('ct-email'),
+                        phone: val('ct-phone'),
+                        subject: val('ct-topic'),
+                        message: val('ct-msg')
+                    };
+
+                    const res = await fetch('api/contact_handler.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        showToast('Cảm ơn bạn! CineManager đã nhận được góp ý.');
+                        contactForm.reset();
+                    } else {
+                        showToast(data.error || 'Có lỗi xảy ra', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Lỗi kết nối server', 'error');
+                }
             });
         })();
     </script>
