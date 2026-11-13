@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         .admin-layout { display: flex; min-height: 100vh; }
-        /* Sidebar Menu */
         .sidebar { width: 260px; background: #111; border-right: 1px solid var(--glass); padding: 2rem 0; display: flex; flex-direction: column; }
         .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; }
         .sidebar-logo span { color: white; }
@@ -16,42 +15,92 @@
         .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
         .nav-item.active { background: rgba(229, 9, 20, 0.1); color: white; border-left-color: var(--primary); }
         
-        /* Main Content */
         .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
         
-        /* Dashboard Stats */
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem; }
         .stat-card { background: var(--card-bg); padding: 1.5rem; border-radius: 15px; border: 1px solid var(--glass); text-align: center; }
         .stat-card h3 { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; text-transform: uppercase; }
         .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        
         .dashboard-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
         @media (max-width: 900px) { .dashboard-row { grid-template-columns: 1fr; } }
         .table-container { background: var(--card-bg); padding: 1.5rem; border-radius: 15px; border: 1px solid var(--glass); }
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
         th, td { text-align: left; padding: 0.8rem; border-bottom: 1px solid var(--glass); }
         th { color: var(--text-muted); font-size: 0.85rem; }
+        
+        .select-filter { padding: 8px 12px; background: #111; color: white; border: 1px solid var(--glass); border-radius: 8px; font-weight: 600; font-size: 0.9rem; outline: none; cursor: pointer; color-scheme: dark; }
     </style>
 </head>
 <body>
     <div class="admin-layout">
-       <!-- MENU DỌC (Sidebar chuẩn 4 mục) -->
+        <!-- Sidebar Menu -->
         <div class="sidebar">
             <div class="sidebar-logo">Cine<span>Manager</span></div>
             <a href="dashboard.html" class="nav-item active">📊 Thống kê doanh thu</a>
             <a href="admin_movies.html" class="nav-item">🎬 Quản lý Phim</a>
-            <a href="admin_showtimes.html" class="nav-item">📅 Quản lý Suất chiếu</a>
+            <a href="showtimes.html" class="nav-item">📅 Quản lý Suất chiếu</a>
             <a href="admin_users.html" class="nav-item">👥 Quản lý Khách hàng</a>
+            <a href="admin_contacts.html" class="nav-item">📩 Quản lý Góp ý</a>
             <div style="margin-top: auto; padding: 0 2rem;">
                 <button onclick="handleLogout()" style="width: 100%; background: #333;">🚪 Đăng xuất</button>
             </div>
         </div>
 
-        <!-- NỘI DUNG CHÍNH (Dashboard) -->
+        <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
                 <h2>📊 Thống Kê Doanh Thu Hệ Thống</h2>
                 <span id="display-username" style="color:var(--primary); font-weight:bold;"></span>
+            </div>
+
+            <!-- THANH BÁO CÁO THÔNG MINH (LỌC THÁNG, QUÝ, NGÀY) -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; background: var(--card-bg); padding: 1.2rem 1.5rem; border-radius: 12px; border: 1px solid var(--glass);">
+                
+                <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                    <!-- Lọc theo Tháng -->
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">📅 Tháng:</span>
+                        <select id="filter-month" class="select-filter" onchange="handleMonthChange()">
+                            <option value="">-- Tất cả --</option>
+                            <option value="1">Tháng 1</option>
+                            <option value="2">Tháng 2</option>
+                            <option value="3">Tháng 3</option>
+                            <option value="4">Tháng 4</option>
+                            <option value="5">Tháng 5</option>
+                            <option value="6">Tháng 6</option>
+                            <option value="7">Tháng 7</option>
+                            <option value="8">Tháng 8</option>
+                            <option value="9">Tháng 9</option>
+                            <option value="10">Tháng 10</option>
+                            <option value="11">Tháng 11</option>
+                            <option value="12">Tháng 12</option>
+                        </select>
+                    </div>
+
+                    <!-- Lọc theo Quý -->
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">📈 Quý:</span>
+                        <select id="filter-quarter" class="select-filter" onchange="handleQuarterChange()">
+                            <option value="">-- Tất cả --</option>
+                            <option value="1">Quý 1</option>
+                            <option value="2">Quý 2</option>
+                            <option value="3">Quý 3</option>
+                            <option value="4">Quý 4</option>
+                        </select>
+                    </div>
+
+                    <!-- Lọc theo Ngày cụ thể -->
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">🎯 Ngày:</span>
+                        <input type="date" id="filter-date" class="select-filter" onchange="handleDateChange()">
+                    </div>
+                </div>
+
+                <div>
+                    <button onclick="resetAllFilters()" style="padding: 8px 16px; background: rgba(229, 9, 20, 0.2); border: 1px solid var(--primary); color: white; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">🔄 Toàn thời gian</button>
+                </div>
             </div>
 
             <div class="stats-grid">
@@ -75,7 +124,7 @@
 
             <div class="dashboard-row">
                 <div class="table-container">
-                    <h3>🎬 Doanh thu theo phim</h3>
+                    <h3 id="table-movie-title">🎬 Doanh thu theo phim</h3>
                     <table id="table-by-movie">
                         <thead>
                             <tr>
@@ -108,6 +157,10 @@
 
     <script src="assets/js/common.js"></script>
     <script>
+        let currentMonth = '';
+        let currentQuarter = '';
+        let currentDate = '';
+
         document.addEventListener('DOMContentLoaded', async () => {
             const authRes = await fetch('api/auth.php?action=check');
             const authData = await authRes.json();
@@ -119,52 +172,125 @@
             loadStats();
         });
 
+        // Chọn tháng (reset quý và ngày)
+        function handleMonthChange() {
+            currentMonth = document.getElementById('filter-month').value;
+            if (currentMonth) {
+                currentQuarter = '';
+                currentDate = '';
+                document.getElementById('filter-quarter').value = '';
+                document.getElementById('filter-date').value = '';
+            }
+            loadStats();
+        }
+
+        // Chọn quý (reset tháng và ngày)
+        function handleQuarterChange() {
+            currentQuarter = document.getElementById('filter-quarter').value;
+            if (currentQuarter) {
+                currentMonth = '';
+                currentDate = '';
+                document.getElementById('filter-month').value = '';
+                document.getElementById('filter-date').value = '';
+            }
+            loadStats();
+        }
+
+        // Chọn ngày cụ thể (reset tháng và quý)
+        function handleDateChange() {
+            currentDate = document.getElementById('filter-date').value;
+            if (currentDate) {
+                currentMonth = '';
+                currentQuarter = '';
+                document.getElementById('filter-month').value = '';
+                document.getElementById('filter-quarter').value = '';
+            }
+            loadStats();
+        }
+
+        // Nút reset về toàn thời gian
+        function resetAllFilters() {
+            currentMonth = '';
+            currentQuarter = '';
+            currentDate = '';
+            document.getElementById('filter-month').value = '';
+            document.getElementById('filter-quarter').value = '';
+            document.getElementById('filter-date').value = '';
+            loadStats();
+        }
+
         async function loadStats() {
             try {
-                // Summary
-                const sumRes = await fetch('api/stats.php?action=summary');
-                const summary = await sumRes.json();
-                document.getElementById('stat-revenue').innerText = summary.total_revenue.toLocaleString('vi-VN') + 'đ';
-                document.getElementById('stat-tickets').innerText = summary.total_tickets;
-                document.getElementById('stat-movies').innerText = summary.total_movies;
-                document.getElementById('stat-users').innerText = summary.total_users;
+                let queryString = '';
+                if (currentDate) {
+                    queryString = `&date=${currentDate}`;
+                } else if (currentMonth) {
+                    queryString = `&month=${currentMonth}`;
+                } else if (currentQuarter) {
+                    queryString = `&quarter=${currentQuarter}`;
+                }
 
-                // By Movie
-                const movieRes = await fetch('api/stats.php?action=by_movie');
+                // 1. Lấy dữ liệu tổng quan
+                const sumRes = await fetch(`api/stats.php?action=summary${queryString}`);
+                const summary = await sumRes.json();
+                document.getElementById('stat-revenue').innerText = Number(summary.total_revenue || 0).toLocaleString('vi-VN') + 'đ';
+                document.getElementById('stat-tickets').innerText = summary.total_tickets || 0;
+                document.getElementById('stat-movies').innerText = summary.total_movies || 0;
+                document.getElementById('stat-users').innerText = summary.total_users || 0;
+
+                // Cập nhật tiêu đề bảng theo lựa chọn
+                const titleElem = document.getElementById('table-movie-title');
+                if (currentDate) {
+                    titleElem.innerText = `🎬 Doanh thu theo phim (Ngày ${currentDate})`;
+                } else if (currentMonth) {
+                    titleElem.innerText = `🎬 Doanh thu theo phim (Tháng ${currentMonth})`;
+                } else if (currentQuarter) {
+                    titleElem.innerText = `🎬 Doanh thu theo phim (Quý ${currentQuarter})`;
+                } else {
+                    titleElem.innerText = `🎬 Doanh thu theo phim (Toàn thời gian)`;
+                }
+
+                // 2. Lấy dữ liệu doanh thu theo phim
+                const movieRes = await fetch(`api/stats.php?action=by_movie${queryString}`);
                 const byMovie = await movieRes.json();
                 const movieTbody = document.querySelector('#table-by-movie tbody');
-                movieTbody.innerHTML = byMovie.map(m => `
-                    <tr>
-                        <td>${m.title}</td>
-                        <td>${m.tickets}</td>
-                        <td style="color:var(--primary); font-weight:600;">${Number(m.revenue).toLocaleString('vi-VN')}đ</td>
-                    </tr>
-                `).join('');
+                
+                if (!Array.isArray(byMovie) || byMovie.length === 0) {
+                    movieTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888; padding: 1.5rem;">Không có dữ liệu trong khoảng thời gian này</td></tr>`;
+                } else {
+                    movieTbody.innerHTML = byMovie.map(m => `
+                        <tr>
+                            <td>${m.title}</td>
+                            <td>${m.tickets}</td>
+                            <td style="color:var(--primary); font-weight:600;">${Number(m.revenue).toLocaleString('vi-VN')}đ</td>
+                        </tr>
+                    `).join('');
+                }
 
-                // Recent
+                // 3. Lấy giao dịch gần đây
                 const recentRes = await fetch('api/stats.php?action=recent');
                 const recent = await recentRes.json();
                 const recentTbody = document.querySelector('#table-recent tbody');
                 
-                recentTbody.innerHTML = recent.map(r => {
-                    // Chuyển đổi định dạng thời gian từ created_at
-                    let timeStr = '';
-                    if (r.created_at) {
-                        const d = new Date(r.created_at);
-                        timeStr = d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' - ' + d.toLocaleDateString('vi-VN');
-                    }
-
-                    return `
-                    <tr>
-                        <td>${r.full_name}</td>
-                        <td>${r.movie_title}</td>
-                        <td style="color:var(--text-muted); font-size: 0.85rem;">${timeStr}</td>
-                        <td style="color:var(--primary); font-weight:600;">${Number(r.total_price).toLocaleString('vi-VN')}đ</td>
-                    </tr>
-                    `;
-                }).join('');
+                if (Array.isArray(recent)) {
+                    recentTbody.innerHTML = recent.map(r => {
+                        let timeStr = '';
+                        if (r.created_at) {
+                            const d = new Date(r.created_at);
+                            timeStr = d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' - ' + d.toLocaleDateString('vi-VN');
+                        }
+                        return `
+                        <tr>
+                            <td>${r.full_name}</td>
+                            <td>${r.movie_title}</td>
+                            <td style="color:var(--text-muted); font-size: 0.85rem;">${timeStr}</td>
+                            <td style="color:var(--primary); font-weight:600;">${Number(r.total_price).toLocaleString('vi-VN')}đ</td>
+                        </tr>
+                        `;
+                    }).join('');
+                }
             } catch (err) {
-                showToast('Lỗi khi tải dữ liệu thống kê', 'error');
+                console.error(err);
             }
         }
     </script>
