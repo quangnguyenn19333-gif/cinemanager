@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài Khoản | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/header-extra.css">
+    <link rel="stylesheet" href="assets/css/pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script src="assets/js/site-data.js"></script>
+    <script src="assets/js/site-header.js"></script>
+
+    <main class="page" id="page-root"><div class="empty">Đang tải...</div></main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/header.js"></script>
+    <script>
+        (async function () {
+            const root = document.getElementById('page-root');
+            const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const ic = (id) => `<svg class="ic"><use href="#i-${id}"/></svg>`;
+
+            const auth = await window.CM_AUTH;
+            if (!auth || !auth.isLoggedIn) { window.location.href = 'login.html'; return; }
+
+            let tab = new URLSearchParams(location.search).get('tab');
+            if (tab !== 'password') tab = 'profile';
+            const TABS = [{ key: 'profile', label: 'Thông tin tài khoản' }, { key: 'password', label: 'Đổi mật khẩu' }];
+            const levelName = { Bronze: 'Thường (Bronze)', Silver: 'Bạc (Silver)', Gold: 'Vàng (Gold)', Platinum: 'Bạch kim (Platinum)' };
+
+            const profile = () => `
+                <div class="detail-layout">
+                    <section class="panel">
+                        <h2>${ic('user')} Thông tin tài khoản</h2>
+                        <ul class="info-list">
+                            <li>${ic('user')}<div><small>Tên đăng nhập</small>${esc(auth.username)}</div></li>
+                            <li>${ic('shield')}<div><small>Vai trò</small>${auth.role === 'admin' ? 'Quản trị viên' : 'Thành viên'}</div></li>
+                            ${auth.member_level ? `<li>${ic('crown')}<div><small>Hạng thành viên</small>${esc(levelName[auth.member_level] || auth.member_level)}</div></li>` : ''}
+                            ${auth.points != null ? `<li>${ic('coins')}<div><small>Điểm tích lũy</small>${Number(auth.points).toLocaleString('vi-VN')} điểm</div></li>` : ''}
+                        </ul>
+                    </section>
+                    <aside class="panel side-list">
+                        <h2>Lối tắt</h2>
+                        ${auth.role === 'admin' ? '<a href="dashboard.html">📊 Trang quản trị</a>' : '<a href="my-tickets.html">🎫 Vé của tôi</a>'}
+                        <a href="membership.html?tab=points">🪙 Điểm & quà tặng</a>
+                        <a href="account.html?tab=password">🔑 Đổi mật khẩu</a>
+                    </aside>
+                </div>`;
+
+            const password = () => `
+                <form class="panel" id="pw-form" style="max-width:520px" novalidate>
+                    <h2>${ic('key')} Đổi mật khẩu</h2>
+                    <div class="field" style="margin-bottom:1rem"><label>Mật khẩu hiện tại</label><input type="password" id="pw-old" required autocomplete="current-password"></div>
+                    <div class="field" style="margin-bottom:1rem"><label>Mật khẩu mới</label><input type="password" id="pw-new" required autocomplete="new-password">
+                        <p class="form-note">Từ 8 ký tự, gồm chữ hoa, chữ thường và chữ số.</p></div>
+                    <div class="field" style="margin-bottom:1rem"><label>Nhập lại mật khẩu mới</label><input type="password" id="pw-new2" required autocomplete="new-password"></div>
+                    <button class="btn" type="submit">Cập nhật mật khẩu</button>
+                </form>`;
+
+            document.title = (tab === 'password' ? 'Đổi mật khẩu' : 'Tài khoản') + ' | CineManager';
+            root.innerHTML = `
+                <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="sep">/</span><span>Tài khoản</span></nav>
+                <section class="page-hero"><span class="eyebrow">Xin chào, ${esc(auth.username)}</span><h1>${tab === 'password' ? 'Đổi mật khẩu' : 'Cài đặt tài khoản'}</h1></section>
+                <div class="tabbar">${TABS.map(t => `<a href="account.html${t.key === 'password' ? '?tab=password' : ''}" class="${t.key === tab ? 'active' : ''}">${t.label}</a>`).join('')}</div>
+                ${tab === 'password' ? password() : profile()}`;
+
+            const form = document.getElementById('pw-form');
+            if (form) form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const oldP = document.getElementById('pw-old').value, newP = document.getElementById('pw-new').value, new2 = document.getElementById('pw-new2').value;
+                if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(newP)) return showToast('Mật khẩu mới yếu! Cần ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số.', 'error');
+                if (newP !== new2) return showToast('Mật khẩu nhập lại không khớp', 'error');
+                const res = await fetch('api/auth.php?action=change_password', { method: 'POST', body: JSON.stringify({ old_password: oldP, new_password: newP }) });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok) { showToast(data.message || 'Đổi mật khẩu thành công'); form.reset(); }
+                else showToast(data.error || 'Lỗi đổi mật khẩu', 'error');
+            });
+        })();
+    </script>
+</body>
+</html>

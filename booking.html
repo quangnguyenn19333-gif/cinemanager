@@ -145,22 +145,7 @@
             </div>
         </div>
     </main>
-    <!-- KHỐI GIAO DIỆN POPUP CHI TIẾT PHIM -->
-<div id="movie-detail-modal" class="hidden" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); z-index: 9999; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div style="background: #1a1a1a; padding: 25px; border-radius: 12px; max-width: 500px; width: 90%; position: relative; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-        <button onclick="closeMovieDetails()" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); border: none; color: white; width: 30px; height: 30px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; justify-content: center; align-items: center;">&times;</button>
-        
-        <h2 id="modal-movie-title" style="color: var(--primary); margin-bottom: 15px; padding-right: 30px; font-size: 1.4rem;">Tên Phim</h2>
-        
-        <div style="font-size: 0.95rem; color: #ddd; line-height: 1.6; max-height: 60vh; overflow-y: auto; padding-right: 5px;">
-            <p style="margin-bottom: 8px;"><strong>🎬 Đạo diễn:</strong> <span id="modal-movie-director"></span></p>
-            <p style="margin-bottom: 8px;"><strong>🎭 Diễn viên:</strong> <span id="modal-movie-cast"></span></p>
-            <hr style="border-color: #333; margin: 15px 0;">
-            <p style="margin-bottom: 8px; color: var(--primary); font-weight: bold;">Nội dung phim:</p>
-            <p id="modal-movie-desc" style="text-align: justify; color: #bbb;"></p>
-        </div>
-    </div>
-</div>
+
     <!-- KHỐI GIAO DIỆN POP-UP MODAL XÁC NHẬN ĐỘ TUỔI -->
     <div id="age-confirm-modal" class="age-modal-overlay hidden">
         <div class="age-modal-box">
