@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch Sử Góp Ý & Phản Hồi | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .container { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; }
+        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass); margin-bottom: 1rem; }
+        .badge-pending { color: #ffc107; font-weight: 600; font-size: 0.85rem; }
+        .badge-resolved { color: #28a745; font-weight: 600; font-size: 0.85rem; }
+        .reply-box { background: rgba(229, 9, 20, 0.1); border-left: 4px solid var(--primary); padding: 1rem; margin-top: 1rem; border-radius: 0 8px 8px 0; }
+    </style>
+</head>
+<body style="background: var(--bg-dark); color: white;">
+    <div class="container">
+        <h2>📩 Lịch Sử Góp Ý & Phản Hồi Của Bạn</h2>
+        <a href="index.html" style="color: var(--primary); text-decoration: none; display: inline-block; margin: 1rem 0; font-weight: 600;">← Quay lại trang chủ</a>
+        
+        <div id="my-contacts-list" style="margin-top: 1.5rem;">
+            <p style="color: var(--text-muted);">Đang tải lịch sử...</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch('api/get_my_contacts.php');
+                const data = await res.json();
+                const container = document.getElementById('my-contacts-list');
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 3rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass);">Bạn chưa gửi yêu cầu hỗ trợ hoặc góp ý nào.</p>`;
+                    return;
+                }
+
+                container.innerHTML = data.map(item => {
+                    let timeStr = '';
+                    if (item.created_at) {
+                        const d = new Date(item.created_at);
+                        timeStr = d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' - ' + d.toLocaleDateString('vi-VN');
+                    }
+
+                    return `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <strong style="color: var(--primary); font-size: 1.1rem;">[${item.subject}]</strong>
+                                <span>${item.status === 'resolved' ? '<span class="badge-resolved">✔ Đã phản hồi</span>' : '<span class="badge-pending">⏳ Đang chờ xử lý</span>'}</span>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.8rem;">Gửi lúc: ${timeStr}</p>
+                            <p style="margin-bottom: 0.5rem;"><strong>Nội dung của bạn:</strong> ${item.message}</p>
+                            
+                            ${item.admin_reply ? `
+                                <div class="reply-box">
+                                    <strong style="color: var(--primary);">💬 Phản hồi từ CineManager Admin:</strong>
+                                    <p style="margin-top: 5px; line-height: 1.5;">${item.admin_reply}</p>
+                                </div>
+                            ` : `
+                                <p style="color: var(--text-muted); font-style: italic; margin-top: 10px; font-size: 0.85rem;">Rạp chiếu phim đang xử lý yêu cầu của bạn, vui lòng đợi phản hồi.</p>
+                            `}
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

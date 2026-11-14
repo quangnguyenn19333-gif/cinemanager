@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thành Viên | CineManager</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/header.css">
+    <link rel="stylesheet" href="assets/css/header-extra.css">
+    <link rel="stylesheet" href="assets/css/pages.css">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <script src="assets/js/site-data.js"></script>
+    <script src="assets/js/site-header.js"></script>
+
+    <main class="page" id="page-root"></main>
+
+    <script src="assets/js/common.js"></script>
+    <script src="assets/js/header.js"></script>
+    <script>
+        (async function () {
+            const S = window.SITE, M = S.member;
+            const root = document.getElementById('page-root');
+            const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+            const ic = (id) => `<svg class="ic"><use href="#i-${id}"/></svg>`;
+            const fmt = n => Number(n).toLocaleString('vi-VN');
+            const TABS = S.memberLinks.map(l => ({ key: l.tab, label: l.title }));
+            let tab = new URLSearchParams(location.search).get('tab');
+            if (!TABS.some(t => t.key === tab)) tab = 'benefits';
+
+            const auth = await window.CM_AUTH;
+            const logged = !!(auth && auth.isLoggedIn);
+            // Điểm & hạng chỉ hiển thị nếu api/auth.php?action=check trả về (xem hướng dẫn kèm theo)
+            const hasPoints = logged && auth.points !== undefined && auth.points !== null;
+            const points = hasPoints ? Number(auth.points) : 0;
+            let myTier = M.tiers[0];
+            M.tiers.forEach(t => { if (points >= t.min) myTier = t; });
+            if (hasPoints && auth.member_level) myTier = M.tiers.find(t => t.key === auth.member_level) || myTier;
+            const nextTier = M.tiers.find(t => t.min > points);
+
+            const tierCard = (t) => `
+                <div class="tier-card ${hasPoints && t.key === myTier.key ? 'me' : ''}" style="--tc:${t.color}">
+                    ${hasPoints && t.key === myTier.key ? '<span class="me-tag">HẠNG CỦA BẠN</span>' : ''}
+                    <div class="tier-name">${esc(t.name)} <small style="font-weight:500;opacity:.7">(${esc(t.en)})</small></div>
+                    <div class="tier-min">${t.min === 0 ? 'Mặc định khi đăng ký' : 'Từ ' + fmt(t.min) + ' điểm'}</div>
+                    <ul class="check-list">${t.perks.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
+                </div>`;
+
+            const progressBlock = () => {
+                if (!logged) return `<div class="notice">Đăng nhập để xem số điểm và hạng thành viên hiện tại của bạn. <a href="login.html" style="text-decoration:underline">Đăng nhập</a></div>`;
+                if (!hasPoints) return `<div class="notice">Điểm tích lũy của bạn sẽ hiển thị tại đây khi hệ thống trả về dữ liệu điểm.</div>`;
+                const pct = nextTier ? Math.min(100, Math.round((points - myTier.min) / (nextTier.min - myTier.min) * 100)) : 100;
+                return `<div class="panel">
+                    <h2>${ic('coins')} Điểm của bạn</h2>
+                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+                        <div><b style="font-size:2rem;color:var(--red)">${fmt(points)}</b> <span class="muted">điểm</span></div>
+                        <div>Hạng hiện tại: <b style="color:${myTier.color}">${esc(myTier.name)}</b></div>
+                    </div>
+                    <div class="progress"><i style="width:${pct}%"></i></div>
+                    <div class="muted" style="font-size:.88rem">${nextTier ? `Cần thêm <b>${fmt(nextTier.min - points)}</b> điểm để lên hạng <b style="color:${nextTier.color}">${esc(nextTier.name)}</b>` : 'Bạn đã đạt hạng cao nhất 🎉'}</div>
+                </div>`;
+            };
+
+            const views = {
+                benefits: () => `
+                    <h2>Quyền lợi theo từng hạng</h2>
+                    <div class="tier-grid">${M.tiers.map(tierCard).join('')}</div>
+                    <div class="panel" style="margin-top:1.5rem">
+                        <h2>${ic('gift')} Quyền lợi chung cho mọi thành viên</h2>
+                        <ul class="check-list">
+                            <li>Đặt vé trực tuyến, chọn ghế theo thời gian thực, giữ ghế 5 phút</li>
+                            <li>Vé điện tử kèm mã QR lưu trong mục “Vé của tôi”</li>
+                            <li>Nhận thông tin ưu đãi và suất chiếu sớm</li>
+                            <li>Tích điểm trên mọi giao dịch vé và bắp nước</li>
+                        </ul>
+                    </div>`,
+                points: () => `
+                    ${progressBlock()}
+                    <div class="panel">
+                        <h2>${ic('info')} Cách tích điểm</h2>
+                        <p>${esc(M.earnRule)}. Điểm được cộng sau khi giao dịch đặt vé thành công.</p>
+                    </div>
+                    <div class="panel">
+                        <h2>${ic('gift')} Đổi quà bằng điểm</h2>
+                        <div class="table-scroll"><table class="data">
+                            <thead><tr><th>Quà tặng</th><th>Điểm cần đổi</th></tr></thead>
+                            <tbody>${M.rewards.map(r => `<tr><td>${esc(r.name)}</td><td><b class="text-red">${fmt(r.points)}</b> điểm</td></tr>`).join('')}</tbody>
+                        </table></div>
+                        <p class="form-note">Đổi quà trực tiếp tại quầy bắp nước khi xuất trình mã thành viên.</p>
+                    </div>`,
+                ranking: () => `
+                    ${progressBlock()}
+                    <div class="panel">
+                        <h2>${ic('bars')} Mốc điểm các hạng</h2>
+                        <div class="table-scroll"><table class="data">
+                            <thead><tr><th>Hạng</th><th>Điểm cần đạt</th><th>Quyền lợi nổi bật</th></tr></thead>
+                            <tbody>${M.tiers.map(t => `<tr>
+                                <td><b style="color:${t.color}">${esc(t.name)}</b> <span class="muted">(${esc(t.en)})</span></td>
+                                <td>${t.min === 0 ? 'Mặc định' : fmt(t.min) + ' điểm'}</td>
+                                <td>${esc(t.perks[1] || t.perks[0])}</td></tr>`).join('')}</tbody>
+                        </table></div>
+                        <p class="form-note">Hạng được cập nhật tự động khi tổng điểm tích lũy đạt mốc.</p>
+                    </div>
+                    <div class="tier-grid">${M.tiers.map(tierCard).join('')}</div>`,
+                register: () => logged ? `
+                    <div class="panel" style="text-align:center;padding:2.5rem 1.5rem">
+                        <div style="font-size:3rem">✅</div>
+                        <h2 style="justify-content:center">Bạn đã là thành viên CineManager</h2>
+                        <p class="muted">Tài khoản <b>${esc(auth.username)}</b> đang được tích điểm cho mọi giao dịch.</p>
+                        <div class="btn-row" style="justify-content:center"><a class="btn" href="index.html#movie-grid">Đặt vé ngay</a><a class="btn-outline" href="membership.html?tab=points">Xem điểm & quà</a></div>
+                    </div>` : `
+                    <div class="panel" style="text-align:center;padding:2.5rem 1.5rem">
+                        <div style="font-size:3rem">🎟️</div>
+                        <h2 style="justify-content:center">Đăng ký thành viên miễn phí</h2>
+                        <p class="muted" style="max-width:520px;margin:0 auto">Tạo tài khoản để đặt vé, tích điểm và nhận quà chào mừng thành viên mới.</p>
+                        <div class="btn-row" style="justify-content:center"><a class="btn" href="login.html#register">Đăng ký ngay</a><a class="btn-outline" href="login.html">Đã có tài khoản? Đăng nhập</a></div>
+                    </div>
+                    <div class="tier-grid">${M.tiers.slice(0, 2).map(tierCard).join('')}</div>`
+            };
+
+            const current = TABS.find(t => t.key === tab);
+            document.title = current.label + ' | CineManager';
+            root.innerHTML = `
+                <nav class="breadcrumb"><a href="index.html">Trang chủ</a><span class="sep">/</span><a href="membership.html">Thành viên</a><span class="sep">/</span><span>${esc(current.label)}</span></nav>
+                <section class="page-hero">
+                    <span class="eyebrow">Thành viên CineManager</span>
+                    <h1>${esc(current.label)}</h1>
+                    <p>Tích điểm mỗi lần xem phim, lên hạng để nhận thêm nhiều đặc quyền.</p>
+                </section>
+                <div class="tabbar">${TABS.map(t => `<a href="membership.html?tab=${t.key}" class="${t.key === tab ? 'active' : ''}">${esc(t.label)}</a>`).join('')}</div>
+                ${views[tab]()}`;
+        })();
+    </script>
+</body>
+</html>

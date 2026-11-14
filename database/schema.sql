@@ -179,3 +179,15 @@ INSERT IGNORE INTO cinemas (name, address) VALUES
 ('CineManager Beta Đan Phượng', 'Khu Đô Thị XPHomes, Tân Tây Đô, Đan Phượng, Hà Nội'),
 ('CineManager Vincom Royal City', 'Tầng B2-VCCA, Vincom Mega Mall Royal City, 72A Nguyễn Trãi, Thanh Xuân, Hà Nội'),
 ('CineManager Mỹ Đình', 'Tầng 5, TTTM The Garden, Khu đô thị The Manor, Nam Từ Liêm, Hà Nội');
+ALTER TABLE users
+ADD points INT DEFAULT 0;
+
+ALTER TABLE users
+ADD member_level
+ENUM(
+'Bronze',
+'Silver',
+'Gold',
+'Platinum'
+)
+DEFAULT 'Bronze';
