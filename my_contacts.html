@@ -5,66 +5,603 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lịch Sử Góp Ý & Phản Hồi | CineManager</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        .container { max-width: 900px; margin: 3rem auto; padding: 0 1.5rem; }
-        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--glass); margin-bottom: 1rem; }
-        .badge-pending { color: #ffc107; font-weight: 600; font-size: 0.85rem; }
-        .badge-resolved { color: #28a745; font-weight: 600; font-size: 0.85rem; }
-        .reply-box { background: rgba(229, 9, 20, 0.1); border-left: 4px solid var(--primary); padding: 1rem; margin-top: 1rem; border-radius: 0 8px 8px 0; }
+        :root {
+            --cm-bg: #0b0b0f;
+            --cm-surface: #14141a;
+            --cm-surface-2: #1b1b24;
+            --cm-primary: #e50914;
+            --cm-primary-hover: #f6121d;
+            --cm-border: rgba(255, 255, 255, 0.08);
+            --cm-text: #f3f4f6;
+            --cm-muted: #9ca3af;
+            --cm-green: #22c55e;
+            --cm-amber: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: radial-gradient(circle at top center, rgba(229, 9, 20, 0.14), transparent 42%), var(--cm-bg);
+            color: var(--cm-text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Header đồng bộ CineManager */
+        .top-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(11, 11, 15, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--cm-border);
+        }
+
+        .header-inner {
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            font-size: 1.45rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            color: #fff;
+            display: flex;
+            align-items: center;
+        }
+
+        .brand-logo span {
+            color: var(--cm-primary);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.55rem 1.1rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--cm-border);
+            color: var(--cm-text);
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(229, 9, 20, 0.15);
+            border-color: rgba(229, 9, 20, 0.45);
+            color: #fff;
+            transform: translateX(-2px);
+        }
+
+        /* Main Container */
+        .page-container {
+            max-width: 980px;
+            margin: 2.2rem auto 4rem;
+            padding: 0 1.5rem;
+        }
+
+        /* Hero Banner */
+        .page-hero {
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.16) 0%, rgba(20, 20, 26, 0.95) 65%);
+            border: 1px solid rgba(229, 9, 20, 0.25);
+            border-radius: 18px;
+            padding: 2rem;
+            margin-bottom: 1.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .hero-label {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #ff4d57;
+            margin-bottom: 0.4rem;
+        }
+
+        .hero-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-sub {
+            color: var(--cm-muted);
+            font-size: 0.92rem;
+        }
+
+        /* Quick Stats */
+        .stats-group {
+            display: flex;
+            gap: 0.85rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            background: rgba(11, 11, 15, 0.65);
+            border: 1px solid var(--cm-border);
+            border-radius: 12px;
+            padding: 0.7rem 1.1rem;
+            min-width: 105px;
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 1.35rem;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .stat-num.all { color: #fff; }
+        .stat-num.resolved { color: var(--cm-green); }
+        .stat-num.pending { color: var(--cm-amber); }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--cm-muted);
+            margin-top: 2px;
+        }
+
+        /* Filter Tabs */
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: var(--cm-surface);
+            color: var(--cm-muted);
+            border: 1px solid var(--cm-border);
+            padding: 0.5rem 1.1rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+
+        .filter-btn.active {
+            background: var(--cm-primary);
+            color: #fff;
+            border-color: var(--cm-primary);
+            box-shadow: 0 4px 14px rgba(229, 9, 20, 0.35);
+        }
+
+        /* Contact Cards */
+        .contacts-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+        }
+
+        .contact-card {
+            background: var(--cm-surface);
+            border: 1px solid var(--cm-border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.16);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .card-title-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .subject-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .subject-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--cm-primary);
+            box-shadow: 0 0 8px rgba(229, 9, 20, 0.7);
+            flex-shrink: 0;
+        }
+
+        .card-time {
+            font-size: 0.82rem;
+            color: var(--cm-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-resolved {
+            background: rgba(34, 197, 94, 0.12);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.12);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* User Message Block */
+        .user-message-box {
+            background: var(--cm-surface-2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem 1.15rem;
+        }
+
+        .msg-label {
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--cm-muted);
+            margin-bottom: 0.35rem;
+        }
+
+        .msg-content {
+            color: #e5e7eb;
+            font-size: 0.95rem;
+            white-space: pre-line;
+        }
+
+        /* Admin Reply Block */
+        .reply-box {
+            margin-top: 1rem;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.12), rgba(229, 9, 20, 0.04));
+            border: 1px solid rgba(229, 9, 20, 0.25);
+            border-left: 4px solid var(--cm-primary);
+            border-radius: 12px;
+            padding: 1rem 1.15rem;
+        }
+
+        .reply-header {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .admin-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--cm-primary);
+            color: #fff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .reply-title {
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: #ff6b72;
+        }
+
+        .reply-text {
+            color: #f3f4f6;
+            font-size: 0.94rem;
+            line-height: 1.55;
+            white-space: pre-line;
+        }
+
+        /* Waiting Note */
+        .waiting-box {
+            margin-top: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.84rem;
+            color: var(--cm-muted);
+            font-style: italic;
+            padding: 0.65rem 0.9rem;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        /* Empty & Loading States */
+        .state-box {
+            text-align: center;
+            padding: 3.5rem 1.5rem;
+            background: var(--cm-surface);
+            border: 1px solid var(--cm-border);
+            border-radius: 16px;
+        }
+
+        .state-icon {
+            font-size: 2.6rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .state-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.35rem;
+        }
+
+        .state-desc {
+            color: var(--cm-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            background: var(--cm-primary);
+            color: #fff;
+            text-decoration: none;
+            padding: 0.65rem 1.4rem;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .cta-btn:hover {
+            background: var(--cm-primary-hover);
+        }
+
+        @media (max-width: 640px) {
+            .page-hero {
+                padding: 1.4rem;
+            }
+            .hero-title {
+                font-size: 1.4rem;
+            }
+            .contact-card {
+                padding: 1.15rem;
+            }
+            .stats-group {
+                width: 100%;
+            }
+            .stat-pill {
+                flex: 1;
+                min-width: 85px;
+            }
+        }
     </style>
 </head>
-<body style="background: var(--bg-dark); color: white;">
-    <div class="container">
-        <h2>📩 Lịch Sử Góp Ý & Phản Hồi Của Bạn</h2>
-        <a href="index.html" style="color: var(--primary); text-decoration: none; display: inline-block; margin: 1rem 0; font-weight: 600;">← Quay lại trang chủ</a>
-        
-        <div id="my-contacts-list" style="margin-top: 1.5rem;">
-            <p style="color: var(--text-muted);">Đang tải lịch sử...</p>
+<body>
+    <!-- Header -->
+    <header class="top-header">
+        <div class="header-inner">
+            <a href="index.html" class="brand-logo"><span>CINE</span>MANAGER</a>
+            <a href="index.html" class="back-btn">← Quay lại trang chủ</a>
         </div>
-    </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-container">
+        <section class="page-hero">
+            <div>
+                <span class="hero-label">Hỗ trợ khách hàng</span>
+                <h1 class="hero-title">Lịch Sử Góp Ý & Phản Hồi</h1>
+                <p class="hero-sub">Theo dõi các yêu cầu hỗ trợ và phản hồi chính thức từ đội ngũ CineManager.</p>
+            </div>
+            <div class="stats-group">
+                <div class="stat-pill">
+                    <div class="stat-num all" id="stat-total">0</div>
+                    <div class="stat-label">Tổng số</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="stat-num resolved" id="stat-resolved">0</div>
+                    <div class="stat-label">Đã phản hồi</div>
+                </div>
+                <div class="stat-pill">
+                    <div class="stat-num pending" id="stat-pending">0</div>
+                    <div class="stat-label">Chờ xử lý</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bộ lọc -->
+        <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">Tất cả</button>
+            <button class="filter-btn" data-filter="resolved">Đã phản hồi</button>
+            <button class="filter-btn" data-filter="pending">Đang chờ xử lý</button>
+        </div>
+
+        <!-- Danh sách góp ý -->
+        <div id="my-contacts-list" class="contacts-grid">
+            <div class="state-box">
+                <div class="state-icon">⏳</div>
+                <div class="state-title">Đang tải lịch sử...</div>
+                <p class="state-desc">Vui lòng đợi trong giây lát.</p>
+            </div>
+        </div>
+    </main>
 
     <script>
+        let allContacts = [];
+        let currentFilter = 'all';
+
+        function escapeHtml(str) {
+            return String(str ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return 'Không rõ thời gian';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr;
+            const time = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const date = d.toLocaleDateString('vi-VN');
+            return `${time} • ${date}`;
+        }
+
+        function renderContacts() {
+            const container = document.getElementById('my-contacts-list');
+
+            const filtered = allContacts.filter(item => {
+                if (currentFilter === 'resolved') return item.status === 'resolved';
+                if (currentFilter === 'pending') return item.status !== 'resolved';
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                const emptyMsg = allContacts.length === 0
+                    ? 'Bạn chưa gửi yêu cầu hỗ trợ hoặc góp ý nào.'
+                    : 'Không có góp ý nào thuộc trạng thái này.';
+
+                container.innerHTML = `
+                    <div class="state-box">
+                        <div class="state-icon">📭</div>
+                        <div class="state-title">${emptyMsg}</div>
+                        <p class="state-desc">Mọi ý kiến đóng góp của bạn đều giúp CineManager cải thiện chất lượng dịch vụ tốt hơn.</p>
+                        <a href="index.html" class="cta-btn">Về trang chủ</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(item => {
+                const isResolved = item.status === 'resolved';
+                const timeStr = formatDateTime(item.created_at);
+
+                return `
+                    <article class="contact-card">
+                        <div class="card-top">
+                            <div class="card-title-wrap">
+                                <h2 class="subject-title">
+                                    <span class="subject-dot"></span>
+                                    ${escapeHtml(item.subject || 'Góp ý chung')}
+                                </h2>
+                                <span class="card-time">🕒 Gửi lúc ${escapeHtml(timeStr)}</span>
+                            </div>
+                            <span class="status-badge ${isResolved ? 'badge-resolved' : 'badge-pending'}">
+                                ${isResolved ? '✓ Đã phản hồi' : '⏳ Đang chờ xử lý'}
+                            </span>
+                        </div>
+
+                        <div class="user-message-box">
+                            <div class="msg-label">Nội dung của bạn</div>
+                            <div class="msg-content">${escapeHtml(item.message)}</div>
+                        </div>
+
+                        ${item.admin_reply ? `
+                            <div class="reply-box">
+                                <div class="reply-header">
+                                    <span class="admin-avatar">CM</span>
+                                    <span class="reply-title">Phản hồi từ CineManager Admin</span>
+                                </div>
+                                <div class="reply-text">${escapeHtml(item.admin_reply)}</div>
+                            </div>
+                        ` : `
+                            <div class="waiting-box">
+                                <span>💬</span>
+                                <span>Rạp chiếu phim đang tiếp nhận và xử lý yêu cầu của bạn, vui lòng đợi phản hồi nhé.</span>
+                            </div>
+                        `}
+                    </article>
+                `;
+            }).join('');
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
+            // Xử lý nút lọc
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderContacts();
+                });
+            });
+
             try {
                 const res = await fetch('api/get_my_contacts.php');
                 const data = await res.json();
-                const container = document.getElementById('my-contacts-list');
 
-                if (!Array.isArray(data) || data.length === 0) {
-                    container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 3rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass);">Bạn chưa gửi yêu cầu hỗ trợ hoặc góp ý nào.</p>`;
-                    return;
-                }
+                allContacts = Array.isArray(data) ? data : [];
 
-                container.innerHTML = data.map(item => {
-                    let timeStr = '';
-                    if (item.created_at) {
-                        const d = new Date(item.created_at);
-                        timeStr = d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' - ' + d.toLocaleDateString('vi-VN');
-                    }
+                const resolvedCount = allContacts.filter(i => i.status === 'resolved').length;
+                const pendingCount = allContacts.length - resolvedCount;
 
-                    return `
-                        <div class="card">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                                <strong style="color: var(--primary); font-size: 1.1rem;">[${item.subject}]</strong>
-                                <span>${item.status === 'resolved' ? '<span class="badge-resolved">✔ Đã phản hồi</span>' : '<span class="badge-pending">⏳ Đang chờ xử lý</span>'}</span>
-                            </div>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.8rem;">Gửi lúc: ${timeStr}</p>
-                            <p style="margin-bottom: 0.5rem;"><strong>Nội dung của bạn:</strong> ${item.message}</p>
-                            
-                            ${item.admin_reply ? `
-                                <div class="reply-box">
-                                    <strong style="color: var(--primary);">💬 Phản hồi từ CineManager Admin:</strong>
-                                    <p style="margin-top: 5px; line-height: 1.5;">${item.admin_reply}</p>
-                                </div>
-                            ` : `
-                                <p style="color: var(--text-muted); font-style: italic; margin-top: 10px; font-size: 0.85rem;">Rạp chiếu phim đang xử lý yêu cầu của bạn, vui lòng đợi phản hồi.</p>
-                            `}
-                        </div>
-                    `;
-                }).join('');
+                document.getElementById('stat-total').textContent = allContacts.length;
+                document.getElementById('stat-resolved').textContent = resolvedCount;
+                document.getElementById('stat-pending').textContent = pendingCount;
+
+                renderContacts();
             } catch (err) {
                 console.error(err);
+                document.getElementById('my-contacts-list').innerHTML = `
+                    <div class="state-box">
+                        <div class="state-icon">⚠️</div>
+                        <div class="state-title">Không thể tải dữ liệu</div>
+                        <p class="state-desc">Đã xảy ra lỗi khi kết nối tới máy chủ. Vui lòng thử tải lại trang.</p>
+                    </div>
+                `;
             }
         });
     </script>
