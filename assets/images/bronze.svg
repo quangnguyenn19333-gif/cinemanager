@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="bronze">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9a366"/><stop offset=".55" stop-color="#a65a1c"/><stop offset="1" stop-color="#5e2f0a"/></linearGradient>
+<linearGradient id="in" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9a366"/><stop offset="1" stop-color="#a65a1c"/></linearGradient>
+</defs>
+<path d="M48 4 L86 16 L86 46 C86 68 70 83 48 92 C26 83 10 68 10 46 L10 16 Z" fill="url(#g)" stroke="#5e2f0a" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M48 11 L79 21 L79 46 C79 63 66 76 48 84 C30 76 17 63 17 46 L17 21 Z" fill="#14141a" fill-opacity=".82" stroke="#e9a366" stroke-width="1.2"/>
+<circle cx="48" cy="30" r="9" fill="url(#in)" stroke="#5e2f0a" stroke-width="1.2"/><path d="M48 24 L50.2 28.6 L55 29.2 L51.5 32.4 L52.4 37 L48 34.7 L43.6 37 L44.5 32.4 L41 29.2 L45.8 28.6 Z" fill="#5e2f0a" opacity=".85"/>
+<path d="M30 52 L48 63 L66 52 L66 59 L48 70 L30 59 Z" fill="url(#in)" stroke="#5e2f0a" stroke-width="1"/>
+</svg>
