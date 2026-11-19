@@ -6,18 +6,18 @@
     <title>Hệ Thống Rạp | CineManager</title>
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/header.css">
-    <link rel="stylesheet" href="assets/css/header-extra.css?v=3">
+    <link rel="stylesheet" href="assets/css/header-extra.css">
     <link rel="stylesheet" href="assets/css/pages.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <script src="assets/js/site-data.js?v=3"></script>
-    <script src="assets/js/site-header.js?v=3"></script>
+    <script src="assets/js/site-data.js"></script>
+    <script src="assets/js/site-header.js"></script>
 
     <main class="page" id="page-root"></main>
 
     <script src="assets/js/common.js"></script>
-    <script src="assets/js/header.js?v=3"></script>
+    <script src="assets/js/header.js"></script>
     <script>
         (function () {
             const S = window.SITE;
@@ -53,12 +53,10 @@
 
             /* Ảnh rạp: nếu có file assets/images/cinema-<slug>.jpg thì dùng, không thì hiện nền gradient */
             function cover(c) {
-    return `<div class="cover contain" style="background:linear-gradient(135deg,#2a0f0f,#6b0d12)">
-        <img src="${esc(c.image)}" alt="${esc(c.name)}"
-             onload="this.nextElementSibling.remove()"
-             onerror="var s=this.nextElementSibling; s.style.cssText='font-size:.8rem;padding:10px;text-align:center;word-break:break-all'; s.textContent='Không tải được: '+this.src; this.remove()">
-        <span class="cover-fallback">🎬</span></div>`;
-}
+                return `<div class="cover" style="background:linear-gradient(135deg,#2a0f0f,#6b0d12)">
+                    <img src="assets/images/cinema-${esc(c.slug)}.jpg" alt="${esc(c.name)}" onerror="this.remove()">
+                    <span class="cover-fallback">🎬</span></div>`;
+            }
 
             /* ---------- CHI TIẾT 1 RẠP ---------- */
             function renderDetail(c) {
