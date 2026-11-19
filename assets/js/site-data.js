@@ -167,13 +167,13 @@ window.SITE = {
   member: {
     earnRule: 'Mỗi 10.000đ chi tiêu (vé và bắp nước) tích lũy 1 điểm',
     tiers: [
-      { key: 'Bronze', name: 'Thường', en: 'Bronze', min: 0, color: '#cd7f32',
+      { key: 'Bronze', badge: 'assets/images/bronze.svg', name: 'Thường', en: 'Bronze', min: 0, color: '#cd7f32',
         perks: ['Tích điểm 1 điểm / 10.000đ', 'Quà chào mừng thành viên mới', 'Nhận thông tin khuyến mãi sớm'] },
-      { key: 'Silver', name: 'Bạc', en: 'Silver', min: 500, color: '#c0c0c0',
+      { key: 'Silver', badge: 'assets/images/silver.svg', name: 'Bạc', en: 'Silver', min: 500, color: '#c0c0c0',
         perks: ['Tích điểm 1,2 điểm / 10.000đ', 'Tặng 1 bắp ngọt mỗi quý', 'Ưu tiên đặt vé suất chiếu sớm'] },
-      { key: 'Gold', name: 'Vàng', en: 'Gold', min: 1500, color: '#ffc107',
+      { key: 'Gold', badge: 'assets/images/gold.svg', name: 'Vàng', en: 'Gold', min: 1500, color: '#ffc107',
         perks: ['Tích điểm 1,5 điểm / 10.000đ', 'Tặng vé sinh nhật', 'Giảm 5% combo bắp nước'] },
-      { key: 'Platinum', name: 'Bạch kim', en: 'Platinum', min: 3000, color: '#7fd1ff',
+      { key: 'Platinum', badge: 'assets/images/platinum.svg', name: 'Bạch kim', en: 'Platinum', min: 3000, color: '#7fd1ff',
         perks: ['Tích điểm 2 điểm / 10.000đ', 'Tặng 2 vé mỗi năm', 'Giảm 10% combo, ưu tiên hỗ trợ 1:1'] }
     ],
     rewards: [

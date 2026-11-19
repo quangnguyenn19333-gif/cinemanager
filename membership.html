@@ -9,6 +9,12 @@
     <link rel="stylesheet" href="assets/css/header-extra.css">
     <link rel="stylesheet" href="assets/css/pages.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .rank-badge { width: 52px; height: 52px; object-fit: contain; display: block; margin-bottom: .6rem; }
+        .rank-badge.sm { width: 24px; height: 24px; margin: 0; }
+        .rank-badge.xs { width: 20px; height: 20px; margin: 0; }
+        .my-rank, .rank-cell { display: inline-flex; align-items: center; gap: 7px; }
+    </style>
 </head>
 <body>
     <script src="assets/js/site-data.js"></script>
@@ -53,6 +59,7 @@
             const tierCard = (t) => `
                 <div class="tier-card ${hasPoints && t.key === myTier.key ? 'me' : ''}" style="--tc:${t.color}">
                     ${hasPoints && t.key === myTier.key ? '<span class="me-tag">HẠNG CỦA BẠN</span>' : ''}
+                    ${t.badge ? `<img class="rank-badge" src="${t.badge}" alt="Huy hiệu ${esc(t.name)}">` : ''}
                     <div class="tier-name">${esc(t.name)} <small style="font-weight:500;opacity:.7">(${esc(t.en)})</small></div>
                     <div class="tier-min">${t.min === 0 ? 'Mặc định khi đăng ký' : 'Từ ' + fmt(t.min) + ' điểm'}</div>
                     <ul class="check-list">${t.perks.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
@@ -121,8 +128,11 @@
                             <b style="font-size:2rem;color:var(--red)">${fmt(points)}</b> <span class="muted">điểm</span>
                         </div>
                         <div style="text-align:right">
-                            <div>Hạng hiện tại: <b style="color:${myTier.color}">${esc(myTier.name)}</b></div>
-                            <div class="muted" style="font-size:.84rem;margin-top:2px">Tổng tích lũy xét hạng: <b style="color:#fff">${fmt(tierPoints)}</b> điểm</div>
+                            <div class="my-rank">
+                                ${myTier.badge ? `<img class="rank-badge sm" src="${myTier.badge}" alt="Huy hiệu ${esc(myTier.name)}">` : ''}
+                                <span>Hạng hiện tại: <b style="color:${myTier.color}">${esc(myTier.name)}</b></span>
+                            </div>
+                            <div class="muted" style="font-size:.84rem;margin-top:4px">Tổng tích lũy xét hạng: <b style="color:#fff">${fmt(tierPoints)}</b> điểm</div>
                         </div>
                     </div>
                     <div class="progress"><i style="width:${pct}%"></i></div>
@@ -174,7 +184,7 @@
                         <div class="table-scroll"><table class="data">
                             <thead><tr><th>Hạng</th><th>Điểm cần đạt</th><th>Quyền lợi nổi bật</th></tr></thead>
                             <tbody>${M.tiers.map(t => `<tr>
-                                <td><b style="color:${t.color}">${esc(t.name)}</b> <span class="muted">(${esc(t.en)})</span></td>
+                                <td><span class="rank-cell">${t.badge ? `<img class="rank-badge xs" src="${t.badge}" alt="Huy hiệu ${esc(t.name)}">` : ''}<span><b style="color:${t.color}">${esc(t.name)}</b> <span class="muted">(${esc(t.en)})</span></span></span></td>
                                 <td>${t.min === 0 ? 'Mặc định' : fmt(t.min) + ' điểm'}</td>
                                 <td>${esc(t.perks[1] || t.perks[0])}</td></tr>`).join('')}</tbody>
                         </table></div>
