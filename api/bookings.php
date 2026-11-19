@@ -66,9 +66,21 @@ if ($method === 'POST') {
         // Xóa holds
         $stmtDel = $pdo->prepare("DELETE FROM seat_holds WHERE showtime_id = ? AND user_id = ?");
         $stmtDel->execute([$showtime_id, $_SESSION['user_id']]);
+// Cộng điểm tích lũy (10.000đ = 1 điểm) và cập nhật hạng thành viên
+        $points_earned = cm_calc_points($total_price);
+        $stmtPts = $pdo->prepare("UPDATE users SET points = COALESCE(points, 0) + ? WHERE id = ?");
+        $stmtPts->execute([$points_earned, $_SESSION['user_id']]);
 
+        $stmtGet = $pdo->prepare("SELECT points FROM users WHERE id = ?");
+        $stmtGet->execute([$_SESSION['user_id']]);
+        $new_points = (int) $stmtGet->fetchColumn();
+        $new_level = cm_member_level($new_points);
+
+        $stmtLevel = $pdo->prepare("UPDATE users SET member_level = ? WHERE id = ?");
+        $stmtLevel->execute([$new_level, $_SESSION['user_id']]);
         $pdo->commit();
-        echo json_encode(['message' => 'Đặt vé thành công!', 'booking_id' => $booking_id, 'total_price' => $total_price]);
+        echo json_encode(['message' => 'Đặt vé thành công!', 'booking_id' => $booking_id, 'total_price' => $total_price'points_earned' => $points_earned,
+            'points' => $new_points,'member_level' => $new_level]);
     } catch (Exception $e) {
         $pdo->rollBack();
         http_response_code(500);
