@@ -23,11 +23,13 @@
     </header>
 
     <main style="padding: 2rem 5%;">
-        <div style="margin-bottom: 2rem;">
-            <a href="index.html" style="text-decoration: none;">
-                <button class="secondary" style="padding: 0.5rem 1rem; border-radius: 50px;">← Thoát đặt vé</button>
-            </a>
+        <!-- Nút Thoát đặt vé quay về trang chủ -->
+        <div style="margin-bottom: 20px;">
+            <button class="secondary" onclick="window.location.href='index.html'" style="padding: 7px 15px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid #444; color: #ccc; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#ccc';">
+                <i class="fa-solid fa-arrow-left"></i> Thoát đặt vé
+            </button>
         </div>
+
         <div class="steps-bar">
             <div class="step active" id="step-indicator-1"><span>1</span> Suất chiếu</div>
             <div class="step-line"></div>
@@ -90,13 +92,22 @@
 
             <div id="seat-map" class="seat-map"></div>
 
-            <div class="selected-seats-info">
+            <div class="selected-seats-info" style="margin-bottom: 2rem;">
                 <p>Ghế đã chọn: <span id="selected-seats-text" style="color:var(--primary)">Chưa có</span></p>
                 <p>Tạm tính: <span id="seats-subtotal" style="color:var(--primary); font-weight:bold">0 đ</span></p>
-                <button id="btn-go-combo" class="hidden" onclick="openAgeModal(3)">Tiếp tục → Chọn Combo</button>
+            </div>
+
+            <!-- ĐIỀU HƯỚNG BƯỚC 2: Quay lại bước 1 và Tiếp tục sang Combo -->
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
+                <button class="secondary" onclick="goToStep(1)" style="padding: 0.7rem 1.5rem; background: rgba(255,255,255,0.08); border: 1px solid #444; border-radius: 8px; font-weight: 600; color: #ccc; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#ccc';">
+                    ← Quay lại
+                </button>
+                <button id="btn-go-combo" class="hidden" onclick="openAgeModal(3)" style="padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: bold; font-size: 1rem;">
+                    Tiếp tục → Chọn Combo
+                </button>
             </div>
         </div>
-
+        
         <div id="step-3" class="step-content">
             <h2>🍿 Chọn Combo Bắp Nước</h2>
             <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Không bắt buộc. Bạn có thể bỏ qua bước này.</p>

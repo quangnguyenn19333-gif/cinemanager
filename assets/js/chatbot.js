@@ -116,13 +116,11 @@
         },
         // --- PHÒNG CHIẾU ---
         {
-            keywords: ['phòng chiếu', 'phong chieu', 'imax', '4dx', 'screenx', 'gold class', 'premium', 'rạp', 'rap', 'cinema', 'cơ sở', 'co so'],
+           keywords: ['phòng chiếu', 'phong chieu', 'imax', 'phòng thường', 'phòng vip', 'phong thuong', 'phong vip', 'rạp', 'rap', 'cinema', 'cơ sở', 'co so'],
             answer: `🏢 <b>Hệ thống phòng chiếu CineManager:</b><br><br>
-                🎬 <b>4DX:</b> Ghế chuyển động, hiệu ứng gió, nước, mùi hương<br>
-                🖥️ <b>IMAX:</b> Màn hình khổng lồ, âm thanh vòm chân thực<br>
-                🌟 <b>Gold Class:</b> Phòng chiếu sang trọng, phục vụ tận ghế<br>
-                💑 <b>Sweetbox:</b> Không gian riêng tư cho cặp đôi<br>
-                🎭 <b>Premium Cinema:</b> Trải nghiệm cao cấp<br>
+                🪑 <b>Phòng Thường (Standard):</b> Không gian thoải mái, màn hình sắc nét, âm thanh sống động.<br>
+                ⭐ <b>Phòng VIP:</b> Ghế da cao cấp rộng rãi, nệm êm ái, vị trí ngồi trung tâm cực đẹp.<br>
+                🖥️ <b>Phòng IMAX:</b> Màn hình khổng lồ chuẩn quốc tế, âm thanh vòm chân thực siêu đỉnh.<br><br>
                 📺 <b>ScreenX:</b> Màn hình 270°, bao trọn tầm nhìn<br><br>
                 📍 Loại phòng chiếu phụ thuộc vào từng cơ sở rạp.`
         },
