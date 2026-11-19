@@ -18,4 +18,21 @@ try {
 } catch (\PDOException $e) {
      die("Kết nối database thất bại: " . $e->getMessage());
 }
+    // ==========================================
+// TÍCH ĐIỂM & HẠNG THÀNH VIÊN
+// ==========================================
+const POINT_RATE = 10000; // 10.000đ = 1 điểm
+
+// Tính số điểm nhận được từ một giao dịch (làm tròn xuống)
+function cm_calc_points($total_price) {
+    return (int) floor($total_price / POINT_RATE);
+}
+
+// Xác định hạng theo tổng điểm.
+function cm_member_level($points) {
+    if ($points >= 3000) return 'Platinum'; // Bạch kim
+    if ($points >= 1500) return 'Gold';     // Vàng
+    if ($points >= 500)  return 'Silver';   // Bạc
+    return 'Bronze';                        // Thường
+}
 ?>
