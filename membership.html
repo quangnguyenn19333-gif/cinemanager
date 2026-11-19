@@ -42,6 +42,7 @@
             const tierCard = (t) => `
                 <div class="tier-card ${hasPoints && t.key === myTier.key ? 'me' : ''}" style="--tc:${t.color}">
                     ${hasPoints && t.key === myTier.key ? '<span class="me-tag">HẠNG CỦA BẠN</span>' : ''}
+                    <img class="rank-badge" src="${t.badge}" alt="Huy hiệu ${esc(t.name)}">
                     <div class="tier-name">${esc(t.name)} <small style="font-weight:500;opacity:.7">(${esc(t.en)})</small></div>
                     <div class="tier-min">${t.min === 0 ? 'Mặc định khi đăng ký' : 'Từ ' + fmt(t.min) + ' điểm'}</div>
                     <ul class="check-list">${t.perks.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
@@ -55,6 +56,7 @@
                     <h2>${ic('coins')} Điểm của bạn</h2>
                     <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
                         <div><b style="font-size:2rem;color:var(--red)">${fmt(points)}</b> <span class="muted">điểm</span></div>
+                        <div class="my-rank"><img class="rank-badge sm" src="${myTier.badge}" alt="Huy hiệu ${esc(myTier.name)}"><span>Hạng hiện tại: <b style="color:${myTier.color}">${esc(myTier.name)}</b></span></div>
                         <div>Hạng hiện tại: <b style="color:${myTier.color}">${esc(myTier.name)}</b></div>
                     </div>
                     <div class="progress"><i style="width:${pct}%"></i></div>
@@ -96,6 +98,7 @@
                         <div class="table-scroll"><table class="data">
                             <thead><tr><th>Hạng</th><th>Điểm cần đạt</th><th>Quyền lợi nổi bật</th></tr></thead>
                             <tbody>${M.tiers.map(t => `<tr>
+                            <td><span class="rank-cell"><img class="rank-badge xs" src="${t.badge}" alt="Huy hiệu ${esc(t.name)}"><span><b style="color:${t.color}">${esc(t.name)}</b> <span class="muted">(${esc(t.en)})</span></span></span></td>
                                 <td><b style="color:${t.color}">${esc(t.name)}</b> <span class="muted">(${esc(t.en)})</span></td>
                                 <td>${t.min === 0 ? 'Mặc định' : fmt(t.min) + ' điểm'}</td>
                                 <td>${esc(t.perks[1] || t.perks[0])}</td></tr>`).join('')}</tbody>
