@@ -117,10 +117,18 @@ if ($method === 'POST') {
 elseif ($method === 'GET') {
     if ($action === 'check') {
         if (isset($_SESSION['user_id'])) {
+            // Lấy điểm và hạng mới nhất từ database (luôn đúng dù session cũ)
+            $stmtPts = $pdo->prepare("SELECT points, member_level FROM users WHERE id = ?");
+            $stmtPts->execute([$_SESSION['user_id']]);
+            $row = $stmtPts->fetch();
+            $points = (int) ($row['points'] ?? 0);
+
             echo json_encode([
-                'isLoggedIn' => true, 
+                'isLoggedIn' => true,
                 'username' => $_SESSION['full_name'] ?? $_SESSION['username'],
-                'role' => $_SESSION['role']
+                'role' => $_SESSION['role'],
+                'points' => $points,
+                'member_level' => cm_member_level($points)
             ]);
         } else {
             echo json_encode(['isLoggedIn' => false]);
