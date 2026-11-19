@@ -1,0 +1,119 @@
+/* ===== HEADER CINEMANAGER (theo mockup) — nạp SAU style.css ===== */
+:root{--hd-red:#ff2d2d;--hd-line:rgba(255,45,45,.3);--hd-card:#120c0c;--hd-muted:#9a9a9a}
+
+header.main-header{
+  position:sticky;top:12px;z-index:1000;display:block;
+  width:calc(100% - 40px);max-width:1440px;margin:12px auto 0;padding:0 28px;
+  background:linear-gradient(180deg,rgba(28,15,15,.96),rgba(13,9,9,.96));
+  border:1px solid var(--hd-line);border-radius:14px;
+  box-shadow:0 10px 40px rgba(0,0,0,.55),inset 0 0 40px rgba(229,9,20,.05);
+  backdrop-filter:blur(12px)
+}
+.main-header .header-container{max-width:none;margin:0;height:90px;display:flex;align-items:center;gap:20px}
+.main-header button{transform:none;filter:none;font-family:inherit}
+.main-header button:hover{transform:none;filter:none}
+
+/* icon */
+.ic{width:18px;height:18px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* logo */
+.main-header .logo,.main-header .logo .cine{font-family:'Bebas Neue','Impact','Arial Narrow',sans-serif;font-weight:400}
+.main-header .logo{font-size:42px;line-height:1;letter-spacing:1px;color:#fff;text-decoration:none;white-space:nowrap;flex-shrink:0;text-shadow:0 0 18px rgba(255,45,45,.35)}
+.main-header .logo .cine{color:var(--hd-red)}
+
+/* nav */
+.main-header .main-nav{display:flex;align-items:center;gap:22px;height:100%;flex:1;min-width:0;margin-left:14px}
+.nav-item{position:relative;height:100%;display:flex;align-items:center}
+.main-header .nav-link{display:flex;align-items:center;gap:6px;height:100%;color:#f2f2f2;text-decoration:none;font-size:15px;font-weight:500;white-space:nowrap;position:relative;transition:color .2s}
+.main-header .nav-link:hover{color:#ff5050}
+.main-header .nav-link.active-link{color:var(--hd-red)}
+.main-header .nav-link.active-link::after{content:'';position:absolute;left:0;bottom:30px;width:100%;height:2px;background:var(--hd-red);box-shadow:0 0 8px rgba(255,45,45,.6)}
+.chev{width:14px;height:14px;transition:transform .2s}
+.nav-item:hover .chev{transform:rotate(180deg)}
+
+/* dropdown dạng thẻ */
+.mega{position:absolute;top:100%;left:-24px;width:346px;padding-top:6px;opacity:0;visibility:hidden;transform:translateY(8px);transition:.2s;pointer-events:none}
+.nav-item:hover .mega,.nav-item:focus-within .mega{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.mega-card{background:var(--hd-card);border:1px solid var(--hd-line);border-radius:14px;padding:4px 20px 8px;box-shadow:0 24px 50px rgba(0,0,0,.65)}
+.mega-head{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);font-weight:700;font-size:18px;color:#fff;margin-bottom:6px}
+.mega-head .ic:first-child{width:28px;height:28px;color:var(--hd-red)}
+.mega-head .go{margin-left:auto;width:16px;height:16px;color:var(--hd-red)}
+.mega-item{display:flex;align-items:center;gap:14px;padding:8px 0;color:#fff;text-decoration:none}
+.mega-item:hover b{color:#ff5050}
+.mi-text{display:flex;flex-direction:column;line-height:1.35;flex:1;min-width:0}
+.mi-text b{font-weight:500;font-size:15px;transition:color .2s}
+.mi-text small{color:var(--hd-muted);font-size:13px}
+.mega-item .arrow{width:14px;height:14px;color:#777}
+.mi-ico{width:60px;display:grid;place-items:center;color:var(--hd-red);flex-shrink:0}
+.mi-ico .ic{width:30px;height:30px}
+.thumb{width:60px;height:46px;border-radius:8px;display:grid;place-items:center;font-size:22px;font-weight:800;flex-shrink:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.mega-all{display:flex;align-items:center;gap:14px;padding:14px 8px 8px;margin-top:6px;border-top:1px solid rgba(255,255,255,.08);color:#fff;text-decoration:none;font-size:15px;font-weight:500}
+.mega-all .ic{color:var(--hd-red);width:20px;height:20px}
+.mega-all:hover{color:#ff5050}
+
+/* bên phải */
+.main-header .header-right{display:flex;align-items:center;gap:14px;margin-left:auto}
+.main-header .header-auth{display:flex;align-items:center;gap:14px}
+
+/* ô tìm kiếm */
+.main-header .header-search{position:relative;width:190px;height:44px;display:flex;align-items:center;gap:10px;padding:0 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:10px;color:#cfcfcf;transition:width .25s,border-color .2s,box-shadow .2s,background .2s}
+.main-header .header-search input{flex:1;width:auto;min-width:0;padding:0;background:none;border:none;border-radius:0;color:#fff;font-size:14px;outline:none}
+.main-header .header-search input::placeholder{color:#8a8a8a}
+.main-header .header-search:focus-within{border-color:var(--hd-red);background:#0d0808;box-shadow:0 0 0 3px rgba(255,45,45,.18)}
+.search-clear{display:none;background:none;border:none;padding:2px;color:#ddd;cursor:pointer}
+.search-clear .ic{width:16px;height:16px}
+.header-search.has-text .search-clear{display:block}
+.main-header.searching .main-nav{display:none}
+.main-header.searching .header-right{flex:1}
+.main-header.searching .header-search{width:460px;max-width:100%;margin-right:auto}
+
+.search-suggest{position:absolute;top:calc(100% + 8px);left:0;right:0;display:none;background:var(--hd-card);border:1px solid var(--hd-line);border-radius:12px;padding:8px 10px;box-shadow:0 24px 50px rgba(0,0,0,.65);z-index:20}
+.header-search.open .search-suggest{display:block}
+.sg-item{display:flex;align-items:center;gap:12px;padding:8px;border-radius:8px;color:#fff;text-decoration:none}
+.sg-item:hover{background:rgba(255,255,255,.06)}
+.sg-item img{width:36px;height:50px;border-radius:4px;object-fit:cover;background:#2a1515;flex-shrink:0}
+.sg-item b{display:block;font-weight:500;font-size:15px}
+.sg-item small{color:var(--hd-muted);font-size:13px}
+.sg-all{display:flex;align-items:center;gap:12px;padding:12px 8px 6px;margin-top:6px;border-top:1px solid rgba(255,255,255,.08);color:#fff;text-decoration:none;font-size:14px}
+.sg-all .ic{width:20px;height:20px}
+.sg-all:hover{color:#ff5050}
+.sg-empty{padding:12px 8px;color:var(--hd-muted);font-size:14px}
+
+/* chuông + ngôn ngữ */
+.main-header .icon-btn{background:none;border:none;padding:6px;color:#fff;cursor:pointer;position:relative;display:grid;place-items:center}
+.icon-btn .ic{width:22px;height:22px}
+.icon-btn .dot{position:absolute;top:3px;right:4px;width:9px;height:9px;border-radius:50%;background:var(--hd-red);box-shadow:0 0 0 2px #140d0d}
+.main-header .lang-btn{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer}
+.lang-btn .chev{width:12px;height:12px}
+
+/* tài khoản */
+.user-menu{position:relative}
+.main-header .user-trigger{white-space:nowrap;display:flex;align-items:center;gap:10px;background:none;border:none;padding:4px;color:#fff;font-size:14px;font-weight:500;cursor:pointer}
+.main-header .avatar{width:38px;height:38px;border-radius:50%;background:var(--primary);display:grid;place-items:center;font-size:16px;font-weight:700;box-shadow:0 0 0 3px rgba(255,45,45,.18)}
+.user-menu.open .chev{transform:rotate(180deg)}
+.user-dropdown{position:absolute;right:0;top:calc(100% + 16px);width:260px;display:none;background:var(--hd-card);border:1px solid var(--hd-line);border-radius:12px;padding:10px 8px;box-shadow:0 24px 50px rgba(0,0,0,.65)}
+.user-dropdown::before{content:'';position:absolute;top:-7px;right:34px;width:12px;height:12px;background:var(--hd-card);border-left:1px solid var(--hd-line);border-top:1px solid var(--hd-line);transform:rotate(45deg)}
+.user-menu.open .user-dropdown{display:block}
+.user-dropdown a{display:flex;align-items:center;gap:14px;padding:11px 14px;color:#f1f1f1;text-decoration:none;font-size:14px;border-radius:8px}
+.user-dropdown a:hover{background:rgba(255,255,255,.06)}
+.user-dropdown .ic{width:18px;height:18px;color:#bdbdbd}
+.user-dropdown .red .ic{color:var(--hd-red)}
+.user-dropdown hr{border:none;height:1px;background:rgba(255,255,255,.08);margin:6px 14px}
+
+/* responsive */
+@media(max-width:1560px){.main-header .main-nav{gap:18px}.main-header .header-search{width:180px}}
+@media(max-width:1400px){.main-header .user-trigger span{display:none}}
+@media(max-width:1320px){.main-header .main-nav{gap:14px}.main-header .header-search{width:150px}.main-header .logo{font-size:36px}}
+@media(max-width:1100px){.main-header .main-nav{display:none}.main-header .logo{font-size:34px}}
+.hidden{
+    display:none!important;
+}
+
+.booking-link{
+    color:#ff2d2d!important;
+    font-weight:700;
+}
+
+.booking-link:hover{
+    color:#ff5555!important;
+}
