@@ -91,10 +91,17 @@ a.card:hover{transform:translateY(-6px);border-color:var(--red);box-shadow:0 14p
 /* thành viên */
 .tier-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem}
 .tier-card{background:var(--card2);border:1px solid var(--line);border-top:4px solid var(--tc,#888);border-radius:16px;padding:1.5rem;position:relative}
+.tier-card{background:var(--card2);border:1px solid var(--line);border-top:4px solid var(--tc,#888);border-radius:16px;padding:1.5rem;position:relative}
 .tier-card.me{box-shadow:0 0 0 2px var(--tc),0 14px 30px rgba(0,0,0,.5)}
 .tier-card .tier-name{font-size:1.4rem;font-weight:800;color:var(--tc)}
 .tier-card .tier-min{font-size:.85rem;color:var(--text-muted);margin:.2rem 0 1rem}
 .tier-card .me-tag{position:absolute;top:12px;right:12px;background:var(--tc);color:#111;font-size:.7rem;font-weight:800;padding:3px 10px;border-radius:12px}
+.rank-badge{width:64px;height:64px;display:block;margin-bottom:.6rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.rank-badge.sm{width:48px;height:48px;margin:0}
+.rank-badge.xs{width:34px;height:34px;margin:0}
+.my-rank{display:flex;align-items:center;gap:.7rem}
+.rank-cell{display:inline-flex;align-items:center;gap:.7rem}
+.tier-card .rank-badge{width:60px;height:60px;margin:0 0 .6rem}
 .progress{height:12px;background:#222;border-radius:8px;overflow:hidden;margin:.8rem 0 .4rem}
 .progress>i{display:block;height:100%;background:linear-gradient(90deg,#e50914,#ff7a45);border-radius:8px;transition:width .8s}
 .stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;margin:1.5rem 0}
