@@ -478,3 +478,57 @@
     font-weight: 500; 
     margin-left: 2px; 
 }
+/* =========================================
+   GIAO DIỆN SUẤT CHIẾU 
+   ========================================= */
+.showtime-card-cgv {
+    background: linear-gradient(145deg, #222222, #151515); /* Nền chuyển màu tạo chiều sâu 3D */
+    border: 1px solid #333;
+    border-radius: 10px; /* Bo góc mềm mại, hiện đại hơn */
+    padding: 16px 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Hiệu ứng hover mượt như bơ */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4); /* Đổ bóng tách khối khỏi nền web */
+}
+
+/* Hiệu ứng khi di chuột vào: Sáng viền đỏ, đổ bóng đỏ rực */
+.showtime-card-cgv:hover {
+    border-color: var(--primary);
+    background: linear-gradient(145deg, rgba(229, 9, 20, 0.1), #151515);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(229, 9, 20, 0.25);
+}
+
+.st-time {
+    font-size: 2.1rem; /* Bơm size to hơn để thu hút ánh nhìn */
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6); /* Chữ nổi bật hẳn lên */
+}
+
+/* Biến tag định dạng thành một cái Badge xịn xò */
+.st-format {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary); /* Chữ màu đỏ thương hiệu */
+    background: rgba(229, 9, 20, 0.1); /* Nền đỏ trong suốt tinh tế */
+    border: 1px solid rgba(229, 9, 20, 0.3);
+    padding: 4px 12px;
+    border-radius: 6px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.st-seats {
+    font-size: 0.85rem;
+    color: #888;
+    margin-top: 2px;
+    font-weight: 500;
+}
