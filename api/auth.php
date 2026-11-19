@@ -117,18 +117,25 @@ if ($method === 'POST') {
 elseif ($method === 'GET') {
     if ($action === 'check') {
         if (isset($_SESSION['user_id'])) {
-            // Lấy điểm và hạng mới nhất từ database (luôn đúng dù session cũ)
+            // Lấy điểm khả dụng (dùng để đổi quà)
             $stmtPts = $pdo->prepare("SELECT points, member_level FROM users WHERE id = ?");
             $stmtPts->execute([$_SESSION['user_id']]);
             $row = $stmtPts->fetch();
             $points = (int) ($row['points'] ?? 0);
+
+            // Tính tổng điểm xét hạng = điểm đang có + tổng điểm đã đem đổi quà
+            $stmtSpent = $pdo->prepare("SELECT COALESCE(SUM(points_spent), 0) FROM reward_redemptions WHERE user_id = ?");
+            $stmtSpent->execute([$_SESSION['user_id']]);
+            $tier_points = $points + (int) $stmtSpent->fetchColumn();
 
             echo json_encode([
                 'isLoggedIn' => true,
                 'username' => $_SESSION['full_name'] ?? $_SESSION['username'],
                 'role' => $_SESSION['role'],
                 'points' => $points,
-                'member_level' => cm_member_level($points)
+                'tier_points' => $tier_points,
+                'member_level' => cm_member_level($tier_points),
+                'member_code' => 'CM-' . str_pad($_SESSION['user_id'], 6, '0', STR_PAD_LEFT)
             ]);
         } else {
             echo json_encode(['isLoggedIn' => false]);

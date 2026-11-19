@@ -216,7 +216,6 @@ window.SITE = {
   memberLinks: [
     { tab: 'benefits', title: 'Quyền lợi thành viên', sub: 'Nhiều ưu đãi đặc quyền', icon: 'crown', color: '#ffc107' },
     { tab: 'points',   title: 'Tích điểm đổi quà',    sub: 'Xem điểm của bạn',        icon: 'coins' },
-    { tab: 'ranking',  title: 'Xếp hạng thành viên',  sub: 'Silver - Gold - Platinum', icon: 'bars' },
     { tab: 'register', title: 'Đăng ký thành viên',   sub: 'Tham gia ngay',           icon: 'user-plus' }
   ],
   aboutLinks: [
