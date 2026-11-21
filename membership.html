@@ -9,12 +9,6 @@
     <link rel="stylesheet" href="assets/css/header-extra.css">
     <link rel="stylesheet" href="assets/css/pages.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        .rank-badge { width: 52px; height: 52px; object-fit: contain; display: block; margin-bottom: .6rem; }
-        .rank-badge.sm { width: 24px; height: 24px; margin: 0; }
-        .rank-badge.xs { width: 20px; height: 20px; margin: 0; }
-        .my-rank, .rank-cell { display: inline-flex; align-items: center; gap: 7px; }
-    </style>
 </head>
 <body>
     <script src="assets/js/site-data.js"></script>
@@ -37,106 +31,34 @@
 
             const auth = await window.CM_AUTH;
             const logged = !!(auth && auth.isLoggedIn);
+            // Điểm & hạng chỉ hiển thị nếu api/auth.php?action=check trả về (xem hướng dẫn kèm theo)
             const hasPoints = logged && auth.points !== undefined && auth.points !== null;
             const points = hasPoints ? Number(auth.points) : 0;
-            const tierPoints = (logged && auth.tier_points !== undefined && auth.tier_points !== null) ? Number(auth.tier_points) : points;
             let myTier = M.tiers[0];
-            M.tiers.forEach(t => { if (tierPoints >= t.min) myTier = t; });
+            M.tiers.forEach(t => { if (points >= t.min) myTier = t; });
             if (hasPoints && auth.member_level) myTier = M.tiers.find(t => t.key === auth.member_level) || myTier;
-            const myTierIdx = M.tiers.findIndex(t => t.key === myTier.key);
-            const nextTier = myTierIdx >= 0 ? M.tiers[myTierIdx + 1] : null;
-
-            // Lấy danh sách quà đã đổi nếu đã đăng nhập
-            let myVouchers = [];
-            if (logged && tab === 'points') {
-                try {
-                    const vRes = await fetch('api/redeem.php');
-                    const vData = await vRes.json();
-                    if (Array.isArray(vData)) myVouchers = vData;
-                } catch (e) {}
-            }
+            const nextTier = M.tiers.find(t => t.min > points);
 
             const tierCard = (t) => `
                 <div class="tier-card ${hasPoints && t.key === myTier.key ? 'me' : ''}" style="--tc:${t.color}">
                     ${hasPoints && t.key === myTier.key ? '<span class="me-tag">HẠNG CỦA BẠN</span>' : ''}
-                    ${t.badge ? `<img class="rank-badge" src="${t.badge}" alt="Huy hiệu ${esc(t.name)}">` : ''}
                     <div class="tier-name">${esc(t.name)} <small style="font-weight:500;opacity:.7">(${esc(t.en)})</small></div>
                     <div class="tier-min">${t.min === 0 ? 'Mặc định khi đăng ký' : 'Từ ' + fmt(t.min) + ' điểm'}</div>
                     <ul class="check-list">${t.perks.map(p => `<li>${esc(p)}</li>`).join('')}</ul>
                 </div>`;
 
-            const memberCardBlock = () => {
-                if (!logged || !auth.member_code) return '';
-                const code = esc(auth.member_code);
-                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(auth.member_code)}`;
-                return `
-                <div class="panel" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;border-color:rgba(229,9,20,0.4);background:linear-gradient(135deg,rgba(229,9,20,0.12),rgba(20,20,26,0.95))">
-                    <div style="flex:1;min-width:240px">
-                        <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1.2px;color:#ff4d57;font-weight:700;margin-bottom:.35rem">Thẻ thành viên điện tử</div>
-                        <div style="font-size:1.3rem;font-weight:800;color:#fff;margin-bottom:.35rem">${esc(auth.username)} <span style="font-size:.9rem;font-weight:600;color:${myTier.color}">• Hạng ${esc(myTier.name)}</span></div>
-                        <p class="muted" style="font-size:.88rem;margin-bottom:1rem">Xuất trình mã thành viên hoặc mã QR dưới đây tại quầy bắp nước để tích điểm và nhận quà.</p>
-                        <div style="display:inline-flex;align-items:center;gap:.75rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);padding:.5rem .85rem;border-radius:10px">
-                            <span style="font-family:monospace;font-size:1.15rem;font-weight:800;color:#fff;letter-spacing:1.5px">${code}</span>
-                            <button type="button" class="btn-copy-code" data-code="${code}" style="background:var(--red,#e50914);color:#fff;border:none;padding:.35rem .8rem;border-radius:6px;font-size:.8rem;font-weight:600;cursor:pointer">Sao chép</button>
-                        </div>
-                    </div>
-                    <div style="background:#fff;padding:.65rem;border-radius:12px;text-align:center;flex-shrink:0">
-                        <img src="${qrUrl}" alt="QR Mã thành viên" style="width:118px;height:118px;display:block">
-                        <div style="color:#111;font-size:.7rem;font-weight:800;letter-spacing:.5px;margin-top:4px">QUÉT TẠI QUẦY</div>
-                    </div>
-                </div>`;
-            };
-
-            const vouchersBlock = () => {
-                if (!logged) return '';
-                if (myVouchers.length === 0) {
-                    return `<div class="panel"><h2>🎟️ Quà đã đổi của bạn</h2><p class="muted">Bạn chưa đổi phần quà nào. Hãy tích điểm và bấm <b>Đổi ngay</b> ở bảng trên nhé!</p></div>`;
-                }
-                return `
-                <div class="panel">
-                    <h2>🎟️ Quà đã đổi của bạn (${myVouchers.length})</h2>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;margin-top:1rem">
-                        ${myVouchers.map(v => {
-                            const qr = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(v.voucher_code)}`;
-                            const dt = new Date(v.created_at).toLocaleDateString('vi-VN');
-                            return `
-                            <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem">
-                                <div>
-                                    <div style="font-weight:700;color:#fff;margin-bottom:4px">${esc(v.reward_name)}</div>
-                                    <div style="font-family:monospace;font-size:.95rem;font-weight:800;color:#ff4d57;letter-spacing:1px">${esc(v.voucher_code)}</div>
-                                    <div class="muted" style="font-size:.78rem;margin-top:4px">Đã đổi: -${fmt(v.points_spent)} điểm • ${dt}</div>
-                                </div>
-                                <div style="background:#fff;padding:5px;border-radius:8px;flex-shrink:0">
-                                    <img src="${qr}" alt="QR Quà" style="width:68px;height:68px;display:block">
-                                </div>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
-            };
-
             const progressBlock = () => {
                 if (!logged) return `<div class="notice">Đăng nhập để xem số điểm và hạng thành viên hiện tại của bạn. <a href="login.html" style="text-decoration:underline">Đăng nhập</a></div>`;
                 if (!hasPoints) return `<div class="notice">Điểm tích lũy của bạn sẽ hiển thị tại đây khi hệ thống trả về dữ liệu điểm.</div>`;
-                const pct = nextTier ? Math.max(0, Math.min(100, Math.round((tierPoints - myTier.min) / (nextTier.min - myTier.min) * 100))) : 100;
-                const needPoints = nextTier ? Math.max(0, nextTier.min - tierPoints) : 0;
+                const pct = nextTier ? Math.min(100, Math.round((points - myTier.min) / (nextTier.min - myTier.min) * 100)) : 100;
                 return `<div class="panel">
                     <h2>${ic('coins')} Điểm của bạn</h2>
-                    <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:.75rem">
-                        <div>
-                            <div class="muted" style="font-size:.82rem;margin-bottom:2px">Điểm khả dụng (dùng để đổi quà)</div>
-                            <b style="font-size:2rem;color:var(--red)">${fmt(points)}</b> <span class="muted">điểm</span>
-                        </div>
-                        <div style="text-align:right">
-                            <div class="my-rank">
-                                ${myTier.badge ? `<img class="rank-badge sm" src="${myTier.badge}" alt="Huy hiệu ${esc(myTier.name)}">` : ''}
-                                <span>Hạng hiện tại: <b style="color:${myTier.color}">${esc(myTier.name)}</b></span>
-                            </div>
-                            <div class="muted" style="font-size:.84rem;margin-top:4px">Tổng tích lũy xét hạng: <b style="color:#fff">${fmt(tierPoints)}</b> điểm</div>
-                        </div>
+                    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+                        <div><b style="font-size:2rem;color:var(--red)">${fmt(points)}</b> <span class="muted">điểm</span></div>
+                        <div>Hạng hiện tại: <b style="color:${myTier.color}">${esc(myTier.name)}</b></div>
                     </div>
                     <div class="progress"><i style="width:${pct}%"></i></div>
-                    <div class="muted" style="font-size:.88rem">${nextTier ? `Cần thêm <b>${fmt(needPoints)}</b> điểm tích lũy để lên hạng <b style="color:${nextTier.color}">${esc(nextTier.name)}</b>` : 'Bạn đã đạt hạng cao nhất 🎉'}</div>
+                    <div class="muted" style="font-size:.88rem">${nextTier ? `Cần thêm <b>${fmt(nextTier.min - points)}</b> điểm để lên hạng <b style="color:${nextTier.color}">${esc(nextTier.name)}</b>` : 'Bạn đã đạt hạng cao nhất 🎉'}</div>
                 </div>`;
             };
 
@@ -155,7 +77,6 @@
                     </div>`,
                 points: () => `
                     ${progressBlock()}
-                    ${memberCardBlock()}
                     <div class="panel">
                         <h2>${ic('info')} Cách tích điểm</h2>
                         <p>${esc(M.earnRule)}. Điểm được cộng sau khi giao dịch đặt vé thành công.</p>
@@ -163,20 +84,11 @@
                     <div class="panel">
                         <h2>${ic('gift')} Đổi quà bằng điểm</h2>
                         <div class="table-scroll"><table class="data">
-                            <thead><tr><th>Quà tặng</th><th>Điểm cần đổi</th><th style="text-align:right">Thao tác</th></tr></thead>
-                            <tbody>${M.rewards.map(r => {
-                                const canRedeem = logged && points >= r.points;
-                                const btnHtml = !logged
-                                    ? `<a href="login.html" style="font-size:.82rem;color:#ff4d57;text-decoration:underline">Đăng nhập</a>`
-                                    : canRedeem
-                                        ? `<button type="button" class="btn-redeem" data-name="${esc(r.name)}" data-points="${r.points}" style="background:#e50914;color:#fff;border:none;padding:.45rem .95rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer">Đổi ngay</button>`
-                                        : `<button type="button" disabled style="background:rgba(255,255,255,0.07);color:#777;border:1px solid rgba(255,255,255,0.1);padding:.45rem .95rem;border-radius:8px;font-size:.82rem;cursor:not-allowed">Chưa đủ điểm</button>`;
-                                return `<tr><td>${esc(r.name)}</td><td><b class="text-red">${fmt(r.points)}</b> điểm</td><td style="text-align:right">${btnHtml}</td></tr>`;
-                            }).join('')}</tbody>
+                            <thead><tr><th>Quà tặng</th><th>Điểm cần đổi</th></tr></thead>
+                            <tbody>${M.rewards.map(r => `<tr><td>${esc(r.name)}</td><td><b class="text-red">${fmt(r.points)}</b> điểm</td></tr>`).join('')}</tbody>
                         </table></div>
-                        <p class="form-note">Bấm "Đổi ngay" để nhận mã QR quà tặng và xuất trình trực tiếp tại quầy bắp nước.</p>
-                    </div>
-                    ${vouchersBlock()}`,
+                        <p class="form-note">Đổi quà trực tiếp tại quầy bắp nước khi xuất trình mã thành viên.</p>
+                    </div>`,
                 ranking: () => `
                     ${progressBlock()}
                     <div class="panel">
@@ -184,7 +96,7 @@
                         <div class="table-scroll"><table class="data">
                             <thead><tr><th>Hạng</th><th>Điểm cần đạt</th><th>Quyền lợi nổi bật</th></tr></thead>
                             <tbody>${M.tiers.map(t => `<tr>
-                                <td><span class="rank-cell">${t.badge ? `<img class="rank-badge xs" src="${t.badge}" alt="Huy hiệu ${esc(t.name)}">` : ''}<span><b style="color:${t.color}">${esc(t.name)}</b> <span class="muted">(${esc(t.en)})</span></span></span></td>
+                                <td><b style="color:${t.color}">${esc(t.name)}</b> <span class="muted">(${esc(t.en)})</span></td>
                                 <td>${t.min === 0 ? 'Mặc định' : fmt(t.min) + ' điểm'}</td>
                                 <td>${esc(t.perks[1] || t.perks[0])}</td></tr>`).join('')}</tbody>
                         </table></div>
@@ -197,8 +109,7 @@
                         <h2 style="justify-content:center">Bạn đã là thành viên CineManager</h2>
                         <p class="muted">Tài khoản <b>${esc(auth.username)}</b> đang được tích điểm cho mọi giao dịch.</p>
                         <div class="btn-row" style="justify-content:center"><a class="btn" href="index.html#movie-grid">Đặt vé ngay</a><a class="btn-outline" href="membership.html?tab=points">Xem điểm & quà</a></div>
-                    </div>
-                    ${memberCardBlock()}` : `
+                    </div>` : `
                     <div class="panel" style="text-align:center;padding:2.5rem 1.5rem">
                         <div style="font-size:3rem">🎟️</div>
                         <h2 style="justify-content:center">Đăng ký thành viên miễn phí</h2>
@@ -219,48 +130,9 @@
                 </section>
                 <div class="tabbar">${TABS.map(t => `<a href="membership.html?tab=${t.key}" class="${t.key === tab ? 'active' : ''}">${esc(t.label)}</a>`).join('')}</div>
                 ${views[tab]()}`;
-
-            // Sao chép mã thành viên
-            root.querySelectorAll('.btn-copy-code').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(btn.dataset.code);
-                    btn.textContent = 'Đã chép ✓';
-                    setTimeout(() => btn.textContent = 'Sao chép', 1500);
-                });
-            });
-
-            // Xử lý bấm nút Đổi ngay
-            root.querySelectorAll('.btn-redeem').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    const name = btn.dataset.name;
-                    const pts = Number(btn.dataset.points);
-                    if (!confirm(`Xác nhận dùng ${fmt(pts)} điểm để đổi "${name}"?`)) return;
-
-                    btn.disabled = true;
-                    btn.textContent = 'Đang xử lý...';
-                    try {
-                        const res = await fetch('api/redeem.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ reward_name: name, points: pts })
-                        });
-                        const data = await res.json();
-                        if (!res.ok) {
-                            alert(data.error || 'Đổi quà thất bại');
-                            btn.disabled = false;
-                            btn.textContent = 'Đổi ngay';
-                            return;
-                        }
-                        alert(data.message);
-                        location.reload();
-                    } catch (err) {
-                        alert('Lỗi kết nối máy chủ');
-                        btn.disabled = false;
-                        btn.textContent = 'Đổi ngay';
-                    }
-                });
-            });
         })();
     </script>
+    <script src="assets/js/site-footer.js"></script>
+
 </body>
 </html>
