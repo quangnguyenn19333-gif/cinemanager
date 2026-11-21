@@ -26,6 +26,7 @@ window.SITE = {
   /* ---------------------------- HỆ THỐNG RẠP ---------------------------- */
   cinemas: [
     {
+      image:'assets/images/aeonxthuy.png',
       slug: 'xuanthuy', name: 'CineManager Xuân Thủy', district: 'Cầu Giấy',
       venue: 'TTTM AEON MALL Xuân Thủy',
       address: 'TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội',
@@ -37,6 +38,7 @@ window.SITE = {
       intro: 'Cơ sở chủ lực của hệ thống với phòng chiếu IMAX và khu vực ghế Couple, nằm ngay trung tâm quận Cầu Giấy.'
     },
     {
+      image: 'assets/images/gothanglong.png',
       slug: 'thanglong', name: 'CineManager Thăng Long', district: 'Cầu Giấy',
       venue: 'TTTM Big C Thăng Long',
       address: 'TTTM Big C Thăng Long, 222 Trần Duy Hưng, Cầu Giấy, Hà Nội',
@@ -48,6 +50,7 @@ window.SITE = {
       intro: 'Rạp nằm trên trục Trần Duy Hưng sầm uất, thuận tiện cho khách hàng khu vực Cầu Giấy, Thanh Xuân.'
     },
     {
+      image: 'assets/images/hadong.png',
       slug: 'aeon-hadong', name: 'CineManager Aeon Hà Đông', district: 'Hà Đông',
       venue: 'AEON Mall Hà Đông',
       address: 'AEON Mall Hà Đông, Phường Dương Nội, Hà Đông, Hà Nội',
@@ -59,6 +62,7 @@ window.SITE = {
       intro: 'Cụm rạp quy mô lớn nhất hệ thống, phục vụ khách hàng khu vực Hà Đông và các tỉnh phía Tây.'
     },
     {
+      image: 'assets/images/megamall.png',
       slug: 'royal-city', name: 'CineManager Royal City', district: 'Thanh Xuân',
       venue: 'Vincom Mega Mall Royal City',
       address: 'Tầng B2-VCCA, Vincom Mega Mall Royal City, 72A Nguyễn Trãi, Thanh Xuân, Hà Nội',
@@ -70,6 +74,7 @@ window.SITE = {
       intro: 'Rạp nằm trong tổ hợp Royal City với không gian hiện đại, phù hợp đi cùng gia đình và bạn bè.'
     },
     {
+      image: 'assets/images/thegardan.png',
       slug: 'mydinh', name: 'CineManager Mỹ Đình', district: 'Nam Từ Liêm',
       venue: 'TTTM The Garden',
       address: 'Tầng 5, TTTM The Garden, Khu đô thị The Manor, Nam Từ Liêm, Hà Nội',
@@ -81,6 +86,7 @@ window.SITE = {
       intro: 'Cơ sở phục vụ cư dân khu đô thị The Manor, Mỹ Đình và khu vực lân cận.'
     },
     {
+      image: 'assets/images/xphome.png',
       slug: 'danphuong', name: 'CineManager Đan Phượng', district: 'Đan Phượng',
       venue: 'Khu Đô Thị XPHomes',
       address: 'Khu Đô Thị XPHomes, Tân Tây Đô, Đan Phượng, Hà Nội',
@@ -92,6 +98,7 @@ window.SITE = {
       intro: 'Rạp gần gũi, giá tốt, phục vụ khu vực phía Tây Hà Nội.'
     }
   ],
+
 
   /* ----------------------------- KHUYẾN MÃI ----------------------------- */
   promotions: [
@@ -167,13 +174,13 @@ window.SITE = {
   member: {
     earnRule: 'Mỗi 10.000đ chi tiêu (vé và bắp nước) tích lũy 1 điểm',
     tiers: [
-      { key: 'Bronze', badge: 'assets/images/bronze.svg', name: 'Thường', en: 'Bronze', min: 0, color: '#cd7f32',
+      { key: 'Bronze', name: 'Thường', en: 'Bronze', min: 0, color: '#cd7f32',
         perks: ['Tích điểm 1 điểm / 10.000đ', 'Quà chào mừng thành viên mới', 'Nhận thông tin khuyến mãi sớm'] },
-      { key: 'Silver', badge: 'assets/images/silver.svg', name: 'Bạc', en: 'Silver', min: 500, color: '#c0c0c0',
+      { key: 'Silver', name: 'Bạc', en: 'Silver', min: 500, color: '#c0c0c0',
         perks: ['Tích điểm 1,2 điểm / 10.000đ', 'Tặng 1 bắp ngọt mỗi quý', 'Ưu tiên đặt vé suất chiếu sớm'] },
-      { key: 'Gold', badge: 'assets/images/gold.svg', name: 'Vàng', en: 'Gold', min: 1500, color: '#ffc107',
+      { key: 'Gold', name: 'Vàng', en: 'Gold', min: 1500, color: '#ffc107',
         perks: ['Tích điểm 1,5 điểm / 10.000đ', 'Tặng vé sinh nhật', 'Giảm 5% combo bắp nước'] },
-      { key: 'Platinum', badge: 'assets/images/platinum.svg', name: 'Bạch kim', en: 'Platinum', min: 3000, color: '#7fd1ff',
+      { key: 'Platinum', name: 'Bạch kim', en: 'Platinum', min: 3000, color: '#7fd1ff',
         perks: ['Tích điểm 2 điểm / 10.000đ', 'Tặng 2 vé mỗi năm', 'Giảm 10% combo, ưu tiên hỗ trợ 1:1'] }
     ],
     rewards: [
@@ -216,6 +223,7 @@ window.SITE = {
   memberLinks: [
     { tab: 'benefits', title: 'Quyền lợi thành viên', sub: 'Nhiều ưu đãi đặc quyền', icon: 'crown', color: '#ffc107' },
     { tab: 'points',   title: 'Tích điểm đổi quà',    sub: 'Xem điểm của bạn',        icon: 'coins' },
+    { tab: 'ranking',  title: 'Xếp hạng thành viên',  sub: 'Silver - Gold - Platinum', icon: 'bars' },
     { tab: 'register', title: 'Đăng ký thành viên',   sub: 'Tham gia ngay',           icon: 'user-plus' }
   ],
   aboutLinks: [
