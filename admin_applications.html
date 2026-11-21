@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Tuyển Dụng | CineManager Admin</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        .admin-layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #111; border-right: 1px solid var(--glass); padding: 2rem 0; display: flex; flex-direction: column; }
+        .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; }
+        .sidebar-logo span { color: white; }
+        .nav-item { padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: var(--transition); border-left: 4px solid transparent; }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
+        .nav-item.active { background: rgba(229, 9, 20, 0.1); color: white; border-left-color: var(--primary); }
+
+        .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+
+        .table-container { background: var(--card-bg); padding: 1.5rem; border-radius: 15px; border: 1px solid var(--glass); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { text-align: left; padding: 1rem; border-bottom: 1px solid var(--glass); font-size: 0.9rem; vertical-align: middle; }
+        th { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; }
+
+        .cv-link { color: #3a9bdc; text-decoration: none; font-weight: 600; white-space: nowrap; }
+        .cv-link:hover { text-decoration: underline; color: #63b8f0; }
+
+        /* Dropdown trạng thái đổi màu */
+        .status-select {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            outline: none;
+            border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .status-select option { background: #1a1a1a; color: white; }
+        .status-select.pending { background: rgba(255, 193, 7, 0.15); color: #ffc107; border-color: rgba(255, 193, 7, 0.4); }
+        .status-select.contacted { background: rgba(40, 167, 69, 0.15); color: #28a745; border-color: rgba(40, 167, 69, 0.4); }
+        .status-select.rejected { background: rgba(220, 53, 69, 0.15); color: #ff4d4d; border-color: rgba(220, 53, 69, 0.4); }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar Menu -->
+        <div class="sidebar">
+            <div class="sidebar-logo">Cine<span>Manager</span></div>
+            <a href="dashboard.html" class="nav-item">📊 Thống kê doanh thu</a>
+            <a href="admin_movies.html" class="nav-item">🎬 Quản lý Phim</a>
+            <a href="showtimes.html" class="nav-item">📅 Quản lý Suất chiếu</a>
+            <a href="admin_users.html" class="nav-item">👥 Quản lý Khách hàng</a>
+            <a href="admin_contacts.html" class="nav-item">📩 Quản lý Góp ý</a>
+            <a href="admin_applications.html" class="nav-item active">💼 Quản lý Tuyển dụng</a>
+            <div style="margin-top: auto; padding: 0 2rem;">
+                <button onclick="handleLogout()" style="width: 100%; background: #333;">🚪 Đăng xuất</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h2>💼 Danh Sách Hồ Sơ Ứng Tuyển</h2>
+                <span id="display-username" style="color:var(--primary); font-weight:bold;"></span>
+            </div>
+
+            <div class="table-container">
+                <h3>Ứng viên đã nộp hồ sơ</h3>
+                <table id="table-applications">
+                    <thead>
+                        <tr>
+                            <th>Ứng viên</th>
+                            <th>Liên hệ</th>
+                            <th>Vị trí ứng tuyển</th>
+                            <th>Link CV</th>
+                            <th>Giới thiệu ngắn</th>
+                            <th>Thời gian</th>
+                            <th style="text-align: center;">Cập nhật trạng thái</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/common.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const authRes = await fetch('api/auth.php?action=check');
+            const authData = await authRes.json();
+            if (!authData.isLoggedIn || authData.role !== 'admin') {
+                window.location.href = 'login.html';
+                return;
+            }
+            document.getElementById('display-username').innerText = authData.username + ' (Admin)';
+            loadApplications();
+        });
+
+        async function loadApplications() {
+            try {
+                const res = await fetch('api/applications.php?action=list');
+                const list = await res.json();
+                const tbody = document.querySelector('#table-applications tbody');
+
+                if (!Array.isArray(list) || list.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888; padding: 2rem;">Chưa có hồ sơ ứng tuyển nào</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = list.map(a => {
+                    let timeStr = '';
+                    if (a.created_at) {
+                        const d = new Date(a.created_at);
+                        timeStr = d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' - ' + d.toLocaleDateString('vi-VN');
+                    }
+
+                    const cvHtml = a.cv_link
+                        ? `<a href="${a.cv_link}" target="_blank" rel="noopener noreferrer" class="cv-link">Xem CV ↗</a>`
+                        : `<span style="color:#666; font-style:italic;">Không có</span>`;
+
+                    return `
+                        <tr>
+                            <td style="font-weight: 600;">${a.full_name}</td>
+                            <td>${a.email}<br><span style="color:var(--text-muted); font-size:0.8rem;">${a.phone}</span></td>
+                            <td style="color: var(--primary); font-weight: 600;">${a.position}</td>
+                            <td>${cvHtml}</td>
+                            <td style="max-width: 240px; word-break: break-word; color: #ccc;">${a.message || '<span style="color:#666;">-</span>'}</td>
+                            <td style="color: var(--text-muted); font-size: 0.85rem; white-space: nowrap;">${timeStr}</td>
+                            <td style="text-align: center;">
+                                <select class="status-select ${a.status}" onchange="updateStatus(${a.id}, this)">
+                                    <option value="pending" ${a.status === 'pending' ? 'selected' : ''}>⏳ Chờ duyệt</option>
+                                    <option value="contacted" ${a.status === 'contacted' ? 'selected' : ''}>✔ Đã liên hệ</option>
+                                    <option value="rejected" ${a.status === 'rejected' ? 'selected' : ''}>✖ Từ chối</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function updateStatus(id, selectEl) {
+            const newStatus = selectEl.value;
+            selectEl.className = `status-select ${newStatus}`;
+
+            try {
+                const res = await fetch('api/applications.php?action=update_status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('Đã cập nhật trạng thái hồ sơ!');
+                } else {
+                    showToast(data.error || 'Lỗi cập nhật', 'error');
+                    loadApplications();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('Lỗi kết nối server', 'error');
+            }
+        }
+    </script>
+    <script src="assets/js/site-footer.js"></script>
+</body>
+</html>
