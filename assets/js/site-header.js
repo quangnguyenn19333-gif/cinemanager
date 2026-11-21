@@ -73,9 +73,14 @@
   }
 
   /* Hệ thống rạp */
-  var cinemaItems = S.cinemas.map(function (c) {
+    var cinemaItems = S.cinemas.map(function (c) {
+    var thumb = c.image
+      ? '<span class="thumb"><img src="' + esc(c.image) + '" alt="" ' +
+        'onload="this.nextElementSibling.remove()" onerror="this.remove()">' +
+        '<i class="thumb-fb">📍</i></span>'
+      : '<span class="thumb">📍</span>';
     return megaItem('cinemas.html?id=' + encodeURIComponent(c.slug),
-      '<span class="thumb">📍</span><span class="mi-text"><b>' + esc(c.name) + '</b><small>' + esc(c.district) + '</small></span>');
+      thumb + '<span class="mi-text"><b>' + esc(c.name) + '</b><small>' + esc(c.district) + '</small></span>');
   }).join('');
 
   /* Khuyến mãi (4 mục đầu hiển thị trong dropdown) */
