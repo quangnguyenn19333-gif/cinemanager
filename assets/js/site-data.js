@@ -26,7 +26,7 @@ window.SITE = {
   /* ---------------------------- HỆ THỐNG RẠP ---------------------------- */
   cinemas: [
     {
-      image:'assets/images/aeonxthuy.png',
+      image: 'assets/images/aeonxthuy.png',
       slug: 'xuanthuy', name: 'CineManager Xuân Thủy', district: 'Cầu Giấy',
       venue: 'TTTM AEON MALL Xuân Thủy',
       address: 'TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội',
@@ -98,7 +98,6 @@ window.SITE = {
       intro: 'Rạp gần gũi, giá tốt, phục vụ khu vực phía Tây Hà Nội.'
     }
   ],
-
 
   /* ----------------------------- KHUYẾN MÃI ----------------------------- */
   promotions: [
@@ -174,13 +173,13 @@ window.SITE = {
   member: {
     earnRule: 'Mỗi 10.000đ chi tiêu (vé và bắp nước) tích lũy 1 điểm',
     tiers: [
-      { key: 'Bronze', name: 'Thường', en: 'Bronze', min: 0, color: '#cd7f32',
+      { key: 'Bronze', badge: 'assets/images/bronze.svg', name: 'Thường', en: 'Bronze', min: 0, color: '#cd7f32',
         perks: ['Tích điểm 1 điểm / 10.000đ', 'Quà chào mừng thành viên mới', 'Nhận thông tin khuyến mãi sớm'] },
-      { key: 'Silver', name: 'Bạc', en: 'Silver', min: 500, color: '#c0c0c0',
+      { key: 'Silver', badge: 'assets/images/silver.svg', name: 'Bạc', en: 'Silver', min: 500, color: '#c0c0c0',
         perks: ['Tích điểm 1,2 điểm / 10.000đ', 'Tặng 1 bắp ngọt mỗi quý', 'Ưu tiên đặt vé suất chiếu sớm'] },
-      { key: 'Gold', name: 'Vàng', en: 'Gold', min: 1500, color: '#ffc107',
+      { key: 'Gold', badge: 'assets/images/gold.svg', name: 'Vàng', en: 'Gold', min: 1500, color: '#ffc107',
         perks: ['Tích điểm 1,5 điểm / 10.000đ', 'Tặng vé sinh nhật', 'Giảm 5% combo bắp nước'] },
-      { key: 'Platinum', name: 'Bạch kim', en: 'Platinum', min: 3000, color: '#7fd1ff',
+      { key: 'Platinum', badge: 'assets/images/platinum.svg', name: 'Bạch kim', en: 'Platinum', min: 3000, color: '#7fd1ff',
         perks: ['Tích điểm 2 điểm / 10.000đ', 'Tặng 2 vé mỗi năm', 'Giảm 10% combo, ưu tiên hỗ trợ 1:1'] }
     ],
     rewards: [
@@ -223,7 +222,6 @@ window.SITE = {
   memberLinks: [
     { tab: 'benefits', title: 'Quyền lợi thành viên', sub: 'Nhiều ưu đãi đặc quyền', icon: 'crown', color: '#ffc107' },
     { tab: 'points',   title: 'Tích điểm đổi quà',    sub: 'Xem điểm của bạn',        icon: 'coins' },
-    { tab: 'ranking',  title: 'Xếp hạng thành viên',  sub: 'Silver - Gold - Platinum', icon: 'bars' },
     { tab: 'register', title: 'Đăng ký thành viên',   sub: 'Tham gia ngay',           icon: 'user-plus' }
   ],
   aboutLinks: [
@@ -233,3 +231,18 @@ window.SITE = {
     { tab: 'contact', title: 'Liên hệ',    sub: 'Mọi thắc mắc, góp ý',       icon: 'mail' }
   ]
 };
+
+
+/* =====================================================================
+ * TỰ NẠP FOOTER DÙNG CHUNG
+ * Mọi trang đã nạp site-data.js đều tự có footer mới (assets/js/site-footer.js).
+ * ===================================================================== */
+(function () {
+  if (window.__siteFooterInit) return;
+  var me = document.currentScript;
+  var src = me && me.getAttribute('src');
+  var base = src ? src.replace(/site-data\.js.*$/, '') : 'assets/js/';
+  var s = document.createElement('script');
+  s.src = base + 'site-footer.js?v=7';
+  (document.head || document.documentElement).appendChild(s);
+})();

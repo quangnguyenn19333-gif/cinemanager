@@ -1,6 +1,8 @@
 /* =====================================================
    FOOTER DÙNG CHUNG — CineManager
-   Cách dùng: thêm 1 dòng này vào cuối <body> của MỌI trang
+   Cách dùng: các trang đã nạp assets/js/site-data.js sẽ TỰ có footer này
+   (site-data.js tự nạp file này). Trang nào không dùng site-data.js thì
+   thêm 1 dòng vào cuối <body>:
        <script src="assets/js/site-footer.js"></script>
    Script sẽ:
      1) tự nạp assets/css/footer.css (nếu trang chưa nạp)
@@ -10,6 +12,10 @@
    ===================================================== */
 (function () {
     'use strict';
+
+    // Chống chạy 2 lần (khi trang vừa có thẻ <script> vừa được site-data.js nạp)
+    if (window.__siteFooterInit) return;
+    window.__siteFooterInit = true;
 
     // Dùng nền kem như CGV? đổi thành 'site-footer site-footer--cream'
     var FOOTER_CLASS = 'site-footer';
@@ -96,8 +102,8 @@
         var me = document.currentScript ||
             document.querySelector('script[src*="site-footer.js"]');
         var src = me && me.getAttribute('src');
-        return src ? src.replace(/js\/site-footer\.js.*$/, 'css/footer.css?v=4')
-                   : 'assets/css/footer.css?v=4';
+        return src ? src.replace(/js\/site-footer\.js.*$/, 'css/footer.css?v=7')
+                   : 'assets/css/footer.css?v=7';
     }
     var CSS_HREF = cssHref();
 
@@ -109,13 +115,38 @@
         document.head.appendChild(l);
     }
 
+    // Nạp font (Bebas Neue, Cormorant Garamond, Inter) nếu trang chưa nạp
+    function ensureFonts() {
+        if (document.querySelector('link[href*="Cormorant"]')) return;
+        var l = document.createElement('link');
+        l.rel = 'stylesheet';
+        l.href = 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700;800;900&display=swap';
+        document.head.appendChild(l);
+    }
+
+    // Gỡ MỌI footer cũ: <footer class="cinema-footer">, <footer> con trực tiếp của body,
+    // hoặc bất kỳ khối nào chứa .cinema-types (dù được đổi tên/bọc thêm)
     function removeOldFooters() {
-        var olds = document.querySelectorAll('footer.cinema-footer, body > footer:not(.site-footer)');
-        for (var i = 0; i < olds.length; i++) olds[i].parentNode.removeChild(olds[i]);
+        var olds = document.querySelectorAll('footer.cinema-footer, .cinema-footer, body > footer:not(.site-footer)');
+        var i, el;
+        for (i = 0; i < olds.length; i++) {
+            if (olds[i].parentNode) olds[i].parentNode.removeChild(olds[i]);
+        }
+        var types = document.querySelectorAll('.cinema-types');
+        for (i = 0; i < types.length; i++) {
+            el = types[i];
+            if (el.closest('.site-footer')) continue;
+            var box = el.closest('footer') || el;
+            while (box.parentNode && box.parentNode !== document.body && box.parentNode !== document.documentElement) {
+                box = box.parentNode;
+            }
+            if (box.parentNode) box.parentNode.removeChild(box);
+        }
     }
 
     function mount() {
         ensureCss();
+        ensureFonts();
         removeOldFooters();
         if (document.querySelector('footer.site-footer')) return; // đã có, không chèn lặp
         var f = document.createElement('footer');
@@ -123,11 +154,11 @@
         f.innerHTML = FOOTER_HTML;
         document.body.appendChild(f);
 
-        // Nếu footer cũ được chèn muộn bởi script khác, gỡ nốt (tối đa ~3 giây)
+        // Nếu footer cũ được chèn muộn bởi script khác (vd. site-header.js), gỡ nốt (~6 giây)
         var tries = 0;
         var t = setInterval(function () {
             removeOldFooters();
-            if (++tries >= 6) clearInterval(t);
+            if (++tries >= 12) clearInterval(t);
         }, 500);
     }
 

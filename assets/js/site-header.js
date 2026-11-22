@@ -75,7 +75,9 @@
   /* Hệ thống rạp */
     var cinemaItems = S.cinemas.map(function (c) {
     var thumb = c.image
-      ? '<span class="thumb"><img src="' + esc(c.image) + '" alt="" ' +
+      ? '<span class="thumb" style="position:relative;overflow:hidden;background:#1c1111">' +
+        '<img src="' + esc(c.image) + '" alt="" ' +
+        'style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" ' +
         'onload="this.nextElementSibling.remove()" onerror="this.remove()">' +
         '<i class="thumb-fb">📍</i></span>'
       : '<span class="thumb">📍</span>';
