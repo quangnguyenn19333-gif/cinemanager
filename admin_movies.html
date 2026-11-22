@@ -10,290 +10,229 @@
     <style>
         :root {
             --primary: #e50914;
-            --primary-soft: #ff5c66;
-            --bg-dark: #0c0d10;
-            --card-bg: #16181f;
-            --table-head: #1c1f29;
-            --border-color: #262936;
-            --row-border: #20232e;
-            --text-main: #f5f5f5;
+            --primary-hover: #c40711;
+            --bg-dark: #0b0c10;
+            --card-bg: #15161c;
+            --elevated-bg: #1a1b23;
+            --border-color: #262833;
+            --text-main: #f8f9fa;
             --text-muted: #9ca3af;
-            --gold: #f5b942;
-            --mint: #34d399;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            margin: 0;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; }
         .admin-layout { display: flex; min-height: 100vh; }
 
-        /* Sidebar Menu */
-        .sidebar {
-            width: 260px;
-            background: #0f1015;
-            border-right: 1px solid var(--border-color);
-            padding: 2rem 0;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-
-        .sidebar-logo {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .sidebar-logo span { color: #fff; }
-
-        .nav-item {
-            padding: 1rem 2rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.2s ease;
-            border-left: 4px solid transparent;
-        }
-
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: #fff;
-        }
-
-        .nav-item.active {
-            background: linear-gradient(90deg, rgba(229, 9, 20, 0.16) 0%, rgba(229, 9, 20, 0) 100%);
-            color: #fff;
-            border-left-color: var(--primary);
-        }
+        /* Sidebar */
+        .sidebar { width: 260px; background: #0b0c10; border-right: 1px solid var(--border-color); padding: 2rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; text-shadow: 0 0 14px rgba(229,9,20,0.35); }
+        .sidebar-logo span { color: #fff; text-shadow: none; }
+        .nav-item { padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 12px; transition: 0.2s; font-size: 0.95rem; border-left: 3px solid transparent; }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.03); }
+        .nav-item.active { background: linear-gradient(90deg, rgba(229,9,20,0.16) 0%, rgba(229,9,20,0) 100%); color: #fff; border-left-color: var(--primary); }
 
         /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 2rem 3rem;
-            background: var(--bg-dark);
-            min-width: 0;
-        }
+        .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); overflow-y: auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px; }
+        .page-header h2 { margin: 0; font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
 
-        .page-header {
+        .btn-add { background: var(--primary); color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(229, 9, 20, 0.25); }
+        .btn-add:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(229, 9, 20, 0.38); }
+
+        /* Mini Dashboard */
+        .dashboard-cards { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .card-stat { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: 10px; flex: 1; min-width: 170px; display: flex; align-items: center; justify-content: space-between; transition: 0.2s; }
+        .card-stat:hover { border-color: #363949; }
+        .card-stat .title { color: var(--text-muted); font-size: 0.82rem; font-weight: 600; text-transform: uppercase; }
+        .card-stat .value { font-size: 1.6rem; font-weight: 700; color: #fff; }
+        .card-stat.showing .value { color: #4ade80; }
+        .card-stat.coming .value { color: #c084fc; }
+        .card-stat.early .value { color: #38bdf8; }
+        .card-stat.stopped .value { color: #9ca3af; }
+
+        /* Action Bar */
+        .action-bar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 25px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; }
+        .filter-group { display: flex; gap: 10px; flex: 1; flex-wrap: wrap; }
+        .filter-input { background: var(--bg-dark); border: 1px solid var(--border-color); color: #fff; padding: 9px 12px; border-radius: 8px; outline: none; font-family: inherit; font-size: 0.85rem; min-width: 150px; transition: 0.2s; }
+        #filter-search { width: 100%; max-width: 260px; }
+        .filter-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.14); }
+
+        .btn-export { background: rgba(16, 185, 129, 0.12); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); padding: 9px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; margin-left: auto; }
+        .btn-export:hover { background: rgba(16, 185, 129, 0.22); border-color: rgba(16, 185, 129, 0.6); }
+
+        /* Table */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 900px; }
+        th { background-color: var(--elevated-bg); color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; padding: 18px 20px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        td { padding: 16px 20px; border-bottom: 1px solid #1c1e26; vertical-align: middle; font-size: 0.9rem; transition: 0.2s; }
+        tr:hover td { background-color: var(--elevated-bg); }
+        tr:last-child td { border-bottom: none; }
+
+        .poster-img { width: 45px; height: 65px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.08); }
+        .movie-title { font-weight: 600; color: #fff; font-size: 0.95rem; }
+
+        /* Status Badges */
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; display: inline-block; white-space: nowrap; text-align: center; border: 1px solid transparent; }
+        .badge-showing { background: rgba(52, 211, 153, 0.14); color: #4ade80; border-color: rgba(52, 211, 153, 0.35); }
+        .badge-coming { background: rgba(192, 132, 252, 0.14); color: #c084fc; border-color: rgba(192, 132, 252, 0.35); }
+        .badge-early { background: rgba(56, 189, 248, 0.14); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); }
+        .badge-stopped { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.3); }
+
+        /* Action Buttons */
+        .actions-flex { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; }
+        .action-btn { padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s ease; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.02); }
+
+        .btn-edit { color: #e2e8f0; border-color: rgba(148, 163, 184, 0.32); }
+        .btn-edit:hover { background: rgba(229, 9, 20, 0.14); border-color: rgba(229, 9, 20, 0.55); color: #fff; }
+
+        .btn-delete { color: #ff6b74; border-color: rgba(229, 9, 20, 0.35); }
+        .btn-delete:hover { background: rgba(229, 9, 20, 0.2); border-color: var(--primary); color: #fff; }
+
+        .btn-trailer { color: #93c5fd; border-color: rgba(59, 130, 246, 0.32); }
+        .btn-trailer:hover:not(:disabled) { background: rgba(59, 130, 246, 0.16); border-color: rgba(59, 130, 246, 0.6); color: #fff; }
+
+        .btn-locked { color: #6b7280; cursor: not-allowed; border-color: rgba(107, 114, 128, 0.28); background: transparent; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(4, 5, 8, 0.82); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 16px; }
+        .modal.active { display: flex; }
+
+        .modal-content-trailer { background: #000; border-radius: 14px; width: 92%; max-width: 820px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.85); overflow: hidden; animation: popIn 0.22s ease-out; border: 1px solid var(--border-color); }
+        .trailer-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: var(--elevated-bg); border-bottom: 1px solid var(--border-color); }
+        .trailer-header h3 { margin: 0; color: #fff; font-size: 1.05rem; font-weight: 600; }
+        .close-btn { background: rgba(255,255,255,0.04); border: 1px solid transparent; color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; font-size: 1.25rem; line-height: 1; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+        .close-btn:hover { color: #fff; background: rgba(229, 9, 20, 0.18); border-color: rgba(229, 9, 20, 0.45); }
+        .iframe-container { position: relative; width: 100%; padding-bottom: 56.25%; }
+        .iframe-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+
+        .modal-form-box {
+            background: linear-gradient(180deg, #181a22 0%, #13141a 100%);
+            border: 1px solid #2e3242;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 580px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(229, 9, 20, 0.12);
+            animation: popIn 0.22s ease-out;
+            overflow: hidden;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-form-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .page-header h2 {
-            margin: 0;
-            font-size: 1.55rem;
-            font-weight: 700;
-        }
-
-        .filter-bar {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            background: var(--card-bg);
-            padding: 1rem 1.25rem;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-            flex-wrap: wrap;
-        }
-
-        .filter-bar input,
-        .filter-bar select {
-            background: #1c1f29;
-            color: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            outline: none;
-            transition: 0.2s ease;
-        }
-
-        .filter-bar input:focus,
-        .filter-bar select:focus {
-            border-color: var(--primary-soft);
-        }
-
-        /* Table Style */
-        .table-container {
-            background: var(--card-bg);
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-            padding: 1.5rem;
-            overflow-x: auto;
-        }
-
-        table { width: 100%; border-collapse: collapse; }
-
-        th {
-            background: var(--table-head);
-            text-align: left;
-            padding: 0.95rem 1rem;
-            color: var(--text-muted);
+            padding: 18px 24px;
+            background: var(--elevated-bg);
             border-bottom: 1px solid var(--border-color);
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            white-space: nowrap;
+            flex-shrink: 0;
         }
-
-        td {
-            padding: 0.95rem 1rem;
-            border-bottom: 1px solid var(--row-border);
-            vertical-align: middle;
-            font-size: 0.9rem;
-            transition: background-color 0.2s ease;
-        }
-
-        tbody tr:hover td { background: rgba(255, 255, 255, 0.03); }
-        tbody tr:last-child td { border-bottom: none; }
-
-        .action-btn {
-            padding: 6px 11px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            margin-right: 6px;
-            font-weight: 600;
-            white-space: nowrap;
-            transition: 0.2s ease;
-        }
-
-        .btn-edit {
-            background: rgba(245, 185, 66, 0.14);
-            color: var(--gold);
-            border: 1px solid rgba(245, 185, 66, 0.35);
-        }
-
-        .btn-edit:hover {
-            background: var(--gold);
-            color: #0c0d10;
-        }
-
-        .btn-delete {
-            background: rgba(229, 9, 20, 0.16);
-            color: #ff6b74;
-            border: 1px solid rgba(229, 9, 20, 0.42);
-        }
-
-        .btn-delete:hover {
-            background: var(--primary);
-            color: #fff;
-        }
-
-        /* Badge trạng thái chuẩn đẹp, chống rớt dòng */
-        .status-badge {
+        .modal-title-wrap { display: flex; align-items: center; gap: 12px; }
+        .modal-title-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(229, 9, 20, 0.15);
+            border: 1px solid rgba(229, 9, 20, 0.35);
+            color: #ff4d58;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            border-radius: 20px;
-            text-align: center;
-            white-space: nowrap;
-            letter-spacing: 0.3px;
         }
+        .modal-form-header h3 { margin: 0; font-size: 1.1rem; font-weight: 700; color: #fff; }
+        .modal-subtitle { margin: 2px 0 0; font-size: 0.78rem; color: var(--text-muted); }
 
-        .status-badge.early {
-            background: rgba(192, 132, 252, 0.15);
-            color: #d8b4fe;
-            border: 1px solid rgba(192, 132, 252, 0.35);
-        }
-
-        .status-badge.coming {
-            background: rgba(245, 185, 66, 0.14);
-            color: var(--gold);
-            border: 1px solid rgba(245, 185, 66, 0.35);
-        }
-
-        .status-badge.showing {
-            background: rgba(52, 211, 153, 0.14);
-            color: var(--mint);
-            border: 1px solid rgba(52, 211, 153, 0.35);
-        }
-
-        /* Modal CSS */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
+        .modal-form-body { padding: 22px 24px; overflow-y: auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: #cbd5e1; margin-bottom: 6px; }
+        .form-control {
             width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal:not(.hidden) { display: flex; }
-
-        .modal-content {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 14px;
+            box-sizing: border-box;
+            background: #0d0e13;
             border: 1px solid var(--border-color);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-            width: 100%;
-            max-width: 500px;
-            position: relative;
             color: #fff;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 1rem;
-            right: 1.2rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-muted);
-        }
-
-        .close-modal:hover { color: #fff; }
-        .form-group { margin-bottom: 1rem; }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
+            padding: 10px 13px;
+            border-radius: 9px;
+            font-family: inherit;
             font-size: 0.88rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px 12px;
-            background: #1c1f29;
-            color: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
             outline: none;
+            transition: 0.2s;
+        }
+        .form-control:hover { border-color: #363a4c; }
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.16);
+            background: #101118;
+        }
+        .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        .poster-preview-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 82px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed #2e3242;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-top: 8px;
+        }
+        .poster-preview-thumb {
+            width: 42px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #0d0e13;
+            flex-shrink: 0;
+        }
+        .poster-preview-meta { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+        .poster-preview-meta strong { color: #e2e8f0; display: block; margin-bottom: 2px; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+        }
+        .btn-cancel {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            color: #cbd5e1;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.86rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-cancel:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .btn-save {
+            background: linear-gradient(135deg, #e50914 0%, #b90610 100%);
+            border: 1px solid rgba(255, 107, 116, 0.35);
+            color: #fff;
+            padding: 9px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.86rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
+        }
+        .btn-save:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(229, 9, 20, 0.42); }
+
+        @media (max-width: 600px) {
+            .form-row-2 { grid-template-columns: 1fr; gap: 0; }
+            .main-content { padding: 1.5rem; }
         }
 
-        .form-group input:focus { border-color: var(--primary-soft); }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.96) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
 <body>
     <div class="admin-layout">
-        <!-- MENU DỌC -->
+        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-logo">Cine<span>Manager</span></div>
             <a href="dashboard.html" class="nav-item">📊 Thống kê doanh thu</a>
@@ -301,110 +240,656 @@
             <a href="showtimes.html" class="nav-item">📅 Quản lý Suất chiếu</a>
             <a href="admin_users.html" class="nav-item">👥 Quản lý Khách hàng</a>
             <a href="admin_contacts.html" class="nav-item">📩 Quản lý Góp ý</a>
-            <a href="admin_applications.html" class="nav-item">💼 Quản lý tuyển dụng</a>
+            <a href="admin_applications.html" class="nav-item">💼 Quản lý Tuyển dụng</a>
             <div style="margin-top: auto; padding: 0 2rem;">
-                <button onclick="handleLogout()" style="width: 100%; background: #1e212b; color: #cbd5e1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">🚪 Đăng xuất</button>
+                <button onclick="handleLogout()" style="width: 100%; background: #1f1f1f; color: #888; border: 1px solid #2a2a2a; padding: 10px; border-radius: 6px; font-weight: 500; cursor: pointer; transition: 0.2s;">🚪 Đăng xuất</button>
             </div>
         </div>
 
-        <!-- NỘI DUNG CHÍNH -->
+        <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
                 <h2>🎬 Quản Lý Danh Sách Phim</h2>
-                <div style="display: flex; gap: 1rem; align-items: center;">
-                    <span id="display-username" style="color:var(--primary-soft); font-weight:bold;"></span>
-                    <button onclick="openModal('add-movie-modal')" style="background: rgba(52, 211, 153, 0.16); color: var(--mint); border: 1px solid rgba(52, 211, 153, 0.38); border-radius: 8px; padding: 8px 16px; font-weight: 600; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='#34d399'; this.style.color='#0c0d10'" onmouseout="this.style.background='rgba(52, 211, 153, 0.16)'; this.style.color='#34d399'">➕ Thêm Phim Mới</button>
-                    <button onclick="handleLogout()" style="background: rgba(229, 9, 20, 0.16); color: #ff6b74; border: 1px solid rgba(229, 9, 20, 0.42); border-radius: 8px; transition: 0.2s; padding: 8px 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background='#e50914'; this.style.color='white'" onmouseout="this.style.background='rgba(229, 9, 20, 0.16)'; this.style.color='#ff6b74'">🚪 Đăng xuất</button>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <div style="font-size: 0.85rem; color: #888;">
+                        Quản trị viên: <span id="display-username" style="color: #fff; font-weight: 600; margin-left: 4px;"></span>
+                    </div>
+                    <button class="btn-add" onclick="openAddModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Thêm Phim Mới
+                    </button>
                 </div>
             </div>
 
-            <!-- THANH TÌM KIẾM VÀ LỌC CỦA ADMIN -->
-            <div class="filter-bar">
-                <input type="text" id="admin-search" placeholder="🔍 Nhập tên phim hoặc thể loại..." style="flex: 1; min-width: 220px; padding: 0.8rem;">
-                <select id="admin-status-filter" style="padding: 0.8rem; min-width: 200px;">
-                    <option value="all">🌟 Tất cả trạng thái</option>
-                    <option value="dang-chieu">🟢 Đang chiếu</option>
-                    <option value="sap-chieu">🟡 Sắp chiếu</option>
-                    <option value="suat-chieu-som">🟣 Suất chiếu sớm</option>
-                </select>
+            <!-- Mini Dashboard -->
+            <div class="dashboard-cards">
+                <div class="card-stat">
+                    <div><div class="title">Tổng số phim</div><div class="value" id="stat-total">0</div></div>
+                </div>
+                <div class="card-stat showing">
+                    <div><div class="title">Đang chiếu</div><div class="value" id="stat-showing">0</div></div>
+                </div>
+                <div class="card-stat coming">
+                    <div><div class="title">Sắp chiếu</div><div class="value" id="stat-coming">0</div></div>
+                </div>
+                <div class="card-stat early">
+                    <div><div class="title">Suất chiếu sớm</div><div class="value" id="stat-early">0</div></div>
+                </div>
+                <div class="card-stat stopped">
+                    <div><div class="title">Ngừng chiếu</div><div class="value" id="stat-stopped">0</div></div>
+                </div>
             </div>
 
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <div class="filter-group">
+                    <input type="text" id="filter-search" class="filter-input" placeholder="🔍 Nhập tên phim hoặc thể loại..." oninput="renderTable()">
+                    <select id="filter-status" class="filter-input" onchange="renderTable()">
+                        <option value="all">🌟 Tất cả trạng thái</option>
+                        <option value="1">Đang chiếu</option>
+                        <option value="2">Sắp chiếu</option>
+                        <option value="3">Suất chiếu sớm</option>
+                        <option value="0">Ngừng chiếu</option>
+                    </select>
+                </div>
+                <button class="btn-export" onclick="exportToCSV()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Xuất CSV Danh Mục
+                </button>
+            </div>
+
+            <!-- Table -->
             <div class="table-container">
-                <table id="admin-movies-table">
+                <table id="table-movies">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Poster</th>
+                            <th style="width: 60px;">ID</th>
+                            <th style="width: 80px;">Poster</th>
                             <th>Tên Phim</th>
                             <th>Thể Loại</th>
-                            <th>Thời lượng</th>
-                            <th>Ngày phát hành</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
+                            <th>Thời Lượng</th>
+                            <th>Ngày Phát Hành</th>
+                            <th style="text-align: center;">Trạng Thái</th>
+                            <th>Thao Tác</th>
                         </tr>
                     </thead>
-                    <tbody id="admin-movie-tbody">
-                        <!-- Data đổ bằng JS -->
-                    </tbody>
+                    <tbody id="movie-tbody"></tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- MODAL THÊM PHIM -->
-    <div id="add-movie-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('add-movie-modal')">&times;</span>
-            <h2>🎬 Thêm Phim Mới</h2>
-            <form id="add-movie-form" style="margin-top: 1.5rem;">
-                <div class="form-group"><label>Tên phim</label><input type="text" id="add-title" required></div>
-                <div class="form-group"><label>Thể loại</label><input type="text" id="add-genre"></div>
-                <div class="form-group"><label>Thời lượng (phút)</label><input type="number" id="add-duration"></div>
-                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="add-date"></div>
-                <div class="form-group"><label>Poster URL</label><input type="url" id="add-poster"></div>
-                <div class="form-group"><label>Trailer URL</label><input type="url" id="add-trailer"></div>
-                <button type="submit" style="width: 100%; background: var(--mint); color: #0c0d10; padding: 10px; border:none; border-radius:8px; font-weight:700; cursor:pointer; margin-top:1rem;">Lưu Phim</button>
+    <!-- Modal Thêm Phim Mới -->
+    <div id="add-modal" class="modal" onclick="closeAddModal()">
+        <div class="modal-form-box" onclick="event.stopPropagation()">
+            <div class="modal-form-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-title-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </div>
+                    <div>
+                        <h3>Thêm Phim Mới</h3>
+                        <p class="modal-subtitle">Tạo bản ghi phim mới vào hệ thống rạp</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeAddModal()" title="Đóng">&times;</button>
+            </div>
+
+            <form id="add-movie-form" class="modal-form-body" onsubmit="submitAddMovie(event)">
+                <div class="form-group">
+                    <label>Tên phim *</label>
+                    <input type="text" id="add-title" class="form-control" placeholder="Ví dụ: Doraemon: Nobita và..." required>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Thể loại</label>
+                        <input type="text" id="add-genre" class="form-control" placeholder="Hành động, Phiêu lưu...">
+                    </div>
+                    <div class="form-group">
+                        <label>Thời lượng (phút)</label>
+                        <input type="number" id="add-duration" class="form-control" min="1" value="120">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Ngày phát hành</label>
+                        <input type="date" id="add-release-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Trạng thái hiển thị</label>
+                        <select id="add-status" class="form-control">
+                            <option value="auto">Tự động theo ngày chiếu</option>
+                            <option value="1">Đang chiếu</option>
+                            <option value="2">Sắp chiếu</option>
+                            <option value="3">Suất chiếu sớm</option>
+                            <option value="0">Ngừng chiếu</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Link Poster</label>
+                    <input type="text" id="add-poster-url" class="form-control" placeholder="https://..." oninput="schedulePosterPreview('add')">
+                    <div class="poster-preview-row">
+                        <img id="add-poster-preview" alt="Preview" class="poster-preview-thumb" style="display:none;">
+                        <div class="poster-preview-meta">
+                            <strong>Xem trước Poster</strong>
+                            Tự động cập nhật sau khi ngừng gõ link ảnh.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Link Trailer (YouTube)</label>
+                    <input type="text" id="add-trailer-url" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeAddModal()">Hủy</button>
+                    <button type="submit" class="btn-save">Thêm phim</button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- MODAL SỬA PHIM -->
-    <div id="edit-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('edit-modal')">&times;</span>
-            <h2>✏️ Chỉnh sửa phim</h2>
-            <form id="edit-movie-form" style="margin-top: 1.5rem;">
+    <!-- Modal Sửa Phim & Chuyển Trạng Thái -->
+    <div id="edit-modal" class="modal" onclick="closeEditModal()">
+        <div class="modal-form-box" onclick="event.stopPropagation()">
+            <div class="modal-form-header">
+                <div class="modal-title-wrap">
+                    <div class="modal-title-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    </div>
+                    <div>
+                        <h3>Chỉnh Sửa Phim & Trạng Thái</h3>
+                        <p class="modal-subtitle">Cập nhật thông tin hiển thị và trạng thái chiếu của phim</p>
+                    </div>
+                </div>
+                <button class="close-btn" onclick="closeEditModal()" title="Đóng">&times;</button>
+            </div>
+
+            <form id="edit-movie-form" class="modal-form-body" onsubmit="submitEditMovie(event)">
                 <input type="hidden" id="edit-id">
-                <div class="form-group"><label>Tên phim</label><input type="text" id="edit-title" required></div>
-                <div class="form-group"><label>Thể loại</label><input type="text" id="edit-genre"></div>
-                <div class="form-group"><label>Thời lượng</label><input type="number" id="edit-duration"></div>
-                <div class="form-group"><label>Ngày chiếu</label><input type="date" id="edit-date"></div>
-                <div class="form-group"><label>Poster URL</label><input type="url" id="edit-poster"></div>
-                <div class="form-group"><label>Trailer URL</label><input type="url" id="edit-trailer"></div>
-                <button type="submit" style="width: 100%; background: var(--primary); padding: 10px; border:none; border-radius:8px; font-weight:700; cursor:pointer; color:white; margin-top:1rem;">Cập nhật thay đổi</button>
+                <div class="form-group">
+                    <label>Tên phim *</label>
+                    <input type="text" id="edit-title" class="form-control" required>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Thể loại</label>
+                        <input type="text" id="edit-genre" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Thời lượng (phút)</label>
+                        <input type="number" id="edit-duration" class="form-control" min="1">
+                    </div>
+                </div>
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label>Ngày phát hành</label>
+                        <input type="date" id="edit-release-date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Trạng thái hiển thị</label>
+                        <select id="edit-status" class="form-control">
+                            <option value="auto">Tự động theo ngày chiếu</option>
+                            <option value="0">Ngừng chiếu</option>
+                            <option value="1">Đang chiếu</option>
+                            <option value="2">Sắp chiếu</option>
+                            <option value="3">Suất chiếu sớm</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Link Poster</label>
+                    <input type="text" id="edit-poster-url" class="form-control" oninput="schedulePosterPreview('edit')">
+                    <div class="poster-preview-row">
+                        <img id="edit-poster-preview" alt="Preview" class="poster-preview-thumb" style="display:none;">
+                        <div class="poster-preview-meta">
+                            <strong>Xem trước Poster</strong>
+                            Tự động cập nhật sau khi ngừng dán đường dẫn ảnh.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>Link Trailer (YouTube)</label>
+                    <input type="text" id="edit-trailer-url" class="form-control" placeholder="https://www.youtube.com/watch?v=...">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeEditModal()">Hủy</button>
+                    <button type="submit" class="btn-save">Lưu thay đổi</button>
+                </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal Xem Trailer -->
+    <div id="trailer-modal" class="modal" onclick="closeTrailer()">
+        <div class="modal-content-trailer" onclick="event.stopPropagation()">
+            <div class="trailer-header">
+                <h3 id="trailer-title">Trailer Phim</h3>
+                <button class="close-btn" onclick="closeTrailer()" title="Đóng">&times;</button>
+            </div>
+            <div class="iframe-container" id="trailer-container"></div>
         </div>
     </div>
 
     <script src="assets/js/common.js"></script>
     <script>
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.remove('hidden');
-                modal.style.display = 'flex';
+        const DEFAULT_POSTER = 'assets/images/default-poster.jpg';
+        let allMovies = [];
+        const manualStatusOverrides = {};
+        const posterPreviewTimers = {};
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const authRes = await fetch('api/auth.php?action=check');
+                const authData = await authRes.json();
+                if (!authData.isLoggedIn || authData.role !== 'admin') {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                document.getElementById('display-username').innerText = authData.username;
+                await fetchMovies();
+            } catch (err) {
+                console.error("Lỗi xác thực:", err);
+            }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === "Escape") {
+                closeTrailer();
+                closeEditModal();
+                closeAddModal();
+            }
+        });
+
+        async function fetchMovies() {
+            try {
+                const res = await fetch('api/movies.php');
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    allMovies = data;
+                    updateDashboardStats();
+                    renderTable();
+                }
+            } catch (err) {
+                console.error("Lỗi tải phim:", err);
             }
         }
 
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.add('hidden');
-                modal.style.display = 'none';
+        function parseDateOnly(dateStr) {
+            if (!dateStr) return null;
+            const clean = String(dateStr).trim().slice(0, 10);
+            const parts = clean.split('-');
+            if (parts.length === 3) {
+                const y = parseInt(parts[0], 10);
+                const m = parseInt(parts[1], 10) - 1;
+                const d = parseInt(parts[2], 10);
+                const dt = new Date(y, m, d);
+                if (!isNaN(dt.getTime())) return dt;
+            }
+            const fallback = new Date(clean);
+            if (!isNaN(fallback.getTime())) {
+                return new Date(fallback.getFullYear(), fallback.getMonth(), fallback.getDate());
+            }
+            return null;
+        }
+
+        function hasEarlyScreeningText(movie) {
+            const combinedText = [
+                movie.title,
+                movie.genre,
+                movie.description,
+                movie.note
+            ]
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+
+            return combinedText.includes('suất chiếu sớm') || combinedText.includes('chiếu sớm');
+        }
+
+        function normalizeExplicitStatus(val) {
+            if (val === undefined || val === null) return null;
+            const s = String(val).trim().toLowerCase();
+            if (s === '' || s === 'auto') return null;
+            if (s === '0' || s.includes('ngừng') || s.includes('ngung')) return 0;
+            if (s === '1' || s.includes('đang chiếu') || s.includes('dang chieu')) return 1;
+            if (s === '2' || s.includes('sắp chiếu') || s.includes('sap chieu')) return 2;
+            if (s === '3' || s.includes('suất chiếu sớm') || s.includes('chiếu sớm') || s.includes('chieu som')) return 3;
+            return null;
+        }
+
+        function getMovieStatus(movie) {
+            const override = manualStatusOverrides[String(movie.id)];
+            if (override !== undefined && override !== null) {
+                return override;
+            }
+
+            const dbStatus = normalizeExplicitStatus(movie.status);
+            if (dbStatus !== null) {
+                return dbStatus;
+            }
+
+            const releaseDt = parseDateOnly(movie.release_date);
+            const now = new Date();
+            const todayDt = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            if (releaseDt && releaseDt.getTime() > todayDt.getTime()) {
+                if (hasEarlyScreeningText(movie)) return 3;
+                return 2;
+            }
+            return 1;
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('stat-total').innerText = allMovies.length;
+            document.getElementById('stat-showing').innerText = allMovies.filter(m => getMovieStatus(m) === 1).length;
+            document.getElementById('stat-coming').innerText = allMovies.filter(m => getMovieStatus(m) === 2).length;
+            document.getElementById('stat-early').innerText = allMovies.filter(m => getMovieStatus(m) === 3).length;
+            document.getElementById('stat-stopped').innerText = allMovies.filter(m => getMovieStatus(m) === 0).length;
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('movie-tbody');
+            const fSearch = document.getElementById('filter-search').value.toLowerCase().trim();
+            const fStatus = document.getElementById('filter-status').value;
+
+            const filtered = allMovies.filter(m => {
+                const matchSearch = fSearch === '' ||
+                    (m.title && m.title.toLowerCase().includes(fSearch)) ||
+                    (m.genre && m.genre.toLowerCase().includes(fSearch));
+                const mStatusNum = getMovieStatus(m);
+                const matchStatus = fStatus === 'all' || mStatusNum === parseInt(fStatus, 10);
+                return matchSearch && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding: 40px; color:#555;">Không tìm thấy phim phù hợp</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(m => {
+                const statusNum = getMovieStatus(m);
+                let badgeHTML = '';
+                if (statusNum === 0) badgeHTML = `<span class="badge badge-stopped">Ngừng chiếu</span>`;
+                else if (statusNum === 3) badgeHTML = `<span class="badge badge-early">Suất chiếu sớm</span>`;
+                else if (statusNum === 2) badgeHTML = `<span class="badge badge-coming">Sắp chiếu</span>`;
+                else badgeHTML = `<span class="badge badge-showing">Đang chiếu</span>`;
+
+                let releaseDate = m.release_date || '-';
+                if (m.release_date && m.release_date.includes('-')) {
+                    const parts = m.release_date.slice(0, 10).split('-');
+                    if (parts.length === 3) releaseDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                }
+
+                let deleteBtn = statusNum === 1
+                    ? `<button class="action-btn btn-locked" title="Phim đang chiếu không thể xóa trực tiếp; hãy bấm Sửa để chuyển sang Ngừng chiếu" onclick="alert('🔒 Phim đang chiếu!\\n\\nNếu không muốn chiếu nữa, hãy bấm Sửa và chọn trạng thái Ngừng chiếu.')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Khóa
+                       </button>`
+                    : `<button class="action-btn btn-delete" title="Xóa phim này" onclick="deleteMovie(${m.id})">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Xóa
+                       </button>`;
+
+                let trailerId = '';
+                if (m.trailer_url) {
+                    const match = m.trailer_url.match(/(?:v=|youtu\.be\/|embed\/)([^&?/]+)/);
+                    if (match) trailerId = match[1];
+                }
+
+                return `
+                    <tr>
+                        <td style="color: var(--text-muted);">#${m.id}</td>
+                        <td><img src="${m.poster_url || DEFAULT_POSTER}" alt="Poster" class="poster-img" onerror="this.onerror=null;this.style.display='none';"></td>
+                        <td><div class="movie-title">${m.title}</div></td>
+                        <td>${m.genre || '-'}</td>
+                        <td>${m.duration ? m.duration + ' phút' : '-'}</td>
+                        <td>${releaseDate}</td>
+                        <td style="text-align: center;">${badgeHTML}</td>
+                        <td>
+                            <div class="actions-flex">
+                                <button class="action-btn btn-edit" title="Sửa phim hoặc đổi trạng thái" onclick="openEditModal(${m.id})">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                                    Sửa
+                                </button>
+                                ${deleteBtn}
+                                <button class="action-btn btn-trailer" title="Xem Trailer" onclick="playTrailer('${encodeURIComponent(m.title)}', '${trailerId}')" ${!trailerId ? 'disabled style="opacity:0.3;cursor:not-allowed;"' : ''}>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                    Trailer
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function setPreviewImageSafe(img, rawUrl) {
+            if (!img) return;
+            const url = (rawUrl || '').trim();
+            const isValidUrl = url !== '' && (/^https?:\/\//i.test(url) || url.startsWith('/') || url.startsWith('assets/'));
+
+            if (!isValidUrl) {
+                img.onload = null;
+                img.onerror = null;
+                img.removeAttribute('src');
+                img.style.display = 'none';
+                return;
+            }
+
+            if (img.getAttribute('src') === url && img.style.display === 'block') {
+                return;
+            }
+
+            img.onload = () => {
+                img.style.display = 'block';
+            };
+            img.onerror = () => {
+                img.onerror = null;
+                img.style.display = 'none';
+            };
+            img.src = url;
+        }
+
+        function updatePosterPreview(prefix, immediate = false) {
+            const input = document.getElementById(`${prefix}-poster-url`);
+            const img = document.getElementById(`${prefix}-poster-preview`);
+            if (!input || !img) return;
+
+            const rawUrl = input.value.trim();
+
+            if (immediate || rawUrl === '') {
+                clearTimeout(posterPreviewTimers[prefix]);
+                setPreviewImageSafe(img, rawUrl);
+                return;
+            }
+
+            clearTimeout(posterPreviewTimers[prefix]);
+            posterPreviewTimers[prefix] = setTimeout(() => {
+                setPreviewImageSafe(img, rawUrl);
+            }, 300);
+        }
+
+        function schedulePosterPreview(prefix) {
+            updatePosterPreview(prefix, false);
+        }
+
+        function openAddModal() {
+            document.getElementById('add-movie-form').reset();
+            document.getElementById('add-duration').value = 120;
+            document.getElementById('add-release-date').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('add-status').value = 'auto';
+            updatePosterPreview('add', true);
+            document.getElementById('add-modal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            clearTimeout(posterPreviewTimers.add);
+            document.getElementById('add-modal').classList.remove('active');
+        }
+
+        async function submitAddMovie(e) {
+            e.preventDefault();
+            const selectedStatus = document.getElementById('add-status').value;
+            const payload = {
+                title: document.getElementById('add-title').value.trim(),
+                genre: document.getElementById('add-genre').value.trim(),
+                duration: parseInt(document.getElementById('add-duration').value, 10) || 0,
+                release_date: document.getElementById('add-release-date').value || new Date().toISOString().slice(0, 10),
+                poster_url: document.getElementById('add-poster-url').value.trim(),
+                trailer_url: document.getElementById('add-trailer-url').value.trim(),
+                status: selectedStatus === 'auto' ? null : parseInt(selectedStatus, 10)
+            };
+
+            try {
+                const res = await fetch('api/movies.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && !data.error) {
+                    if (data.id && selectedStatus !== 'auto') {
+                        manualStatusOverrides[String(data.id)] = parseInt(selectedStatus, 10);
+                    }
+                    closeAddModal();
+                    await fetchMovies();
+                    if (typeof showToast === 'function') showToast('Thêm phim mới thành công!', 'success');
+                } else {
+                    alert(data.error || 'Thêm phim thất bại');
+                }
+            } catch (err) {
+                alert('Lỗi kết nối server khi thêm phim!');
             }
         }
+
+        function openEditModal(id) {
+            const movie = allMovies.find(item => Number(item.id) === Number(id));
+            if (!movie) return;
+
+            document.getElementById('edit-id').value = movie.id;
+            document.getElementById('edit-title').value = movie.title || '';
+            document.getElementById('edit-genre').value = movie.genre || '';
+            document.getElementById('edit-duration').value = movie.duration || '';
+            document.getElementById('edit-release-date').value = movie.release_date ? String(movie.release_date).slice(0, 10) : '';
+            document.getElementById('edit-poster-url').value = movie.poster_url || '';
+            document.getElementById('edit-trailer-url').value = movie.trailer_url || '';
+
+            const override = manualStatusOverrides[String(movie.id)];
+            if (override !== undefined && override !== null) {
+                document.getElementById('edit-status').value = String(override);
+            } else {
+                const dbStatus = normalizeExplicitStatus(movie.status);
+                document.getElementById('edit-status').value = dbStatus !== null ? String(dbStatus) : 'auto';
+            }
+
+            updatePosterPreview('edit', true);
+            document.getElementById('edit-modal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            clearTimeout(posterPreviewTimers.edit);
+            document.getElementById('edit-modal').classList.remove('active');
+        }
+
+        async function submitEditMovie(e) {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const selectedStatus = document.getElementById('edit-status').value;
+
+            const payload = {
+                title: document.getElementById('edit-title').value.trim(),
+                genre: document.getElementById('edit-genre').value.trim(),
+                duration: parseInt(document.getElementById('edit-duration').value, 10) || 0,
+                release_date: document.getElementById('edit-release-date').value,
+                poster_url: document.getElementById('edit-poster-url').value.trim(),
+                trailer_url: document.getElementById('edit-trailer-url').value.trim(),
+                status: selectedStatus === 'auto' ? null : parseInt(selectedStatus, 10)
+            };
+
+            try {
+                const res = await fetch(`api/movies.php?id=${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (res.ok && !data.error) {
+                    if (selectedStatus === 'auto') {
+                        delete manualStatusOverrides[String(id)];
+                    } else {
+                        manualStatusOverrides[String(id)] = parseInt(selectedStatus, 10);
+                    }
+                    closeEditModal();
+                    await fetchMovies();
+                    if (typeof showToast === 'function') showToast('Cập nhật phim thành công!', 'success');
+                } else {
+                    alert(data.error || 'Cập nhật phim thất bại');
+                }
+            } catch (err) {
+                alert('Lỗi kết nối server khi cập nhật phim!');
+            }
+        }
+
+        function playTrailer(encodedTitle, youtubeId) {
+            if (!youtubeId) return;
+            document.getElementById('trailer-title').innerText = `Trailer: ${decodeURIComponent(encodedTitle)}`;
+            document.getElementById('trailer-container').innerHTML = `
+                <iframe src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&rel=0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            `;
+            document.getElementById('trailer-modal').classList.add('active');
+        }
+
+        function closeTrailer() {
+            document.getElementById('trailer-modal').classList.remove('active');
+            document.getElementById('trailer-container').innerHTML = '';
+        }
+
+        async function deleteMovie(id) {
+            if (confirm('Bạn có chắc chắn muốn xóa phim này?\nHành động này không thể hoàn tác!')) {
+                try {
+                    const res = await fetch(`api/movies.php?id=${id}`, { method: 'DELETE' });
+                    const data = await res.json();
+                    if (res.ok && !data.error) {
+                        delete manualStatusOverrides[String(id)];
+                        await fetchMovies();
+                        if (typeof showToast === 'function') showToast('Đã xóa phim thành công!', 'success');
+                    } else {
+                        alert(data.error || 'Có lỗi khi xóa phim');
+                    }
+                } catch (e) {
+                    alert('Lỗi kết nối server!');
+                }
+            }
+        }
+
+        function exportToCSV() {
+            if (allMovies.length === 0) {
+                alert("Không có dữ liệu để xuất!");
+                return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+            csvContent += "ID,Ten_Phim,The_Loai,Thoi_Luong,Ngay_Phat_Hanh,Trang_Thai\n";
+
+            allMovies.forEach(m => {
+                const statusNum = getMovieStatus(m);
+                const statusMap = { 0: 'Ngung_Chieu', 1: 'Dang_Chieu', 2: 'Sap_Chieu', 3: 'Suat_Chieu_Som' };
+                const st = statusMap[statusNum] || 'Dang_Chieu';
+                const releaseDate = m.release_date || '';
+                const safeTitle = String(m.title || '').replace(/"/g, '""');
+                const safeGenre = String(m.genre || '').replace(/"/g, '""');
+
+                csvContent += `${m.id},"${safeTitle}","${safeGenre}",${m.duration || 0},"=""${releaseDate}""","${st}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `DanhSachPhim_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
-    <script src="assets/js/script.js?v=999"></script>
-    <script src="assets/js/chatbot.js"></script>
 </body>
 </html>

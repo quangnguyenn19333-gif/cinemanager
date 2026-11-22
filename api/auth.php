@@ -38,15 +38,53 @@ if ($method === 'POST') {
     } 
     
     elseif ($action === 'register') {
-        $username = $data['username'] ?? '';
+        $username = trim($data['username'] ?? '');
         $password = $data['password'] ?? '';
-        $full_name = $data['full_name'] ?? '';
+        $full_name = trim($data['full_name'] ?? '');
         $email = trim($data['email'] ?? '');
         $phone = trim($data['phone'] ?? '');
 
         if (empty($username) || empty($password) || empty($email) || empty($phone)) {
             http_response_code(400);
             echo json_encode(['error' => 'Vui lòng cung cấp đầy đủ thông tin: Email và Số điện thoại là bắt buộc!']);
+            exit;
+        }
+
+        if (
+            !filter_var($email, FILTER_VALIDATE_EMAIL) ||
+            !preg_match('/^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/', $email)
+        ) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Email không hợp lệ. Vui lòng nhập đúng định dạng (ví dụ: email@gmail.com).']);
+            exit;
+        }
+
+        $typoDomains = [
+            'gmail.co', 'gmail.con', 'gmail.cm', 'gmial.com', 'gmai.com',
+            'yaho.com', 'yahoo.con', 'hotmal.com', 'hotmail.con', 'outlok.com'
+        ];
+        $emailParts = explode('@', strtolower($email), 2);
+        $localPart = $emailParts[0] ?? '';
+        $domainPart = $emailParts[1] ?? '';
+
+        if (
+            $localPart === '' ||
+            $domainPart === '' ||
+            str_starts_with($localPart, '.') ||
+            str_ends_with($localPart, '.') ||
+            str_contains($localPart, '..') ||
+            str_starts_with($domainPart, '.') ||
+            str_ends_with($domainPart, '.') ||
+            str_contains($domainPart, '..')
+        ) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Định dạng Email không hợp lệ. Vui lòng kiểm tra lại.']);
+            exit;
+        }
+
+        if (in_array($domainPart, $typoDomains, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Tên miền email có vẻ bị gõ nhầm (' . $domainPart . '). Vui lòng kiểm tra lại.']);
             exit;
         }
 

@@ -232,7 +232,7 @@
         </form>
 
         <!-- ===== FORM ĐĂNG KÝ ===== -->
-        <form id="register-form" class="auth-form" method="POST" action="xuly_dangky.php">
+        <form id="register-form" class="auth-form" method="POST" action="xuly_dangky.php" novalidate>
             
             <div class="form-group">
                 <label>Họ và tên</label>
@@ -241,7 +241,7 @@
 
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" id="reg-email" name="email" placeholder="Ví dụ: email@vidu.com" required>
+                <input type="email" id="reg-email" name="email" placeholder="Ví dụ: email@vidu.com" pattern="[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}" title="Vui lòng nhập email hợp lệ (ví dụ: ten@gmail.com)" required>
             </div>
 
             <div class="form-group">
@@ -258,7 +258,7 @@
                 <label>Mật khẩu</label>
                 <input type="password" id="reg-pass" name="password" placeholder="Tạo mật khẩu an toàn" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Mật khẩu phải từ 8 ký tự, gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 số" required>
                 <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 5px; line-height: 1.4;">
-                    * Mật khẩu phải từ 8 ký tự trở lên, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số.
+- Mật khẩu phải từ 8 ký tự trở lên, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số.
                 </small>
             </div>
             
@@ -286,7 +286,7 @@
                 <label>Mật khẩu mới</label>
                 <input type="password" id="forgot-pass" placeholder="Nhập mật khẩu mới" required>
                 <small style="color: var(--text-muted); font-size: 0.75rem; display: block; margin-top: 5px; line-height: 1.4;">
-                    * Mật khẩu phải từ 8 ký tự trở lên, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số.
+- Mật khẩu phải từ 8 ký tự trở lên, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số.
                 </small>
             </div>
             
@@ -320,6 +320,36 @@
 
     <script src="assets/js/common.js"></script>
     <script>
+        const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+        const TYPO_DOMAINS = [
+            'gmail.co', 'gmail.con', 'gmail.cm', 'gmial.com', 'gmai.com',
+            'yaho.com', 'yahoo.con', 'hotmal.com', 'hotmail.con', 'outlok.com'
+        ];
+
+        function validateEmailFormat(rawEmail) {
+            const email = String(rawEmail || '').trim();
+            if (!email) {
+                return 'Vui lòng nhập địa chỉ email.';
+            }
+            if (/\s/.test(email) || !EMAIL_REGEX.test(email)) {
+                return 'Email không đúng định dạng (ví dụ: email@gmail.com).';
+            }
+            const parts = email.split('@');
+            const localPart = parts[0] || '';
+            const domainPart = (parts[1] || '').toLowerCase();
+
+            if (!localPart || localPart.startsWith('.') || localPart.endsWith('.') || localPart.includes('..')) {
+                return 'Tên email trước @ không hợp lệ.';
+            }
+            if (!domainPart || domainPart.startsWith('.') || domainPart.endsWith('.') || domainPart.includes('..')) {
+                return 'Tên miền email sau @ không hợp lệ.';
+            }
+            if (TYPO_DOMAINS.includes(domainPart)) {
+                return `Tên miền "${domainPart}" có vẻ bị gõ nhầm. Vui lòng kiểm tra lại.`;
+            }
+            return '';
+        }
+
         // Chuyển Form
         function switchTab(type) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -350,6 +380,7 @@
             e.preventDefault();
             const res = await fetch('api/auth.php?action=login', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     username: document.getElementById('login-user').value,
                     password: document.getElementById('login-pass').value
@@ -360,11 +391,10 @@
             if(res.ok) {
                 showToast('Đăng nhập thành công!');
                 setTimeout(() => {
-                    // Trạm phân luồng: Check xem role là gì
                     if (data.role === 'admin') {
-                        window.location.href = 'dashboard.html'; // Bế Admin sang nhà mới
+                        window.location.href = 'dashboard.html';
                     } else {
-                        window.location.href = 'index.html'; // Khách thường về trang chủ
+                        window.location.href = 'index.html';
                     }
                 }, 800);
             } else {
@@ -372,9 +402,17 @@
             }
         };
 
-        // Xử lý Register (Đã cập nhật đẩy đủ luồng gửi đi API)
+        // Xử lý Register
         document.getElementById('register-form').onsubmit = async (e) => {
             e.preventDefault();
+            const emailInput = document.getElementById('reg-email');
+            const emailError = validateEmailFormat(emailInput.value);
+            if (emailError) {
+                showToast(emailError, 'error');
+                emailInput.focus();
+                return;
+            }
+
             const password = document.getElementById('reg-pass').value;
             const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
             
@@ -385,11 +423,12 @@
 
             const res = await fetch('api/auth.php?action=register', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    full_name: document.getElementById('reg-name').value,
-                    email: document.getElementById('reg-email').value,
-                    phone: document.getElementById('reg-phone').value,
-                    username: document.getElementById('reg-user').value,
+                    full_name: document.getElementById('reg-name').value.trim(),
+                    email: emailInput.value.trim(),
+                    phone: document.getElementById('reg-phone').value.trim(),
+                    username: document.getElementById('reg-user').value.trim(),
                     password: password
                 })
             });
@@ -416,9 +455,10 @@
 
             const res = await fetch('api/auth.php?action=forgot_password', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    username: document.getElementById('forgot-user').value,
-                    full_name: document.getElementById('forgot-name').value,
+                    username: document.getElementById('forgot-user').value.trim(),
+                    full_name: document.getElementById('forgot-name').value.trim(),
                     new_password: password
                 })
             });
