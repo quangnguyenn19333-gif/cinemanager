@@ -5,29 +5,267 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Khách Hàng | CineManager Admin</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/chatbot.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #e50914;
+            --primary-soft: #ff5c66;
+            --bg-dark: #0c0d10;
+            --card-bg: #16181f;
+            --table-head: #1c1f29;
+            --border-color: #262936;
+            --row-border: #20232e;
+            --text-main: #f5f5f5;
+            --text-muted: #9ca3af;
+            --gold: #f5b942;
+            --mint: #34d399;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+        }
+
         .admin-layout { display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background: #111; border-right: 1px solid var(--glass); padding: 2rem 0; display: flex; flex-direction: column; }
-        .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; }
-        .sidebar-logo span { color: white; }
-        .nav-item { padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: var(--transition); border-left: 4px solid transparent; }
-        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
-        .nav-item.active { background: rgba(229, 9, 20, 0.1); color: white; border-left-color: var(--primary); }
-        
-        .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
-        
-        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--glass); padding: 1.5rem; overflow-x: auto; }
+
+        .sidebar {
+            width: 260px;
+            background: #0f1015;
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar-logo span { color: #fff; }
+
+        .nav-item {
+            padding: 1rem 2rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.2s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(229, 9, 20, 0.16) 0%, rgba(229, 9, 20, 0) 100%);
+            color: #fff;
+            border-left-color: var(--primary);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem 3rem;
+            background: var(--bg-dark);
+            min-width: 0;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 1.55rem;
+            font-weight: 700;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .kpi-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .kpi-value.green { color: var(--mint); }
+        .kpi-value.gold { color: var(--gold); }
+
+        /* Toolbar lọc & tìm kiếm */
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+            padding: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .table-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .toolbar-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-wrap: nowrap;
+        }
+
+        .search-input, .filter-select {
+            background: #1c1f29;
+            border: 1px solid var(--border-color);
+            color: #fff;
+            padding: 0.55rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .search-input { width: 220px; }
+        .filter-select { white-space: nowrap; flex-shrink: 0; }
+        .search-input:focus, .filter-select:focus { border-color: var(--primary-soft); }
+        .filter-select option { background: #16181f; color: #fff; }
+
+        .btn-export {
+            background: rgba(52, 211, 153, 0.14);
+            color: var(--mint);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            padding: 0.55rem 0.95rem;
+            border-radius: 8px;
+            font-size: 0.86rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s ease;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn-export:hover {
+            background: var(--mint);
+            color: #0c0d10;
+        }
+
+        /* Table */
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 1rem; color: var(--text-muted); border-bottom: 1px solid var(--glass); font-size: 0.85rem; text-transform: uppercase; }
-        td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; }
-        tr:hover td { background: rgba(255,255,255,0.02); }
-        
-        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; display: inline-block; }
-        .badge.admin { background: rgba(229, 9, 20, 0.2); color: var(--primary); border: 1px solid rgba(229, 9, 20, 0.5); }
-        .badge.customer { background: rgba(40, 167, 69, 0.2); color: #28a745; border: 1px solid rgba(40, 167, 69, 0.5); }
+
+        th {
+            background: var(--table-head);
+            text-align: left;
+            padding: 0.9rem 0.85rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.76rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.95rem 0.85rem;
+            border-bottom: 1px solid var(--row-border);
+            vertical-align: middle;
+            font-size: 0.92rem;
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover td { background: rgba(255, 255, 255, 0.03); }
+        tbody tr:last-child td { border-bottom: none; }
+        .nowrap { white-space: nowrap; }
+
+        .member-code {
+            font-family: monospace;
+            font-weight: 700;
+            color: var(--primary-soft);
+            background: rgba(229, 9, 20, 0.14);
+            border: 1px solid rgba(229, 9, 20, 0.32);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .badge {
+            padding: 4px 11px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .badge.admin {
+            background: rgba(229, 9, 20, 0.16);
+            color: var(--primary-soft);
+            border: 1px solid rgba(229, 9, 20, 0.42);
+        }
+
+        .badge.user, .badge.customer {
+            background: rgba(52, 211, 153, 0.14);
+            color: var(--mint);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+        }
+
+        .tier-pill {
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .tier-Bronze { background: rgba(217, 119, 6, 0.15); color: #fbbf24; border: 1px solid rgba(217, 119, 6, 0.35); }
+        .tier-Silver { background: rgba(148, 163, 184, 0.15); color: #e2e8f0; border: 1px solid rgba(148, 163, 184, 0.35); }
+        .tier-Gold { background: rgba(245, 185, 66, 0.16); color: var(--gold); border: 1px solid rgba(245, 185, 66, 0.4); }
+        .tier-Platinum { background: rgba(56, 189, 248, 0.14); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.35); }
     </style>
 </head>
 <body>
@@ -40,6 +278,7 @@
             <a href="showtimes.html" class="nav-item">📅 Quản lý Suất chiếu</a>
             <a href="admin_users.html" class="nav-item active">👥 Quản lý Khách hàng</a>
             <a href="admin_contacts.html" class="nav-item">📩 Quản lý Góp ý</a>
+            <a href="admin_applications.html" class="nav-item">💼 Quản lý tuyển dụng</a>
         </div>
 
         <!-- NỘI DUNG CHÍNH -->
@@ -47,22 +286,52 @@
             <div class="page-header">
                 <h2>👥 Quản Lý Khách Hàng Hệ Thống</h2>
                 <div style="display: flex; gap: 1rem; align-items: center;">
-                    <span id="display-username" style="color:var(--primary); font-weight:bold;"></span>
-                    <button onclick="handleLogout()" style="background: rgba(220, 53, 69, 0.15); color: #ff5555; border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; transition: 0.3s; padding: 8px 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background='#dc3545'; this.style.color='white'" onmouseout="this.style.background='rgba(220, 53, 69, 0.15)'; this.style.color='#ff5555'">🚪 Đăng xuất</button>
+                    <span id="display-username" style="color:var(--primary-soft); font-weight:bold;"></span>
+                    <button onclick="handleLogout()" style="background: rgba(229, 9, 20, 0.16); color: #ff6b74; border: 1px solid rgba(229, 9, 20, 0.42); border-radius: 8px; transition: 0.2s; padding: 8px 16px; font-weight: 600; cursor: pointer;" onmouseover="this.style.background='#e50914'; this.style.color='white'" onmouseout="this.style.background='rgba(229, 9, 20, 0.16)'; this.style.color='#ff6b74'">🚪 Đăng xuất</button>
+                </div>
+            </div>
+
+            <!-- 3 THẺ THỐNG KÊ NHANH -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-label">Tổng khách hàng</div>
+                    <div class="kpi-value" id="kpi-total">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Thành viên Vàng & Bạch kim</div>
+                    <div class="kpi-value gold" id="kpi-vip">0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Tổng chi tiêu khách hàng</div>
+                    <div class="kpi-value green" id="kpi-revenue">0 đ</div>
                 </div>
             </div>
 
             <!-- BẢNG DANH SÁCH -->
             <div class="table-container">
-                <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; color: white;">📋 Toàn bộ tài khoản & Lịch sử chi tiêu</h3>
+                <div class="table-toolbar">
+                    <h3 style="margin: 0; font-size: 1.05rem; color: white;">📋 Danh sách tài khoản & Điểm thành viên</h3>
+                    <div class="toolbar-controls">
+                        <input type="text" id="search-input" class="search-input" placeholder="🔍 Tìm mã TV, tên, email, SĐT...">
+                        <select id="tier-filter" class="filter-select">
+                            <option value="ALL">Tất cả hạng</option>
+                            <option value="Bronze">Hạng Thường</option>
+                            <option value="Silver">Hạng Bạc</option>
+                            <option value="Gold">Hạng Vàng</option>
+                            <option value="Platinum">Hạng Bạch kim</option>
+                        </select>
+                        <button type="button" class="btn-export" onclick="exportCSV()">📥 Xuất Excel</button>
+                    </div>
+                </div>
+
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Mã TV</th>
                             <th>Tên khách hàng</th>
                             <th>Email</th>
                             <th>Số Điện Thoại</th>
-                            <th>Ngày Đăng Ký</th>
+                            <th>Hạng & Điểm</th>
                             <th>Vai Trò</th>
                             <th>Tổng Chi Tiêu</th>
                         </tr>
@@ -77,6 +346,9 @@
 
     <script src="assets/js/common.js"></script>
     <script>
+        let allUsers = [];
+        const TIER_NAMES = { Bronze: 'Thường', Silver: 'Bạc', Gold: 'Vàng', Platinum: 'Bạch kim' };
+
         document.addEventListener('DOMContentLoaded', async () => {
             const authRes = await fetch('api/auth.php?action=check');
             const authData = await authRes.json();
@@ -85,50 +357,117 @@
                 return;
             }
             document.getElementById('display-username').innerText = authData.username + ' (Admin)';
+
+            document.getElementById('search-input').addEventListener('input', renderTable);
+            document.getElementById('tier-filter').addEventListener('change', renderTable);
             loadUsers();
         });
 
         async function loadUsers() {
             const res = await fetch('api/users.php');
             let users = await res.json();
+
+            allUsers = users.map(u => ({
+                ...u,
+                member_code: 'CM-' + String(u.id).padStart(6, '0'),
+                display_name: (u.full_name && u.full_name.trim()) ? u.full_name : (u.role === 'admin' ? 'Quản Trị Viên' : u.username),
+                points: Number(u.points || 0),
+                tier_points: Number(u.tier_points ?? u.points ?? 0),
+                member_level: u.member_level || 'Bronze',
+                total_spent: Number(u.total_spent || 0)
+            })).sort((a, b) => {
+                if (a.role === 'admin' && b.role !== 'admin') return -1;
+                if (a.role !== 'admin' && b.role === 'admin') return 1;
+                return b.total_spent - a.total_spent;
+            });
+
+            const customers = allUsers.filter(u => u.role !== 'admin');
+            const vipCount = customers.filter(u => u.member_level === 'Gold' || u.member_level === 'Platinum').length;
+            const totalRev = customers.reduce((sum, u) => sum + u.total_spent, 0);
+
+            document.getElementById('kpi-total').innerText = customers.length.toLocaleString('vi-VN');
+            document.getElementById('kpi-vip').innerText = vipCount.toLocaleString('vi-VN');
+            document.getElementById('kpi-revenue').innerText = totalRev.toLocaleString('vi-VN') + ' đ';
+
+            renderTable();
+        }
+
+        function getFilteredUsers() {
+            const q = document.getElementById('search-input').value.trim().toLowerCase();
+            const tier = document.getElementById('tier-filter').value;
+
+            return allUsers.filter(u => {
+                const matchTier = (tier === 'ALL') || (u.role !== 'admin' && u.member_level === tier);
+                const matchSearch = !q ||
+                    u.member_code.toLowerCase().includes(q) ||
+                    u.display_name.toLowerCase().includes(q) ||
+                    (u.email || '').toLowerCase().includes(q) ||
+                    (u.phone || '').toLowerCase().includes(q);
+                return matchTier && matchSearch;
+            });
+        }
+
+        function renderTable() {
+            const list = getFilteredUsers();
             const tbody = document.getElementById('users-tbody');
 
-            if (users.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: #888;">Hệ thống chưa có khách hàng nào</td></tr>`;
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: #888;">Không tìm thấy khách hàng phù hợp</td></tr>`;
                 return;
             }
 
-            // Ghim Admin lên đầu bảng tuyệt đối
-            users.sort((a, b) => {
-                if (a.role === 'admin' && b.role !== 'admin') return -1;
-                if (a.role !== 'admin' && b.role === 'admin') return 1;
-                return 0;
-            });
-
-            tbody.innerHTML = users.map((u, index) => {
-                let displayName = u.full_name;
-                if (!displayName || displayName.trim() === '') {
-                    displayName = (u.role === 'admin') ? 'Lương Quang Nguyên' : u.username;
-                }
+            tbody.innerHTML = list.map(u => {
+                const tierLabel = TIER_NAMES[u.member_level] || u.member_level;
+                const tierHtml = u.role === 'admin'
+                    ? `<span style="color:#666;font-size:0.85rem;">—</span>`
+                    : `<span class="tier-pill tier-${u.member_level}">${tierLabel}</span>
+                       <div style="font-size:0.78rem;color:#9ca3af;margin-top:4px;line-height:1.4;">
+                           Tích lũy: <b style="color:#fff">${u.tier_points.toLocaleString('vi-VN')}</b> • Khả dụng: <b style="color:#ff5c66">${u.points.toLocaleString('vi-VN')}</b>
+                       </div>`;
 
                 return `
                 <tr>
-                    <td style="color:var(--text-muted)">#${index + 1}</td>
-                    <td style="font-weight:bold; color:white;">${displayName}</td>
-                    <td style="color: #ccc;">${u.email}</td>
-                    <td style="color: #ccc;">${u.phone ? u.phone : '<span style="color:#666;font-style:italic">Chưa cập nhật</span>'}</td>
-                    <td>${new Date(u.created_at).toLocaleDateString('vi-VN')}</td>
-                    <td>
+                    <td class="nowrap"><span class="member-code">${u.member_code}</span></td>
+                    <td class="nowrap" style="font-weight:700; color:white;">${u.display_name}</td>
+                    <td style="color:#d4d4d8;">${u.email || ''}</td>
+                    <td class="nowrap" style="color:#d4d4d8;">${u.phone ? u.phone : '<span style="color:#666;font-style:italic">Chưa cập nhật</span>'}</td>
+                    <td class="nowrap">${tierHtml}</td>
+                    <td class="nowrap">
                         <span class="badge ${u.role}">${u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'}</span>
                     </td>
-                    <td style="color:#28a745; font-weight:bold; font-size:1.05rem;">
-                        ${Number(u.total_spent).toLocaleString('vi-VN')} đ
+                    <td class="nowrap" style="color:#34d399; font-weight:700; font-size:1rem;">
+                        ${u.role === 'admin' ? '<span style="color:#666;font-size:0.85rem;font-weight:400;">—</span>' : `${u.total_spent.toLocaleString('vi-VN')} đ`}
                     </td>
-                </tr>
-            `;
+                </tr>`;
             }).join('');
         }
+
+        function exportCSV() {
+            const list = getFilteredUsers();
+            if (list.length === 0) { alert('Không có dữ liệu để xuất!'); return; }
+
+            const headers = ['Ma TV', 'Ten khach hang', 'Email', 'So dien thoai', 'Hang thanh vien', 'Diem tich luy', 'Diem kha dung', 'Vai tro', 'Tong chi tieu (VND)'];
+            const rows = list.map(u => [
+                u.member_code,
+                `"${u.display_name.replace(/"/g, '""')}"`,
+                u.email || '',
+                u.phone ? `="${u.phone}"` : '',
+                u.role === 'admin' ? 'Admin' : (TIER_NAMES[u.member_level] || u.member_level),
+                u.role === 'admin' ? 0 : u.tier_points,
+                u.role === 'admin' ? 0 : u.points,
+                u.role === 'admin' ? 'Quan tri vien' : 'Khach hang',
+                u.total_spent
+            ]);
+
+            const csvContent = '\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `danh-sach-khach-hang-${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
     </script>
-    <script src="assets/js/chatbot.js"></script>
 </body>
 </html>

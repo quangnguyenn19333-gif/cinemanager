@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Về Chúng Tôi | CineManager</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/header.css">
-    <link rel="stylesheet" href="assets/css/header-extra.css">
-    <link rel="stylesheet" href="assets/css/pages.css">
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Về Chúng Tôi | CineManager</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/header.css">
+  <link rel="stylesheet" href="assets/css/header-extra.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/footer.css?v=7">
 </head>
 <body>
-    <script src="assets/js/site-data.js"></script>
-    <script src="assets/js/site-header.js"></script>
-
+  <script src="assets/js/site-data.js"></script>
+  <script src="assets/js/site-header.js"></script>
     <main class="page" id="page-root"></main>
 
     <script src="assets/js/common.js"></script>
@@ -108,8 +108,8 @@
                                     <div class="field full"><label>Vị trí ứng tuyển *</label>
                                         <select id="job-pos" required>${S.jobs.map(j => `<option value="${esc(j.id)}">${esc(j.title)}</option>`).join('')}</select></div>
                                     <div class="field full"><label>Họ và tên *</label><input id="job-name" required placeholder="Nguyễn Văn A"></div>
-                                    <div class="field"><label>Email *</label><input type="email" id="job-email" required placeholder="email@vidu.com"></div>
-                                    <div class="field"><label>Số điện thoại *</label><input type="tel" id="job-phone" required placeholder="09xx xxx xxx"></div>
+                                    <div class="field"><label>Email *</label><input type="email" id="job-email" maxlength="255" required placeholder="email@vidu.com"></div>
+                                    <div class="field"><label>Số điện thoại *</label><input type="tel" id="job-phone" inputmode="numeric" required placeholder="0912345678"></div>
                                     <div class="field full"><label>Link CV (Google Drive, LinkedIn...)</label><input type="url" id="job-cv" placeholder="https://"></div>
                                     <div class="field full"><label>Giới thiệu ngắn</label><textarea id="job-msg" placeholder="Kinh nghiệm, mong muốn..."></textarea></div>
                                 </div>
@@ -125,8 +125,8 @@
                             <h2>${ic('mail')} Gửi liên hệ / góp ý</h2>
                             <div class="form-grid">
                                 <div class="field"><label>Họ và tên *</label><input id="ct-name" required placeholder="Nguyễn Văn A"></div>
-                                <div class="field"><label>Email *</label><input type="email" id="ct-email" required placeholder="email@vidu.com"></div>
-                                <div class="field"><label>Số điện thoại</label><input type="tel" id="ct-phone" placeholder="09xx xxx xxx"></div>
+                                <div class="field"><label>Email *</label><input type="email" id="ct-email" maxlength="255" required placeholder="email@vidu.com"></div>
+                                <div class="field"><label>Số điện thoại *</label><input type="tel" id="ct-phone" inputmode="numeric" required placeholder="0912345678"></div>
                                 <div class="field"><label>Chủ đề *</label>
                                     <select id="ct-topic"><option>Góp ý dịch vụ</option><option>Hỗ trợ đặt vé / thanh toán</option><option>Khiếu nại</option><option>Hợp tác - quảng cáo</option><option>Khác</option></select></div>
                                 <div class="field full"><label>Nội dung *</label><textarea id="ct-msg" required placeholder="Nhập nội dung bạn muốn gửi..."></textarea></div>
@@ -172,7 +172,14 @@
                 } catch (e) { /* bỏ qua nếu trình duyệt chặn */ }
                 return Promise.resolve(true);
             }
-            const isEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+            const isEmail = v => {
+                const s = String(v || '').trim().toLowerCase();
+                if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(s)) return false;
+                if (s.endsWith('.co')) return false;
+                return /\.(com|vn|com\.vn|net|org|edu\.vn|io|co\.uk)$/.test(s);
+            };
+            const cleanPhone = v => String(v || '').replace(/[\s.-]/g, '');
+            const isVnPhone = v => /^(03|05|07|08|09)\d{8}$/.test(cleanPhone(v));
             const val = id => (document.getElementById(id)?.value || '').trim();
 
             window.pickJob = (jobId) => {
@@ -183,27 +190,77 @@
             const jobForm = document.getElementById('job-form');
             if (jobForm) jobForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (!val('job-name') || !val('job-phone')) return showToast('Vui lòng nhập họ tên và số điện thoại', 'error');
-                if (!isEmail(val('job-email'))) return showToast('Email không hợp lệ', 'error');
-                await saveSubmission('applications', { position: val('job-pos'), name: val('job-name'), email: val('job-email'), phone: val('job-phone'), cv: val('job-cv'), message: val('job-msg') });
-                showToast('Đã gửi hồ sơ! Chúng tôi sẽ liên hệ sớm nhất.');
-                jobForm.reset();
+                const name = val('job-name');
+                const phone = cleanPhone(val('job-phone'));
+                const email = val('job-email');
+                const cv = val('job-cv');
+                const posEl = document.getElementById('job-pos');
+                const positionText = posEl ? posEl.options[posEl.selectedIndex].text : val('job-pos');
+
+                if (!name || !phone) return showToast('Vui lòng nhập họ tên và số điện thoại', 'error');
+                if (!isVnPhone(phone)) {
+                    document.getElementById('job-phone')?.focus();
+                    return showToast('Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 số (vd: 0912345678)', 'error');
+                }
+                if (!isEmail(email)) return showToast('Email không hợp lệ', 'error');
+
+                if (cv && !/^https?:\/\/[^\s]+$/i.test(cv)) {
+                    return showToast('Link CV không hợp lệ! Phải bắt đầu bằng http:// hoặc https://', 'error');
+                }
+
+                try {
+                    const res = await fetch('api/applications.php?action=submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            position: positionText,
+                            full_name: name,
+                            email: email,
+                            phone: phone,
+                            cv_link: cv,
+                            message: val('job-msg')
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast('Đã gửi hồ sơ! Chúng tôi sẽ liên hệ sớm nhất.');
+                        jobForm.reset();
+                    } else {
+                        showToast(data.error || 'Có lỗi xảy ra', 'error');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showToast('Lỗi kết nối server', 'error');
+                }
             });
 
             // Xử lý gửi góp ý / liên hệ kết nối thẳng tới api/contact_handler.php
             const contactForm = document.getElementById('contact-form');
             if (contactForm) contactForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                if (!val('ct-name') || !val('ct-msg')) return showToast('Vui lòng nhập họ tên và nội dung', 'error');
-                if (!isEmail(val('ct-email'))) return showToast('Email không hợp lệ', 'error');
-                
+                const name = val('ct-name');
+                const email = val('ct-email');
+                const phone = cleanPhone(val('ct-phone'));
+                const msg = val('ct-msg');
+
+                if (!name || !msg) return showToast('Vui lòng nhập họ tên và nội dung', 'error');
+                if (!isEmail(email)) return showToast('Email không hợp lệ', 'error');
+                if (!phone) {
+                    document.getElementById('ct-phone')?.focus();
+                    return showToast('Vui lòng nhập số điện thoại', 'error');
+                }
+                if (!isVnPhone(phone)) {
+                    document.getElementById('ct-phone')?.focus();
+                    return showToast('Số điện thoại không hợp lệ! Vui lòng nhập đúng 10 số (vd: 0912345678)', 'error');
+                }
+
                 try {
                     const formData = {
-                        full_name: val('ct-name'),
-                        email: val('ct-email'),
-                        phone: val('ct-phone'),
+                        full_name: name,
+                        email: email,
+                        phone: phone,
                         subject: val('ct-topic'),
-                        message: val('ct-msg')
+                        message: msg
                     };
 
                     const res = await fetch('api/contact_handler.php', {
@@ -226,7 +283,7 @@
             });
         })();
     </script>
-    <script src="assets/js/site-footer.js"></script>
 
+    <script src="assets/js/site-footer.js?v=7"></script>
 </body>
 </html>

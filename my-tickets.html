@@ -4,22 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vé Của Tôi | CineManager</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/booking.css">
-    <link rel="stylesheet" href="assets/css/chatbot.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css?v=5">
+    <link rel="stylesheet" href="assets/css/header.css?v=5">
+    <link rel="stylesheet" href="assets/css/header-extra.css?v=5">
+    <link rel="stylesheet" href="assets/css/booking.css?v=5">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/footer.css?v=7">
 </head>
 <body>
-    <header>
-        <div class="logo"><a href="index.html" style="text-decoration:none;"><h1>Cine<span>Manager</span></h1></a></div>
-        <div class="auth-controls">
-            <div id="user-info">
-                Chào, <span id="display-username" style="color:var(--primary);font-weight:bold;"></span>
-                <a href="index.html"><button class="secondary">🏠 Trang chủ</button></a>
-                <button onclick="handleLogout()">Đăng xuất</button>
-            </div>
-        </div>
-    </header>
+    <!-- HEADER MỚI DÙNG CHUNG -->
+    <script src="assets/js/site-data.js?v=5"></script>
+    <script src="assets/js/site-header.js?v=5"></script>
 
     <main style="padding: 2rem 5%;">
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem;">
@@ -34,12 +29,14 @@
     </main>
 
     <script src="assets/js/common.js"></script>
+    <script src="assets/js/header.js?v=5"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const authRes = await fetch('api/auth.php?action=check');
             const authData = await authRes.json();
             if (!authData.isLoggedIn) { window.location.href = 'login.html'; return; }
-            document.getElementById('display-username').innerText = authData.username;
+            const nameEl = document.getElementById('display-username');
+            if (nameEl) nameEl.innerText = authData.username;
 
             const res = await fetch('api/bookings.php');
             const tickets = await res.json();
@@ -62,7 +59,7 @@
                 const badge = t.status === 'confirmed'
                     ? '<span style="background:#28a745; color:white; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.75rem;">✓ Đã đặt</span>'
                     : '<span style="background:#dc3545; color:white; padding:0.2rem 0.6rem; border-radius:20px; font-size:0.75rem;">✗ Đã hủy</span>';
-                
+
                 // Tạo data cho QR
                 const ticketData = encodeURIComponent(`CineManager Ticket #${t.id}\nPhim: ${t.movie_title}\nGhế: ${t.seats}`);
                 const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${ticketData}`;
@@ -90,8 +87,7 @@
             }).join('');
         });
     </script>
-    <script src="assets/js/chatbot.js"></script>
-    <script src="assets/js/site-footer.js"></script>
 
+    <script src="assets/js/site-footer.js?v=7"></script>
 </body>
 </html>
