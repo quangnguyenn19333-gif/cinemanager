@@ -26,6 +26,7 @@ window.SITE = {
   /* ---------------------------- HỆ THỐNG RẠP ---------------------------- */
   cinemas: [
     {
+      image: 'assets/images/aeonxthuy.png',
       slug: 'xuanthuy', name: 'CineManager Xuân Thủy', district: 'Cầu Giấy',
       venue: 'TTTM AEON MALL Xuân Thủy',
       address: 'TTTM AEON MALL Xuân Thủy, Cầu Giấy, Hà Nội',
@@ -37,6 +38,7 @@ window.SITE = {
       intro: 'Cơ sở chủ lực của hệ thống với phòng chiếu IMAX và khu vực ghế Couple, nằm ngay trung tâm quận Cầu Giấy.'
     },
     {
+      image: 'assets/images/gothanglong.png',
       slug: 'thanglong', name: 'CineManager Thăng Long', district: 'Cầu Giấy',
       venue: 'TTTM Big C Thăng Long',
       address: 'TTTM Big C Thăng Long, 222 Trần Duy Hưng, Cầu Giấy, Hà Nội',
@@ -48,6 +50,7 @@ window.SITE = {
       intro: 'Rạp nằm trên trục Trần Duy Hưng sầm uất, thuận tiện cho khách hàng khu vực Cầu Giấy, Thanh Xuân.'
     },
     {
+      image: 'assets/images/hadong.png',
       slug: 'aeon-hadong', name: 'CineManager Aeon Hà Đông', district: 'Hà Đông',
       venue: 'AEON Mall Hà Đông',
       address: 'AEON Mall Hà Đông, Phường Dương Nội, Hà Đông, Hà Nội',
@@ -59,6 +62,7 @@ window.SITE = {
       intro: 'Cụm rạp quy mô lớn nhất hệ thống, phục vụ khách hàng khu vực Hà Đông và các tỉnh phía Tây.'
     },
     {
+      image: 'assets/images/megamall.png',
       slug: 'royal-city', name: 'CineManager Royal City', district: 'Thanh Xuân',
       venue: 'Vincom Mega Mall Royal City',
       address: 'Tầng B2-VCCA, Vincom Mega Mall Royal City, 72A Nguyễn Trãi, Thanh Xuân, Hà Nội',
@@ -70,6 +74,7 @@ window.SITE = {
       intro: 'Rạp nằm trong tổ hợp Royal City với không gian hiện đại, phù hợp đi cùng gia đình và bạn bè.'
     },
     {
+      image: 'assets/images/thegardan.png',
       slug: 'mydinh', name: 'CineManager Mỹ Đình', district: 'Nam Từ Liêm',
       venue: 'TTTM The Garden',
       address: 'Tầng 5, TTTM The Garden, Khu đô thị The Manor, Nam Từ Liêm, Hà Nội',
@@ -81,6 +86,7 @@ window.SITE = {
       intro: 'Cơ sở phục vụ cư dân khu đô thị The Manor, Mỹ Đình và khu vực lân cận.'
     },
     {
+      image: 'assets/images/xphome.png',
       slug: 'danphuong', name: 'CineManager Đan Phượng', district: 'Đan Phượng',
       venue: 'Khu Đô Thị XPHomes',
       address: 'Khu Đô Thị XPHomes, Tân Tây Đô, Đan Phượng, Hà Nội',
@@ -225,3 +231,18 @@ window.SITE = {
     { tab: 'contact', title: 'Liên hệ',    sub: 'Mọi thắc mắc, góp ý',       icon: 'mail' }
   ]
 };
+
+
+/* =====================================================================
+ * TỰ NẠP FOOTER DÙNG CHUNG
+ * Mọi trang đã nạp site-data.js đều tự có footer mới (assets/js/site-footer.js).
+ * ===================================================================== */
+(function () {
+  if (window.__siteFooterInit) return;
+  var me = document.currentScript;
+  var src = me && me.getAttribute('src');
+  var base = src ? src.replace(/site-data\.js.*$/, '') : 'assets/js/';
+  var s = document.createElement('script');
+  s.src = base + 'site-footer.js?v=7';
+  (document.head || document.documentElement).appendChild(s);
+})();

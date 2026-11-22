@@ -390,6 +390,11 @@
                 if (a.role !== 'admin' && b.role === 'admin') return 1;
                 return b.total_spent - a.total_spent;
             });
+        }
+
+        function renderTable() {
+            const list = getFilteredUsers();
+            const tbody = document.getElementById('users-tbody');
 
             const customers = allUsers.filter(u => u.role !== 'admin');
             const vipCount = customers.filter(u => u.member_level === 'Gold' || u.member_level === 'Platinum').length;

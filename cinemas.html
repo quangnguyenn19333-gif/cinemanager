@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Rạp | CineManager</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/header.css">
-    <link rel="stylesheet" href="assets/css/header-extra.css">
-    <link rel="stylesheet" href="assets/css/pages.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=5">
+    <link rel="stylesheet" href="assets/css/header.css?v=5">
+    <link rel="stylesheet" href="assets/css/header-extra.css?v=5">
+    <link rel="stylesheet" href="assets/css/pages.css?v=5">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/footer.css?v=7">
 </head>
 <body>
-    <script src="assets/js/site-data.js"></script>
-    <script src="assets/js/site-header.js"></script>
+    <script src="assets/js/site-data.js?v=5"></script>
+    <script src="assets/js/site-header.js?v=5"></script>
 
     <main class="page" id="page-root"></main>
 
@@ -51,10 +52,11 @@
                     </div>`;
             }
 
-            /* Ảnh rạp: nếu có file assets/images/cinema-<slug>.jpg thì dùng, không thì hiện nền gradient */
+            /* Ảnh rạp lấy từ trường image trong site-data.js; lỗi thì hiện nền gradient + 🎬 */
             function cover(c) {
                 return `<div class="cover" style="background:linear-gradient(135deg,#2a0f0f,#6b0d12)">
-                    <img src="assets/images/cinema-${esc(c.slug)}.jpg" alt="${esc(c.name)}" onerror="this.remove()">
+                    <img src="${esc(c.image)}" alt="${esc(c.name)}"
+                         onload="this.nextElementSibling.remove()" onerror="this.remove()">
                     <span class="cover-fallback">🎬</span></div>`;
             }
 
@@ -135,5 +137,7 @@
             }
         })();
     </script>
+
+    <script src="assets/js/site-footer.js?v=7"></script>
 </body>
 </html>

@@ -5,31 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đặt Vé | CineManager</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/booking.css">
+    <link rel="stylesheet" href="assets/css/style.css?v=5">
+    <link rel="stylesheet" href="assets/css/header.css?v=5">
+    <link rel="stylesheet" href="assets/css/header-extra.css?v=5">
+    <link rel="stylesheet" href="assets/css/booking.css?v=5">
     <link rel="stylesheet" href="assets/css/chatbot.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/footer.css?v=7">
 </head>
 <body>
-    <header>
-        <div class="logo"><a href="index.html" style="text-decoration:none;"><h1>Cine<span>Manager</span></h1></a></div>
-        <div class="auth-controls">
-            <div id="user-info">
-                Chào, <span id="display-username" style="color:var(--primary);font-weight:bold;"></span>
-                <a href="my-tickets.html"><button class="secondary">🎫 Vé của tôi</button></a>
-                <button onclick="handleLogout()">Đăng xuất</button>
-            </div>
-        </div>
-    </header>
+    <!-- HEADER MỚI DÙNG CHUNG -->
+    <script src="assets/js/site-data.js?v=5"></script>
+    <script src="assets/js/site-header.js?v=5"></script>
 
     <main style="padding: 2rem 5%;">
-        <!-- Nút Thoát đặt vé quay về trang chủ -->
-        <div style="margin-bottom: 20px;">
-            <button class="secondary" onclick="window.location.href='index.html'" style="padding: 7px 15px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; background: rgba(255,255,255,0.08); border: 1px solid #444; color: #ccc; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#ccc';">
-                <i class="fa-solid fa-arrow-left"></i> Thoát đặt vé
-            </button>
+        <div style="margin-bottom: 2rem;">
+            <a href="index.html" style="text-decoration: none;">
+                <button class="secondary" style="padding: 0.5rem 1rem; border-radius: 50px;">← Thoát đặt vé</button>
+            </a>
         </div>
-
         <div class="steps-bar">
             <div class="step active" id="step-indicator-1"><span>1</span> Suất chiếu</div>
             <div class="step-line"></div>
@@ -92,22 +86,13 @@
 
             <div id="seat-map" class="seat-map"></div>
 
-            <div class="selected-seats-info" style="margin-bottom: 2rem;">
+            <div class="selected-seats-info">
                 <p>Ghế đã chọn: <span id="selected-seats-text" style="color:var(--primary)">Chưa có</span></p>
                 <p>Tạm tính: <span id="seats-subtotal" style="color:var(--primary); font-weight:bold">0 đ</span></p>
-            </div>
-
-            <!-- ĐIỀU HƯỚNG BƯỚC 2: Quay lại bước 1 và Tiếp tục sang Combo -->
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem;">
-                <button class="secondary" onclick="goToStep(1)" style="padding: 0.7rem 1.5rem; background: rgba(255,255,255,0.08); border: 1px solid #444; border-radius: 8px; font-weight: 600; color: #ccc; cursor: pointer; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#ccc';">
-                    ← Quay lại
-                </button>
-                <button id="btn-go-combo" class="hidden" onclick="openAgeModal(3)" style="padding: 0.7rem 1.5rem; border-radius: 8px; font-weight: bold; font-size: 1rem;">
-                    Tiếp tục → Chọn Combo
-                </button>
+                <button id="btn-go-combo" class="hidden" onclick="openAgeModal(3)">Tiếp tục → Chọn Combo</button>
             </div>
         </div>
-        
+
         <div id="step-3" class="step-content">
             <h2>🍿 Chọn Combo Bắp Nước</h2>
             <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Không bắt buộc. Bạn có thể bỏ qua bước này.</p>
@@ -172,60 +157,10 @@
     </div>
 
     <script src="assets/js/common.js"></script>
+    <script src="assets/js/header.js?v=5"></script>
     <script src="assets/js/booking.js"></script>
     <script src="assets/js/chatbot.js"></script>
-<!-- MODAL CHI TIẾT PHIM ĐỘNG THEO TỪNG PHIM -->
-<div id="movie-detail-modal" class="modal hidden" style="background: rgba(0,0,0,0.85); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: flex; align-items: center; justify-content: center;">
-    <div class="modal-content" style="background: #1a1a1a; padding: 35px; border-radius: 16px; width: 90%; max-width: 580px; max-height: 85vh; overflow-y: auto; color: #fff; position: relative; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.8);">
-        
-        <!-- Nút đóng X -->
-        <span onclick="closeMovieDetailModal()" style="position: absolute; top: 20px; right: 25px; font-size: 24px; cursor: pointer; color: #aaa;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#aaa'">&times;</span>
-        
-        <!-- Tiêu đề phim -->
-        <h2 id="modal-movie-title" style="margin-bottom: 25px; color: #e50914; font-size: 24px; border-bottom: 2px solid #333; padding-bottom: 12px; font-weight: 700;">Chi Tiết Phim</h2>
-        
-        <!-- Danh sách thông tin -->
-        <div style="display: flex; flex-direction: column; gap: 14px; font-size: 14.5px;">
-            
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
-                <span style="color: #888; font-weight: 600; min-width: 120px;">ĐẠO DIỄN:</span>
-                <span id="m-director" style="color: #fff; text-align: right; font-weight: 500;">Đang cập nhật</span>
-            </div>
 
-            <div style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
-                <span style="color: #888; font-weight: 600;">DIỄN VIÊN:</span>
-                <span id="m-cast" style="color: #ddd; line-height: 1.5; font-size: 14px;">Đang cập nhật</span>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
-                <span style="color: #888; font-weight: 600;">THỂ LOẠI:</span>
-                <span id="m-genre" style="color: #fff; text-align: right;"></span>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
-                <span style="color: #888; font-weight: 600;">THỜI LƯỢNG:</span>
-                <span id="m-duration" style="color: #fff; text-align: right;"></span>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
-                <span style="color: #888; font-weight: 600;">NGÔN NGỮ:</span>
-                <span id="m-language" style="color: #fff; text-align: right;">Tiếng Việt</span>
-            </div>
-
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px dashed #2a2a2a; padding-bottom: 8px;">
-                <span style="color: #888; font-weight: 600;">NGÀY KHỞI CHIẾU:</span>
-                <span id="m-release" style="color: #fff; text-align: right;">30/10/2026</span>
-            </div>
-
-        </div>
-
-        <!-- Phần nội dung tóm tắt -->
-        <div style="margin-top: 25px;">
-            <p style="font-weight: 700; margin-bottom: 10px; color: #e50914; font-size: 15px;">NỘI DUNG TÓM TẮT</p>
-            <p id="m-desc" style="color: #ccc; text-align: justify; line-height: 1.7; font-size: 14px; background: #222; padding: 15px; border-radius: 8px; border-left: 4px solid #e50914;"></p>
-        </div>
-
-    </div>
-</div>
+    <script src="assets/js/site-footer.js?v=7"></script>
 </body>
 </html>

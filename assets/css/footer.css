@@ -1,0 +1,366 @@
+/* =====================================================
+   FOOTER CineManager (bố cục kiểu CGV, màu tối như cũ)
+   Đổi màu nhanh bằng các biến --ft-* bên dưới.
+   Muốn bản nền kem giống CGV: thêm class "site-footer--cream"
+   ===================================================== */
+
+.site-footer {
+    --ft-bg: #050505;                    /* nền footer cũ */
+    --ft-strip: #111111;                 /* nền dải định dạng chiếu */
+    --ft-top-border: 2px solid #c41212;  /* viền đỏ phía trên */
+    --ft-bottom-border: 1px solid #262626;
+    --ft-rule: #222222;                  /* đường kẻ mảnh giữa các khối */
+    --ft-ink: #ffffff;
+    --ft-title: #ffffff;                 /* tiêu đề cột */
+    --ft-text: #b5b5b5;                  /* chữ thường */
+    --ft-accent: #e50914;                /* màu hover / logo */
+
+    background: var(--ft-bg);
+    color: var(--ft-text);
+    margin-top: 60px;
+}
+
+/* Bản nền kem giống CGV (tùy chọn) */
+.site-footer--cream {
+    --ft-bg: #fdfcf0;
+    --ft-strip: #fdfcf0;
+    --ft-top-border: 3px solid #111111;
+    --ft-bottom-border: 3px solid #111111;
+    --ft-rule: rgba(0, 0, 0, 0.12);
+    --ft-ink: #111111;
+    --ft-title: #5a564c;
+    --ft-text: #6f6b60;
+}
+
+.site-footer a {
+    text-decoration: none;
+}
+
+/* ---------- 1. DẢI ĐỊNH DẠNG CHIẾU (logo) ---------- */
+.ft-formats {
+    background: var(--ft-strip);
+    border-top: var(--ft-top-border);
+    border-bottom: var(--ft-bottom-border);
+}
+
+.ft-formats-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 18px 5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 14px 34px;
+}
+
+.fmt {
+    display: inline-block;
+    line-height: 1;
+    white-space: nowrap;
+    user-select: none;
+    transition: transform 0.25s ease;
+}
+
+.fmt:hover {
+    transform: translateY(-2px) scale(1.04);
+}
+
+/* 4DX — xám nhạt, chữ X lớn */
+.fmt-4dx {
+    font-size: 30px;
+    font-weight: 800;
+    font-style: italic;
+    letter-spacing: -1px;
+    color: #c4c4c4;
+}
+.fmt-4dx em {
+    font-style: inherit;
+    font-weight: 600;
+    color: #d3d3d3;
+}
+.fmt-4dx b {
+    font-size: 42px;
+    font-weight: 900;
+    color: #b3b3b3;
+}
+
+/* IMAX — xanh dương, chữ đậm bè */
+.fmt-imax {
+    font-size: 34px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #1472d6;
+    transform: scaleX(1.12);
+    transform-origin: center;
+}
+.fmt-imax:hover {
+    transform: scaleX(1.12) translateY(-2px);
+}
+
+/* GOLD CLASS — chữ serif sang trọng */
+.fmt-gold {
+    font-family: 'Cormorant Garamond', 'Times New Roman', Georgia, serif;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-transform: uppercase;
+    color: var(--ft-ink);
+}
+
+/* SWEETBOX — hồng, condensed nghiêng */
+.fmt-sweet {
+    font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+    font-size: 40px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #ec1d7a;
+    transform: skewX(-8deg);
+}
+.fmt-sweet:hover {
+    transform: skewX(-8deg) translateY(-2px);
+}
+
+/* PREMIUM CINEMA — đỏ, condensed */
+.fmt-premium {
+    font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
+    font-size: 32px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #e0201c;
+}
+
+/* SCREENX — xám, nhẹ + X đậm */
+.fmt-screenx {
+    font-size: 26px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #bdbdbd;
+}
+.fmt-screenx b {
+    font-size: 36px;
+    font-weight: 900;
+    font-style: italic;
+    color: #a8a8a8;
+}
+
+/* ---------- 2. 4 CỘT THÔNG TIN ---------- */
+.ft-main {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 44px 5% 34px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 40px;
+}
+
+.ft-col h3 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ft-title);
+    margin-bottom: 18px;
+    line-height: 1.3;
+}
+
+.ft-col ul {
+    list-style: none;
+}
+
+.ft-col li {
+    margin-bottom: 10px;
+}
+
+.ft-col a,
+.ft-col p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--ft-text);
+}
+
+.ft-col p {
+    margin-bottom: 8px;
+}
+
+.ft-col a {
+    transition: color 0.2s ease, padding-left 0.2s ease;
+}
+
+.ft-col li a:hover {
+    color: var(--ft-accent);
+    padding-left: 4px;
+}
+
+.ft-col p a {
+    font-weight: 600;
+}
+
+.ft-col p a:hover {
+    color: var(--ft-accent);
+}
+
+/* Icon mạng xã hội — ô vuông bo góc */
+.ft-social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ft-social a {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    overflow: hidden;
+    display: block;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ft-social a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+}
+
+.ft-social img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* ---------- 3. THÔNG TIN CÔNG TY ---------- */
+.ft-company {
+    border-top: 1px solid var(--ft-rule);
+}
+
+.ft-company-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 28px 5%;
+    display: flex;
+    align-items: center;
+    gap: 36px;
+}
+
+.ft-brand {
+    flex-shrink: 0;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--ft-ink);
+}
+
+.ft-brand b {
+    color: var(--ft-accent);
+    font-weight: 800;
+}
+
+.ft-company-text p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ft-text);
+}
+
+.ft-company-text strong {
+    color: var(--ft-title);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ---------- 4. BẢN QUYỀN + THANH TOÁN ---------- */
+.ft-bottom {
+    border-top: 1px solid var(--ft-rule);
+}
+
+.ft-bottom-inner {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.ft-bottom p {
+    font-size: 13px;
+    color: var(--ft-text);
+}
+
+.ft-pay {
+    display: flex;
+    gap: 10px;
+}
+
+.ft-pay img {
+    height: 30px;
+    width: auto;
+    padding: 4px 10px;
+    background: #fff;
+    border: 1px solid var(--ft-rule);
+    border-radius: 6px;
+    display: block;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 992px) {
+    .ft-main {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 32px;
+    }
+}
+
+@media (max-width: 576px) {
+    .ft-formats-inner {
+        gap: 12px 24px;
+        padding: 14px 5%;
+    }
+
+    .fmt-4dx { font-size: 24px; }
+    .fmt-4dx b { font-size: 32px; }
+    .fmt-imax { font-size: 26px; }
+    .fmt-gold { font-size: 28px; }
+    .fmt-sweet { font-size: 32px; }
+    .fmt-premium { font-size: 26px; }
+    .fmt-screenx { font-size: 20px; }
+    .fmt-screenx b { font-size: 28px; }
+
+    .ft-main {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 32px 5% 24px;
+    }
+
+    .ft-company-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+    }
+
+    .ft-bottom-inner {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Link "Gửi liên hệ / góp ý" */
+.ft-col a.ft-cta {
+    color: var(--ft-accent);
+    font-weight: 700;
+}
+.ft-col a.ft-cta:hover {
+    text-decoration: underline;
+}
+
+/* Ẩn footer cũ (.cinema-footer) nếu còn sót ở trang nào đó.
+   Xóa đoạn này khi đã gỡ footer cũ khỏi nguồn (vd. site-header.js). */
+.cinema-footer,
+body > footer:not(.site-footer) {
+    display: none !important;
+}
+
+/* Dự phòng: ẩn mọi khối cha trực tiếp của body có chứa dải .cinema-types (footer cũ) */
+body > *:has(.cinema-types):not(.site-footer) {
+    display: none !important;
+}
