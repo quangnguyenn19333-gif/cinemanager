@@ -13,6 +13,7 @@
             --primary-soft: #ff5c66;
             --bg-dark: #0c0d10;
             --card-bg: #16181f;
+            --elevated-bg: #1a1b23;
             --table-head: #1c1f29;
             --border-color: #262936;
             --row-border: #20232e;
@@ -40,13 +41,14 @@
         .page-header h2 { margin: 0; font-size: 1.55rem; font-weight: 700; }
 
         /* Action Buttons */
-        .header-actions button { padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; }
-        .btn-add { background: var(--primary); color: #fff; }
-        .btn-add:hover { background: #b80710; }
-        .btn-logout { background: rgba(229, 9, 20, 0.16); color: #ff6b74; border: 1px solid rgba(229, 9, 20, 0.42); }
-        .btn-logout:hover { background: var(--primary); color: #fff; }
+        .header-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .header-actions button { padding: 8px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; display: flex; align-items: center; gap: 6px; }
+        .btn-add { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(229, 9, 20, 0.25); }
+        .btn-add:hover { background: #b80710; transform: translateY(-1px); }
+        .btn-logout { background: rgba(229, 9, 20, 0.16); color: #ff6b74; border: 1px solid rgba(229, 9, 20, 0.42) !important; }
+        .btn-logout:hover { background: #e50914; color: #fff; }
 
-        /* CSS MỚI CHO BỘ LỌC - ÉP CỨNG TRÊN 1 DÒNG DÙNG GRID */
+        /* Filter Section */
         .filter-section {
             background: var(--card-bg);
             padding: 1.5rem;
@@ -54,32 +56,19 @@
             border: 1px solid var(--border-color);
             margin-bottom: 2rem;
             display: grid;
-            grid-template-columns: auto 1fr 1fr 1fr 1.5fr; /* 5 cột chính xác */
+            grid-template-columns: auto 1fr 1fr 1fr 1.5fr; 
             gap: 12px;
             align-items: center;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
         }
-
-        .filter-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; white-space: nowrap;}
-        
-        .filter-input {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            color: #fff;
-            padding: 0.6rem 1rem;
-            border-radius: 8px;
-            font-family: inherit;
-            font-size: 0.9rem;
-            outline: none;
-            width: 100%; 
-            box-sizing: border-box;
-        }
+        .filter-label { color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 0.85rem; white-space: nowrap; }
+        .filter-input { background: #1c1f29; border: 1px solid var(--border-color); color: #fff; padding: 0.7rem 1rem; border-radius: 8px; font-family: inherit; font-size: 0.9rem; outline: none; width: 100%; box-sizing: border-box; transition: 0.2s; }
         .filter-input:focus { border-color: var(--primary-soft); }
 
         /* Table */
         .table-container { background: var(--card-bg); border-radius: 14px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); }
         .table-header { padding: 1.5rem; border-bottom: 1px solid var(--border-color); background: var(--table-head); }
         .table-header h3 { margin: 0; font-size: 1.1rem; color: #fff; }
-
         table { width: 100%; border-collapse: collapse; }
         th { background: var(--table-head); color: var(--text-muted); font-size: 0.76rem; font-weight: 700; text-transform: uppercase; text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
         td { text-align: left; padding: 15px 16px; border-bottom: 1px solid var(--row-border); font-size: 0.9rem; vertical-align: middle; transition: background-color 0.2s ease;}
@@ -87,75 +76,110 @@
         tbody tr:last-child td { border-bottom: none; }
         
         .nowrap { white-space: nowrap; }
-        .movie-name { font-weight: 600; color: #fff; }
-        .time-highlight { color: var(--primary-soft); font-weight: 700; font-size: 1.1rem; }
+        .movie-name { font-weight: 600; color: #fff; font-size: 0.95rem; }
+        .time-highlight { color: var(--primary-soft); font-weight: 700; font-size: 1.1rem; letter-spacing: 0.5px; }
         
         /* Price Formatting */
         .price-box { font-size: 0.85rem; color: var(--text-muted); }
         .price-box span { font-weight: 600; }
-        .price-box .std { color: #d4d4d8; }
+        .price-box .std { color: #cbd5e1; }
         .price-box .vip { color: var(--gold); }
         .price-box .couple { color: var(--mint); }
 
         /* Status Badges */
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; display: inline-block; white-space: nowrap; text-align: center; }
-        .badge-upcoming { background: rgba(245, 185, 66, 0.14); color: var(--gold); border: 1px solid rgba(245, 185, 66, 0.35); }
-        .badge-showing { background: rgba(52, 211, 153, 0.14); color: var(--mint); border: 1px solid rgba(52, 211, 153, 0.35); }
-        .badge-ended { background: rgba(107, 114, 128, 0.14); color: var(--gray); border: 1px solid rgba(107, 114, 128, 0.35); }
+        .badge { padding: 6px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 600; display: inline-block; white-space: nowrap; text-align: center; border: 1px solid transparent; }
+        .badge-upcoming { background: rgba(245, 185, 66, 0.14); color: var(--gold); border-color: rgba(245, 185, 66, 0.35); }
+        .badge-showing { background: rgba(52, 211, 153, 0.14); color: var(--mint); border-color: rgba(52, 211, 153, 0.35); }
+        .badge-ended { background: rgba(148, 163, 184, 0.14); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.3); }
 
         /* Action Buttons */
         .actions-flex { display: flex; gap: 8px; justify-content: center; }
-        .action-btn { padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s ease; border: 1px solid transparent; }
-        .btn-edit { background: rgba(255,255,255,0.05); color: #fff; border-color: var(--border-color); }
-        .btn-edit:hover { background: rgba(255,255,255,0.1); border-color: #555; }
-        .btn-delete { background: rgba(229, 9, 20, 0.16); color: #ff6b74; border-color: rgba(229, 9, 20, 0.42); }
-        .btn-delete:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .action-btn { padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; transition: 0.2s ease; border: 1px solid transparent; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-edit { background: rgba(255,255,255,0.03); color: #e2e8f0; border-color: rgba(148, 163, 184, 0.32); }
+        .btn-edit:hover { background: rgba(229, 9, 20, 0.14); border-color: rgba(229, 9, 20, 0.55); color: #fff; }
+        .btn-delete { background: rgba(255,255,255,0.03); color: #ff6b74; border-color: rgba(229, 9, 20, 0.35); }
+        .btn-delete:hover { background: rgba(229, 9, 20, 0.2); border-color: var(--primary); color: #fff; }
+        .btn-locked { background: transparent; color: #6b7280; cursor: not-allowed; border-color: rgba(107, 114, 128, 0.28); }
 
-        /* Modal */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
+        /* MODAL GỌN GÀNG - CASCADING 2 TẦNG LỌC PHÒNG */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(4, 5, 8, 0.82); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 1000; padding: 14px; }
         .modal:not(.hidden) { display: flex; }
-        .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; width: 90%; max-width: 500px; padding: 2rem; position: relative; color: #fff;}
-        .close-modal { position: absolute; top: 1.5rem; right: 1.5rem; background: transparent; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
-        .close-modal:hover { color: #fff; }
-        .modal-header h3 { margin: 0 0 1.5rem 0; font-size: 1.3rem; color: var(--primary-soft); }
-        
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .form-group { margin-bottom: 1rem; }
-        .form-group.full { grid-column: span 2; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem; font-weight: 600;}
-        .form-group input, .form-group select { width: 100%; background: var(--bg-dark); border: 1px solid var(--border-color); color: #fff; padding: 0.8rem; border-radius: 8px; box-sizing: border-box; outline: none; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--primary-soft); }
-        
-        .price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; border: 1px dashed var(--border-color); margin-bottom: 1rem;}
-        .price-grid .form-group { margin-bottom: 0; }
-        .price-grid label { font-size: 0.75rem; }
-        .price-grid input { padding: 0.6rem; }
-        
-        .modal-footer { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;}
-        .modal-footer button { padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; border: none; transition: 0.2s;}
-        .btn-cancel { background: transparent; border: 1px solid var(--border-color); color: #fff; }
-        .btn-cancel:hover { background: rgba(255,255,255,0.05); }
-        .btn-save { background: var(--primary); color: white;}
-        .btn-save:hover { background: #b80710; }
-
-        /* Đổi màu biểu tượng Lịch và Đồng hồ sang trắng (Dark Mode) */
-        input[type="date"], 
-        input[type="time"] {
-            color-scheme: dark;
+        .modal-content { 
+            background: linear-gradient(180deg, #181a22 0%, #13141a 100%);
+            border: 1px solid #2e3242;
+            border-radius: 14px; 
+            width: 100%; 
+            max-width: 500px; 
+            position: relative; 
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(229, 9, 20, 0.12);
+            animation: popIn 0.22s ease-out;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
         
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 18px;
+            background: var(--elevated-bg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-title-wrap { display: flex; align-items: center; gap: 10px; }
+        .modal-title-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: rgba(229, 9, 20, 0.15);
+            border: 1px solid rgba(229, 9, 20, 0.35);
+            color: #ff4d58;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .modal-title-wrap div h3 { margin: 0; font-size: 0.98rem; font-weight: 700; color: #fff; }
+        .modal-subtitle { margin: 2px 0 0; font-size: 0.72rem; color: var(--text-muted); }
+        
+        .close-modal { background: rgba(255,255,255,0.04); border: 1px solid transparent; color: var(--text-muted); width: 28px; height: 28px; border-radius: 7px; font-size: 1.15rem; line-height: 1; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
+        .close-modal:hover { color: #fff; background: rgba(229, 9, 20, 0.18); border-color: rgba(229, 9, 20, 0.45); }
+
+        .modal-body { padding: 15px 18px; overflow-y: auto; max-height: 76vh;}
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .form-group { margin-bottom: 4px; }
+        .form-group.full { grid-column: span 2; }
+        
+        /* Highlight nhẹ label để phân biệt luồng thao tác */
+        .form-group label { display: block; margin-bottom: 0.32rem; color: #cbd5e1; font-size: 0.75rem; font-weight: 600;}
+        .step-label { color: var(--primary-soft) !important; }
+        
+        .form-group input, .form-group select { width: 100%; background: #0d0e13; border: 1px solid var(--border-color); color: #fff; padding: 7.5px 10px; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 0.82rem; transition: 0.2s; }
+        .form-group input:hover, .form-group select:hover { border-color: #363a4c; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.16); background: #101118;}
+        
+        /* Disable select styling */
+        select:disabled { opacity: 0.5; cursor: not-allowed; background: #15161c; }
+
+        .price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.02); padding: 11px 12px; border-radius: 9px; border: 1px dashed #2e3242; margin-top: 0.45rem;}
+        .price-grid .form-group { margin-bottom: 0; }
+        .price-grid label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px;}
+        .price-grid input { padding: 0.48rem 0.65rem; font-size: 0.8rem; font-weight: 600;}
+        
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.2);}
+        .btn-cancel { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: #cbd5e1; padding: 7px 13px; border-radius: 7px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
+        .btn-cancel:hover { background: rgba(255,255,255,0.07); color: #fff; }
+        .btn-save { background: linear-gradient(135deg, #e50914 0%, #b90610 100%); border: 1px solid rgba(255, 107, 116, 0.35); color: #fff; padding: 7px 16px; border-radius: 7px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);}
+        .btn-save:hover { filter: brightness(1.08); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(229, 9, 20, 0.42); }
+
         input[type="date"]::-webkit-calendar-picker-indicator,
         input[type="time"]::-webkit-calendar-picker-indicator {
-            filter: invert(1); /* Ép màu trắng tinh */
-            cursor: pointer;   /* Hiển thị hình bàn tay khi trỏ vào */
-            opacity: 0.7;
-            transition: 0.2s ease;
+            background-color: #cbd5e1; padding: 4px; border-radius: 5px; cursor: pointer; opacity: 0.9; transition: 0.2s;
         }
-
         input[type="date"]::-webkit-calendar-picker-indicator:hover,
-        input[type="time"]::-webkit-calendar-picker-indicator:hover {
-            opacity: 1; /* Sáng lên khi di chuột vào */
-        }
+        input[type="time"]::-webkit-calendar-picker-indicator:hover { background-color: #ffffff; opacity: 1; transform: scale(1.05); }
+
+        @keyframes popIn { from { opacity: 0; transform: scale(0.96) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
 <body>
@@ -169,59 +193,54 @@
             <a href="admin_users.html" class="nav-item">👥 Quản lý Khách hàng</a>
             <a href="admin_contacts.html" class="nav-item">📩 Quản lý Góp ý</a>
             <a href="admin_applications.html" class="nav-item">💼 Quản lý tuyển dụng</a>
-            <div style="margin-top: auto; padding: 0 2rem;">
-                <button onclick="handleLogout()" style="width: 100%; background: #1e212b; color: #cbd5e1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">🚪 Đăng xuất</button>
-            </div>
         </div>
 
         <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
                 <h2>📅 Quản Lý Suất Chiếu Hệ Thống</h2>
-                <div class="header-actions" style="display: flex; gap: 1rem; align-items: center;">
-                    <span id="display-username" style="color:var(--primary-soft); font-weight:bold;"></span>
-                    <button class="btn-add" onclick="openModal()">➕ Thêm suất chiếu</button>
-                    <button class="btn-logout" onclick="handleLogout()">🚪 Đăng xuất</button>
+                <div class="header-actions">
+                    <span id="display-username" style="color:var(--primary-soft); font-weight:bold; margin-right: 6px;"></span>
+                    <button type="button" class="btn-add" onclick="openModal()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        Thêm suất chiếu mới
+                    </button>
+                    <button type="button" class="btn-logout" onclick="handleLogout()">🚪 Đăng xuất</button>
                 </div>
             </div>
 
-            <!-- CHỐT FIX BỘ LỌC 10 ĐIỂM -->
             <div class="filter-section">
-                <span class="filter-label">🎯 Bộ lọc:</span>
-                
+                <span class="filter-label">🎯 Bộ lọc dữ liệu:</span>
                 <select id="filter-cinema-select" class="filter-input" onchange="renderTable()">
                     <option value="all">📍 Tất cả cơ sở rạp</option>
                 </select>
-                
                 <select id="filter-movie-select" class="filter-input" onchange="renderTable()">
                     <option value="all">🎬 Tất cả phim</option>
                 </select>
-
-                <input type="date" id="filter-date-input" class="filter-input" style="color-scheme: dark;" onchange="renderTable()" title="Lọc theo ngày chiếu">
-
-                <input type="text" id="filter-search" class="filter-input" placeholder="🔍 Tìm ID, tên phim..." oninput="renderTable()">
+                <input type="date" id="filter-date-input" class="filter-input" onchange="renderTable()" title="Lọc theo ngày chiếu">
+                <input type="text" id="filter-search" class="filter-input" placeholder="🔍 Nhập ID, tên phim..." oninput="renderTable()">
             </div>
 
             <!-- Table -->
             <div class="table-container">
                 <div class="table-header">
-                    <h3 id="table-title">🕒 Danh sách toàn bộ suất chiếu</h3>
+                    <h3 id="table-title">🕒 Lịch Trình Chiếu Hệ Thống</h3>
                 </div>
                 <div style="overflow-x: auto;">
                     <table id="table-showtimes">
                         <thead>
                             <tr>
                                 <th>#ID</th>
-                                <th>Phim</th>
+                                <th>Phim Chiếu</th>
                                 <th>Lịch Chiếu</th>
-                                <th>Phòng Chiếu</th>
+                                <th>Cơ Sở & Phòng</th>
                                 <th>Bảng Giá (Thường/VIP/Đôi)</th>
                                 <th style="text-align: center;">Trạng Thái</th>
                                 <th style="text-align: center;">Thao Tác</th>
                             </tr>
                         </thead>
                         <tbody id="showtime-tbody">
-                            <!-- Dữ liệu -->
+                            <!-- Data -->
                         </tbody>
                     </table>
                 </div>
@@ -229,60 +248,78 @@
         </div>
     </div>
 
-    <!-- Add/Edit Modal -->
+    <!-- MODAL GỌN GÀNG - CASCADING 2 TẦNG LỌC PHÒNG -->
     <div id="showtime-modal" class="modal hidden">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
             <div class="modal-header">
-                <h3 id="modal-title">➕ Thêm Suất Chiếu Mới</h3>
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: -10px;">Điền đầy đủ thông tin để mở bán vé</p>
+                <div class="modal-title-wrap">
+                    <div class="modal-title-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    </div>
+                    <div>
+                        <h3 id="modal-title">Thêm Suất Chiếu Mới</h3>
+                        <p class="modal-subtitle">Xếp lịch chiếu và thiết lập giá vé mở bán</p>
+                    </div>
+                </div>
+                <button class="close-modal" onclick="closeModal()" title="Đóng">&times;</button>
             </div>
             
             <form id="showtime-form">
-                <input type="hidden" id="st-id">
-                <div class="form-grid">
-                    <div class="form-group full">
-                        <label>🎬 Chọn Phim *</label>
-                        <select id="st-movie" required></select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📍 Chọn Cơ Sở Rạp *</label>
-                        <select id="st-cinema" required></select>
-                    </div>
-                    <div class="form-group">
-                        <label>🪑 Chọn Phòng Chiếu *</label>
-                        <select id="st-room" required></select>
+                <div class="modal-body">
+                    <input type="hidden" id="st-id">
+                    <div class="form-grid">
+                        <div class="form-group full">
+                            <label>🎬 Chọn Phim *</label>
+                            <select id="st-movie" required></select>
+                        </div>
+                        
+                        <div class="form-group full">
+                            <label>📍 Chọn Cơ Sở Rạp *</label>
+                            <select id="st-cinema" onchange="handleCinemaChange()" required></select>
+                        </div>
+                        
+                        <!-- LỌC 2 CẤP ĐỘ CHO PHÒNG CHIẾU -->
+                        <div class="form-group">
+                            <label class="step-label">Bước 1: Chọn Phân Khúc *</label>
+                            <select id="st-room-type" onchange="handleTypeChange()" required disabled>
+                                <option value="" disabled selected>-- Chọn cơ sở trước --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="step-label">Bước 2: Phòng Cụ Thể *</label>
+                            <select id="st-room" required disabled>
+                                <option value="" disabled selected>-- Chọn phân khúc trước --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>📅 Ngày Chiếu *</label>
+                            <input type="date" id="st-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label>⏰ Giờ Chiếu *</label>
+                            <input type="time" id="st-time" required>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>📅 Ngày Chiếu *</label>
-                        <input type="date" id="st-date" required>
-                    </div>
-                    <div class="form-group">
-                        <label>⏰ Giờ Chiếu *</label>
-                        <input type="time" id="st-time" required>
-                    </div>
-                </div>
-
-                <!-- Price Grid -->
-                <div class="price-grid">
-                    <div class="form-group">
-                        <label>Giá Thường (VNĐ)</label>
-                        <input type="number" id="st-price-std" value="90000" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Giá VIP (VNĐ)</label>
-                        <input type="number" id="st-price-vip" value="130000" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Giá Couple (VNĐ)</label>
-                        <input type="number" id="st-price-cp" value="220000" required>
+                    <div class="price-grid">
+                        <div class="form-group">
+                            <label>Giá Thường (VNĐ)</label>
+                            <input type="number" id="st-price-std" value="90000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Giá VIP (VNĐ)</label>
+                            <input type="number" id="st-price-vip" value="130000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Giá Couple (VNĐ)</label>
+                            <input type="number" id="st-price-cp" value="220000" required>
+                        </div>
                     </div>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Hủy bỏ</button>
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Hủy thao tác</button>
                     <button type="submit" class="btn-save">Lưu Suất Chiếu</button>
                 </div>
             </form>
@@ -292,7 +329,28 @@
     <script src="assets/js/common.js"></script>
     <script>
         let allShowtimes = [];
-        let allRoomsData = [];
+        let allCinemas = [];
+        let currentCinemaRooms = []; // Lưu trữ tạm thời danh sách phòng của rạp đang chọn
+        
+        // HÀM TỰ ĐỘNG SINH DANH SÁCH 25 PHÒNG CHO TỪNG CƠ SỞ
+        function generateRoomsForCinema(cinemaId) {
+            const rooms = [];
+            const baseId = (parseInt(cinemaId) || 1) * 100; 
+
+            for (let i = 1; i <= 10; i++) {
+                let num = i < 10 ? '0' + i : i;
+                rooms.push({ id: baseId + i, name: `Phòng Standard ${num}`, type: 'Standard (2D)' });
+            }
+            for (let i = 1; i <= 10; i++) {
+                let num = i < 10 ? '0' + i : i;
+                rooms.push({ id: baseId + 10 + i, name: `Phòng VIP ${num}`, type: 'VIP (Ghế da Premium)' });
+            }
+            for (let i = 1; i <= 5; i++) {
+                let num = i < 10 ? '0' + i : i;
+                rooms.push({ id: baseId + 20 + i, name: `Phòng IMAX ${num}`, type: 'IMAX (Siêu cực)' });
+            }
+            return rooms;
+        }
 
         document.addEventListener('DOMContentLoaded', async () => {
             const authRes = await fetch('api/auth.php?action=check');
@@ -304,50 +362,62 @@
             document.getElementById('display-username').innerText = authData.username + ' (Admin)';
 
             await loadFiltersAndFormData();
-            
-            // Lắng nghe sự kiện thay đổi Rạp để load Phòng
-            const stCinema = document.getElementById('st-cinema');
-            const stRoom = document.getElementById('st-room');
-            if (stCinema && stRoom) {
-                stCinema.addEventListener('change', function() {
-                    populateRoomsForCinema(this.value, stRoom);
-                });
-            }
-            
             await fetchRealShowtimes();
         });
 
-        // ==========================================
-        // THUẬT TOÁN ĐỔ PHÒNG BẤT TỬ (Chống mọi lỗi DB)
-        // ==========================================
-        function populateRoomsForCinema(cinemaId, selectElement) {
-            selectElement.innerHTML = '<option value="">-- Chọn phòng --</option>';
+        // BƯỚC 1: XỬ LÝ KHI CHỌN CƠ SỞ -> RENDER LOẠI PHÒNG
+function handleCinemaChange(selectedRoomId = null) {
+    const cinemaId = document.getElementById('st-cinema').value;
+    const typeSelect = document.getElementById('st-room-type');
+    const roomSelect = document.getElementById('st-room');
+    
+    typeSelect.innerHTML = '<option value="" disabled selected>-- Chọn phân khúc phòng --</option>';
+    roomSelect.innerHTML = '<option value="" disabled selected>-- Chọn phân khúc trước --</option>';
+    
+    if (!cinemaId) {
+        typeSelect.disabled = true;
+        roomSelect.disabled = true;
+        return;
+    }
+
+    typeSelect.disabled = false;
+    currentCinemaRooms = generateRoomsForCinema(cinemaId);
+    
+    // Lọc ra các loại phòng duy nhất
+    const uniqueTypes = [...new Set(currentCinemaRooms.map(r => r.type))];
+    
+    uniqueTypes.forEach(type => {
+        typeSelect.innerHTML += `<option value="${type}">${type}</option>`;
+    });
+    
+    // Xử lý khi bật Edit Mode (Đã xóa sạch phần fallback dữ liệu cũ)
+    if (selectedRoomId) {
+        const matchedRoom = currentCinemaRooms.find(r => String(r.id) === String(selectedRoomId));
+        if (matchedRoom) {
+            typeSelect.value = matchedRoom.type;
+            handleTypeChange(selectedRoomId); 
+        }
+    }
+}
+
+        // BƯỚC 2: XỬ LÝ KHI CHỌN LOẠI PHÒNG -> RENDER PHÒNG CỤ THỂ BÊN TRONG
+        function handleTypeChange(selectedRoomId = null) {
+            const selectedType = document.getElementById('st-room-type').value;
+            const roomSelect = document.getElementById('st-room');
             
-            let filteredRooms = [];
-            if (cinemaId && allRoomsData.length > 0) {
-                // Hỗ trợ quét mọi tên cột khóa ngoại có thể có trong DB của bạn
-                filteredRooms = allRoomsData.filter(r => r.cinema_id == cinemaId || r.id_rap == cinemaId || r.ma_rap == cinemaId);
-            }
-
-            // Fallback 1: Rạp này chưa gán phòng -> Đổ hết phòng có trong DB lên
-            if (filteredRooms.length === 0 && allRoomsData.length > 0) {
-                filteredRooms = allRoomsData; 
-            }
-
-            // Fallback 2: API chết ngắc / Chưa làm API rooms.php -> Sinh phòng Ảo
-            if (filteredRooms.length === 0) {
-                filteredRooms = [
-                    { id: 1, name: 'Phòng IMAX' },
-                    { id: 2, name: 'Phòng Chiếu 1 (Standard)' },
-                    { id: 3, name: 'Phòng Chiếu 2 (VIP)' },
-                    { id: 4, name: 'Phòng Couple' }
-                ];
-            }
-
-            selectElement.innerHTML += filteredRooms.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+            roomSelect.innerHTML = '<option value="" disabled selected>-- Chọn phòng cụ thể --</option>';
+            
+            if (!selectedType || selectedType === "old_history") return;
+            
+            roomSelect.disabled = false;
+            const filteredRooms = currentCinemaRooms.filter(r => r.type === selectedType);
+            
+            filteredRooms.forEach(room => {
+                const isSelected = (selectedRoomId && String(room.id) === String(selectedRoomId)) ? 'selected' : '';
+                roomSelect.innerHTML += `<option value="${room.id}" ${isSelected}>${room.name}</option>`;
+            });
         }
 
-        // Lấy danh sách suất chiếu
         async function fetchRealShowtimes() {
             try {
                 const res = await fetch('api/showtimes.php?all=1');
@@ -356,25 +426,22 @@
                 renderTable();
             } catch(e) { 
                 console.error("Lỗi tải suất chiếu từ DB:", e);
-                document.getElementById('showtime-tbody').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#ff6b74;">Lỗi kết nối cơ sở dữ liệu!</td></tr>`;
+                document.getElementById('showtime-tbody').innerHTML = `<tr><td colspan="7" style="text-align:center; color:#ff6b74; padding: 2rem;">Lỗi kết nối cơ sở dữ liệu! Vui lòng thử lại.</td></tr>`;
             }
         }
 
-        // Tải dữ liệu metadata
         async function loadFiltersAndFormData() {
             try {
-                // Tải Rạp
                 const resCinemas = await fetch('api/cinemas.php');
-                const cinemas = await resCinemas.json();
+                allCinemas = await resCinemas.json();
                 
                 const filterCinema = document.getElementById('filter-cinema-select');
                 const formCinema = document.getElementById('st-cinema');
-                let cinemaOptions = cinemas.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                let cinemaOptions = allCinemas.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
                 
                 if(filterCinema) filterCinema.innerHTML += cinemaOptions;
-                if(formCinema) formCinema.innerHTML = '<option value="">-- Chọn rạp --</option>' + cinemaOptions;
+                if(formCinema) formCinema.innerHTML = '<option value="" disabled selected>-- Chọn cơ sở rạp --</option>' + cinemaOptions;
 
-                // Tải Phim
                 const resMovies = await fetch('api/movies.php');
                 const movies = await resMovies.json();
                 
@@ -383,19 +450,18 @@
                 let movieOptions = movies.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
                 
                 if(filterMovie) filterMovie.innerHTML += movieOptions;
-                if(formMovie) formMovie.innerHTML = '<option value="">-- Chọn phim --</option>' + movieOptions;
-
-                // Tải Phòng
-                const resRooms = await fetch('api/rooms.php');
-                const roomsAPI = await resRooms.json();
-                if(roomsAPI && Array.isArray(roomsAPI)) allRoomsData = roomsAPI;
-
+                if(formMovie) formMovie.innerHTML = '<option value="" disabled selected>-- Chọn phim xuất chiếu --</option>' + movieOptions;
             } catch (err) {
                 console.error("Lỗi tải metadata:", err);
             }
         }
 
         const formatMoney = (num) => new Intl.NumberFormat('vi-VN').format(num) + 'k'; 
+        
+        function getCinemaName(cinemaId) {
+            const c = allCinemas.find(x => String(x.id) === String(cinemaId));
+            return c ? c.name : `Rạp ID: ${cinemaId}`;
+        }
 
         function renderTable() {
             const tbody = document.getElementById('showtime-tbody');
@@ -406,11 +472,11 @@
             const now = new Date();
 
             let filtered = allShowtimes.filter(s => {
-                const matchCinema = fCinema === 'all' || s.cinema_id == fCinema;
-                const matchMovie = fMovie === 'all' || s.movie_id == fMovie;
+                const matchCinema = fCinema === 'all' || String(s.cinema_id) === String(fCinema);
+                const matchMovie = fMovie === 'all' || String(s.movie_id) === String(fMovie);
                 const matchDate = fDate === '' || s.show_date === fDate;
                 const matchSearch = fSearch === '' || 
-                                    s.id.toString().includes(fSearch) ||
+                                    String(s.id).includes(fSearch) ||
                                     (s.movie_title && s.movie_title.toLowerCase().includes(fSearch));
                 return matchCinema && matchMovie && matchDate && matchSearch;
             });
@@ -418,7 +484,7 @@
             filtered.sort((a,b) => new Date(`${b.show_date}T${b.show_time}`) - new Date(`${a.show_date}T${a.show_time}`));
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888; padding: 3rem;">Không tìm thấy suất chiếu phù hợp</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:#888; padding: 4rem;">Không tìm thấy suất chiếu phù hợp với bộ lọc</td></tr>`;
                 return;
             }
 
@@ -426,8 +492,9 @@
                 const showDateTime = new Date(`${s.show_date}T${s.show_time}`);
                 const endTime = new Date(showDateTime.getTime() + 2 * 60 * 60 * 1000); 
                 
+                const isEnded = now > endTime;
                 let badgeHTML = '';
-                if (now > endTime) {
+                if (isEnded) {
                     badgeHTML = `<span class="badge badge-ended">Đã kết thúc</span>`;
                 } else if (now >= showDateTime && now <= endTime) {
                     badgeHTML = `<span class="badge badge-showing">Đang chiếu</span>`;
@@ -436,6 +503,45 @@
                 }
 
                 const timeStr = s.show_time ? s.show_time.substring(0,5) : '';
+                const ticketsSold = Number(s.tickets_sold || s.booked_seats || 0);
+
+                let actionButtonsHTML = '';
+                if (isEnded) {
+                    actionButtonsHTML = `
+                        <button type="button" class="action-btn btn-locked" onclick="alert('⛔ Suất chiếu đã kết thúc.\\nHệ thống khóa chỉnh sửa để bảo vệ tính toàn vẹn dữ liệu doanh thu.')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                            Đã đóng
+                        </button>`;
+                } else if (ticketsSold > 0) {
+                    actionButtonsHTML = `
+                        <button type="button" class="action-btn btn-locked" onclick="alert('🔒 Đã có ${ticketsSold} vé đặt/giữ.\\nHệ thống chặn Sửa/Xóa để tránh làm mất chỗ ngồi của khách.')">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                            Bảo vệ vé
+                        </button>`;
+                } else {
+                    actionButtonsHTML = `
+                        <button type="button" class="action-btn btn-edit" onclick="openModal(${s.id})" title="Chỉnh sửa suất chiếu">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            Sửa
+                        </button>
+                        <button type="button" class="action-btn btn-delete" onclick="deleteShowtime(${s.id})" title="Xóa suất chiếu">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Xóa
+                        </button>`;
+                }
+
+                const cinemaDisplay = getCinemaName(s.cinema_id);
+                let roomDisplay = s.room_name;
+                if (!roomDisplay) {
+                     const cinemaRooms = generateRoomsForCinema(s.cinema_id);
+                     const matchedRoom = cinemaRooms.find(r => String(r.id) === String(s.room_id));
+                     if (matchedRoom) {
+                         roomDisplay = matchedRoom.name;
+                     } else {
+                         const oldNames = { '1': 'Phòng IMAX cũ', '2': 'Phòng Standard 1 cũ', '3': 'Phòng VIP 1 cũ', '4': 'Phòng Couple cũ' };
+                         roomDisplay = oldNames[s.room_id] || `Phòng ID: ${s.room_id}`;
+                     }
+                }
 
                 return `
                     <tr>
@@ -445,7 +551,10 @@
                             <div style="color:var(--text-muted); font-size:0.8rem; margin-bottom:2px">${s.show_date ? s.show_date.split('-').reverse().join('/') : ''}</div>
                             <div class="time-highlight">${timeStr}</div>
                         </td>
-                        <td class="nowrap">${s.room_name}</td>
+                        <td class="nowrap">
+                            <div style="font-weight:600; color:#e2e8f0">${cinemaDisplay}</div>
+                            <div style="color:var(--text-muted); font-size:0.8rem; margin-top:3px">${roomDisplay}</div>
+                        </td>
                         <td class="nowrap price-box">
                             <span class="std">${formatMoney(s.price_standard)}</span> / 
                             <span class="vip">${formatMoney(s.price_vip)}</span> / 
@@ -454,8 +563,7 @@
                         <td style="text-align: center;">${badgeHTML}</td>
                         <td>
                             <div class="actions-flex">
-                                <button class="action-btn btn-edit" onclick="openModal(${s.id})">Sửa</button>
-                                <button class="action-btn btn-delete" onclick="deleteShowtime(${s.id})">Xóa</button>
+                                ${actionButtonsHTML}
                             </div>
                         </td>
                     </tr>
@@ -463,36 +571,34 @@
             }).join('');
         }
 
-        // --- CẬP NHẬT LẠI HÀM MỞ MODAL ---
+        // MỞ MODAL & RENDER ĐÚNG TIÊU ĐỀ
         function openModal(id = null) {
             const modal = document.getElementById('showtime-modal');
-            const title = document.getElementById('modal-title');
+            const title = document.querySelector('.modal-title-wrap div h3');
+            const subtitle = document.querySelector('.modal-subtitle');
             const form = document.getElementById('showtime-form');
             
             form.reset();
             
+            // Trả các thẻ select về trạng thái gốc
+            document.getElementById('st-room-type').innerHTML = '<option value="" disabled selected>-- Chọn cơ sở trước --</option>';
+            document.getElementById('st-room').innerHTML = '<option value="" disabled selected>-- Chọn phân khúc trước --</option>';
+            document.getElementById('st-room-type').disabled = true;
+            document.getElementById('st-room').disabled = true;
+            
             if (id) {
                 const st = allShowtimes.find(x => x.id === id);
                 if(st) {
-                    title.innerHTML = `✏️ Cập nhật Suất Chiếu <span style="color:var(--text-muted);font-size:1rem">#${st.id}</span>`;
+                    title.innerHTML = `Cập nhật Suất Chiếu <span style="color:var(--text-muted); font-size:1.1rem; font-weight:500;">#${st.id}</span>`;
+                    subtitle.innerText = `Chỉnh sửa giờ chiếu, giá vé hoặc điều chuyển phòng`;
+                    
                     document.getElementById('st-id').value = st.id;
                     document.getElementById('st-movie').value = st.movie_id;
                     
                     const cinemaSelect = document.getElementById('st-cinema');
                     if(st.cinema_id) cinemaSelect.value = st.cinema_id;
                     
-                    // Nạp danh sách phòng bằng hàm Bất tử
-                    const stRoom = document.getElementById('st-room');
-                    populateRoomsForCinema(st.cinema_id || cinemaSelect.value, stRoom);
-
-                    // Đề phòng phòng chiếu của dòng này bị đổi ID, ép nó vào cuối list để hiển thị cho chuẩn
-                    let roomExists = Array.from(stRoom.options).some(opt => opt.value == st.room_id);
-                    if (!roomExists && st.room_id) {
-                        stRoom.innerHTML += `<option value="${st.room_id}">${st.room_name || 'Phòng ID: ' + st.room_id}</option>`;
-                    }
-
-                    // Gán phòng hiện tại
-                    stRoom.value = st.room_id;
+                    handleCinemaChange(st.room_id);
                     
                     document.getElementById('st-date').value = st.show_date;
                     document.getElementById('st-time').value = st.show_time ? st.show_time.substring(0,5) : '';
@@ -501,26 +607,25 @@
                     document.getElementById('st-price-cp').value = st.price_couple;
                 }
             } else {
-                title.innerHTML = '➕ Thêm Suất Chiếu Mới';
+                title.innerHTML = `Thêm Suất Chiếu Mới`;
+                subtitle.innerText = `Xếp lịch chiếu và thiết lập giá vé mở bán`;
+                
                 document.getElementById('st-id').value = '';
-                const stRoom = document.getElementById('st-room');
-                populateRoomsForCinema(null, stRoom); 
+                document.getElementById('st-date').value = new Date().toISOString().slice(0, 10);
             }
             
             modal.classList.remove('hidden');
-            modal.style.display = 'flex';
         }
 
         function closeModal() {
             const modal = document.getElementById('showtime-modal');
             modal.classList.add('hidden');
-            modal.style.display = 'none';
         }
 
         function checkTimeConflict(roomId, checkDate, checkTime, currentShowtimeId) {
             const newTime = new Date(`${checkDate}T${checkTime}:00`).getTime();
             const conflict = allShowtimes.find(st => {
-                if (st.id == currentShowtimeId || st.room_id != roomId || st.show_date !== checkDate) return false;
+                if (st.id == currentShowtimeId || String(st.room_id) !== String(roomId) || st.show_date !== checkDate) return false;
                 const existingTime = new Date(`${st.show_date}T${st.show_time}`).getTime();
                 return Math.abs(existingTime - newTime) < 7200000; 
             });
@@ -535,9 +640,10 @@
             const date = document.getElementById('st-date').value;
             const time = document.getElementById('st-time').value;
 
+            // KIỂM TRA TRÙNG LỊCH BẰNG ID PHÒNG
             const conflict = checkTimeConflict(roomId, date, time, stId);
             if (conflict) {
-                alert(`⚠️ LỖI TRÙNG LỊCH!\n\nPhòng chiếu này đã có phim "${conflict.movie_title}" chiếu lúc ${conflict.show_time.substring(0,5)}.\nHai suất chiếu trong cùng một phòng phải cách nhau ít nhất 2 tiếng.`);
+                alert(`⚠️ LỖI TRÙNG LỊCH!\n\nPhòng chiếu này (ID: ${roomId}) đã có lịch chiếu phim "${conflict.movie_title}" lúc ${conflict.show_time.substring(0,5)}.\nTheo quy định nghiệp vụ rạp, 2 suất chiếu trong cùng một phòng phải cách nhau ít nhất 2 tiếng.`);
                 return;
             }
 
@@ -562,11 +668,15 @@
                 const data = await res.json();
                 
                 if(res.ok || data.success) {
-                    alert(stId ? 'Cập nhật suất chiếu thành công!' : 'Thêm suất chiếu thành công!');
+                    if (typeof showToast === 'function') {
+                        showToast(stId ? 'Cập nhật suất chiếu thành công!' : 'Thêm suất chiếu thành công!', 'success');
+                    } else {
+                        alert(stId ? 'Cập nhật suất chiếu thành công!' : 'Thêm suất chiếu thành công!');
+                    }
                     closeModal();
                     await fetchRealShowtimes(); 
                 } else {
-                    alert('Lỗi: ' + (data.error || 'Không thể lưu suất chiếu'));
+                    alert('Lỗi lưu dữ liệu: ' + (data.error || 'Server từ chối'));
                 }
             } catch(err) { 
                 console.error(err);
@@ -575,14 +685,15 @@
         });
 
         async function deleteShowtime(id) {
-            if (confirm('Bạn có chắc chắn muốn xóa suất chiếu này không?')) {
+            if (confirm('Lưu ý: Xóa suất chiếu là thao tác không thể hoàn tác!\n\nBạn có chắc chắn muốn xóa dữ liệu này?')) {
                 try {
                     const res = await fetch(`api/showtimes.php?id=${id}`, { method: 'DELETE' });
-                    if (res.ok) {
-                        alert('Đã xóa suất chiếu thành công');
+                    const data = await res.json();
+                    if (res.ok || data.success) {
+                        if (typeof showToast === 'function') showToast('Đã xóa suất chiếu', 'success');
                         await fetchRealShowtimes(); 
                     } else {
-                        alert('Có lỗi xảy ra khi xóa');
+                        alert(data.error || 'Có lỗi xảy ra khi xóa');
                     }
                 } catch(e) { 
                     console.error(e); 

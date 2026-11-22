@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/chatbot.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Nhúng Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary: #e50914;
@@ -22,219 +24,78 @@
             --mint: #34d399;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            margin: 0;
-        }
-
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; }
         .admin-layout { display: flex; min-height: 100vh; }
 
-        .sidebar {
-            width: 260px;
-            background: #0f1015;
-            border-right: 1px solid var(--border-color);
-            padding: 2rem 0;
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-        }
-
-        .sidebar-logo {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
+        .sidebar { width: 260px; background: #0f1015; border-right: 1px solid var(--border-color); padding: 2rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
+        .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
         .sidebar-logo span { color: #fff; }
+        .nav-item { padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 10px; transition: 0.2s ease; border-left: 4px solid transparent; }
+        .nav-item:hover { background: rgba(255, 255, 255, 0.04); color: #fff; }
+        .nav-item.active { background: linear-gradient(90deg, rgba(229, 9, 20, 0.16) 0%, rgba(229, 9, 20, 0) 100%); color: #fff; border-left-color: var(--primary); }
 
-        .nav-item {
-            padding: 1rem 2rem;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: 0.2s ease;
-            border-left: 4px solid transparent;
-        }
+        .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); min-width: 0; overflow-y: auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+        .page-header h2 { margin: 0; font-size: 1.55rem; font-weight: 700; }
 
-        .nav-item:hover {
-            background: rgba(255, 255, 255, 0.04);
-            color: #fff;
-        }
-
-        .nav-item.active {
-            background: linear-gradient(90deg, rgba(229, 9, 20, 0.16) 0%, rgba(229, 9, 20, 0) 100%);
-            color: #fff;
-            border-left-color: var(--primary);
-        }
-
-        .main-content {
-            flex: 1;
-            padding: 2rem 3rem;
-            background: var(--bg-dark);
-            min-width: 0;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .page-header h2 {
-            margin: 0;
-            font-size: 1.55rem;
-            font-weight: 700;
-        }
-
-        .filter-panel {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-            background: var(--card-bg);
-            padding: 1.2rem 1.5rem;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-        }
-
-        .btn-reset {
-            padding: 8px 16px;
-            background: rgba(245, 185, 66, 0.14);
-            border: 1px solid rgba(245, 185, 66, 0.38);
-            color: var(--gold);
+        .btn-logout-top {
+            background: rgba(229, 9, 20, 0.16);
+            color: #ff6b74;
+            border: 1px solid rgba(229, 9, 20, 0.42);
             border-radius: 8px;
-            cursor: pointer;
+            padding: 7px 14px;
+            font-size: 0.85rem;
             font-weight: 600;
-            font-size: 0.88rem;
+            cursor: pointer;
             transition: 0.2s ease;
             white-space: nowrap;
         }
-
-        .btn-reset:hover {
-            background: var(--gold);
-            color: #0c0d10;
+        .btn-logout-top:hover {
+            background: #e50914;
+            color: #fff;
         }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-        }
+        .filter-panel { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; background: var(--card-bg); padding: 1.2rem 1.5rem; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); }
+        .select-filter { padding: 8px 12px; background: #1c1f29; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; font-weight: 600; font-size: 0.88rem; outline: none; cursor: pointer; color-scheme: dark; transition: 0.2s ease; }
+        .select-filter:focus { border-color: var(--primary-soft); }
+        
+        .btn-reset { padding: 8px 16px; background: rgba(245, 185, 66, 0.14); border: 1px solid rgba(245, 185, 66, 0.38); color: var(--gold); border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.88rem; transition: 0.2s ease; white-space: nowrap; display: flex; align-items: center; gap: 6px; }
+        .btn-reset:hover { background: var(--gold); color: #0c0d10; }
 
-        .stat-card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
-            text-align: center;
-        }
-
-        .stat-card h3 {
-            color: var(--text-muted);
-            font-size: 0.82rem;
-            font-weight: 700;
-            margin: 0 0 0.55rem 0;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stat-card .value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary-soft);
-            font-variant-numeric: tabular-nums;
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card-bg); padding: 1.5rem; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); text-align: center; }
+        .stat-card h3 { color: var(--text-muted); font-size: 0.82rem; font-weight: 700; margin: 0 0 0.55rem 0; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-card .value { font-size: 2rem; font-weight: 800; color: var(--primary-soft); font-variant-numeric: tabular-nums; }
         .stat-card .value.revenue { color: var(--mint); }
         .stat-card .value.tickets { color: var(--gold); }
 
-        .dashboard-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
+        /* KHU VỰC BIỂU ĐỒ */
+        .charts-row { display: grid; grid-template-columns: 2fr 1.2fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .chart-container { background: var(--card-bg); padding: 1.5rem; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); position: relative; }
+        .chart-container h3 { margin: 0 0 1rem 0; font-size: 1.05rem; font-weight: 700; color: #fff; }
+        .chart-wrapper { position: relative; height: 260px; width: 100%; }
 
-        @media (max-width: 900px) { .dashboard-row { grid-template-columns: 1fr; } }
+        .dashboard-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        @media (max-width: 1100px) { .charts-row, .dashboard-row { grid-template-columns: 1fr; } }
 
-        .table-container {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 14px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-            overflow-x: auto;
-        }
-
-        .table-container h3 {
-            margin: 0;
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #fff;
-        }
+        .table-container { background: var(--card-bg); padding: 1.5rem; border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45); overflow-x: auto; }
+        .table-container h3 { margin: 0; font-size: 1.05rem; font-weight: 700; color: #fff; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-
-        th {
-            background: var(--table-head);
-            text-align: left;
-            padding: 0.85rem 0.9rem;
-            color: var(--text-muted);
-            font-size: 0.76rem;
-            font-weight: 700;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            white-space: nowrap;
-        }
-
-        td {
-            text-align: left;
-            padding: 0.85rem 0.9rem;
-            border-bottom: 1px solid var(--row-border);
-            font-size: 0.9rem;
-            transition: background-color 0.2s ease;
-        }
-
+        th { background: var(--table-head); text-align: left; padding: 0.85rem 0.9rem; color: var(--text-muted); font-size: 0.76rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        td { text-align: left; padding: 0.85rem 0.9rem; border-bottom: 1px solid var(--row-border); font-size: 0.9rem; transition: background-color 0.2s ease; }
         tbody tr:hover td { background: rgba(255, 255, 255, 0.03); }
         tbody tr:last-child td { border-bottom: none; }
 
-        .select-filter {
-            padding: 8px 12px;
-            background: #1c1f29;
-            color: #fff;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.88rem;
-            outline: none;
-            cursor: pointer;
-            color-scheme: dark;
-            transition: 0.2s ease;
-        }
-
-        .select-filter:focus { border-color: var(--primary-soft); }
+        /* THANH TIẾN TRÌNH TRONG BẢNG */
+        .progress-bar-bg { width: 100%; height: 6px; background: #1c1f29; border-radius: 4px; margin-top: 6px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #34d399 0%, #10b981 100%); }
+        
+        .badge-success { background: rgba(52, 211, 153, 0.15); color: #34d399; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; border: 1px solid rgba(52, 211, 153, 0.3); white-space: nowrap;}
     </style>
 </head>
 <body>
     <div class="admin-layout">
-        <!-- Sidebar Menu -->
         <div class="sidebar">
             <div class="sidebar-logo">Cine<span>Manager</span></div>
             <a href="dashboard.html" class="nav-item active">📊 Thống kê doanh thu</a>
@@ -243,22 +104,19 @@
             <a href="admin_users.html" class="nav-item">👥 Quản lý Khách hàng</a>
             <a href="admin_contacts.html" class="nav-item">📩 Quản lý Góp ý</a>
             <a href="admin_applications.html" class="nav-item">💼 Quản lý tuyển dụng</a>
-            <div style="margin-top: auto; padding: 0 2rem;">
-                <button onclick="handleLogout()" style="width: 100%; background: #1e212b; color: #cbd5e1; border: 1px solid var(--border-color); padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer;">🚪 Đăng xuất</button>
-            </div>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
-                <h2>📊 Thống Kê Doanh Thu Hệ Thống</h2>
-                <span id="display-username" style="color:var(--primary-soft); font-weight:bold;"></span>
+                <h2>📊 Dashboard Thống Kê Dữ Liệu</h2>
+                <div style="display: flex; gap: 0.85rem; align-items: center;">
+                    <span id="display-username" style="color:var(--primary-soft); font-weight:bold; font-size: 0.88rem;"></span>
+                    <button type="button" class="btn-logout-top" onclick="handleLogout()">🚪 Đăng xuất</button>
+                </div>
             </div>
 
-            <!-- THANH BÁO CÁO THÔNG MINH (LỌC THÁNG, QUÝ, NGÀY) -->
             <div class="filter-panel">
                 <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
-                    <!-- Lọc theo Tháng -->
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">📅 Tháng:</span>
                         <select id="filter-month" class="select-filter" onchange="handleMonthChange()">
@@ -278,7 +136,6 @@
                         </select>
                     </div>
 
-                    <!-- Lọc theo Quý -->
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">📈 Quý:</span>
                         <select id="filter-quarter" class="select-filter" onchange="handleQuarterChange()">
@@ -290,7 +147,6 @@
                         </select>
                     </div>
 
-                    <!-- Lọc theo Ngày cụ thể -->
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <span style="color: var(--text-muted); font-size: 0.9rem; font-weight: 600;">🎯 Ngày:</span>
                         <input type="date" id="filter-date" class="select-filter" onchange="handleDateChange()">
@@ -298,7 +154,10 @@
                 </div>
 
                 <div>
-                    <button onclick="resetAllFilters()" class="btn-reset">🔄 Toàn thời gian</button>
+                    <button onclick="resetAllFilters()" class="btn-reset">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.59-9.21l5.67-1.36"/></svg>
+                        Toàn thời gian
+                    </button>
                 </div>
             </div>
 
@@ -321,15 +180,31 @@
                 </div>
             </div>
 
+            <!-- KHU VỰC BIỂU ĐỒ -->
+            <div class="charts-row">
+                <div class="chart-container">
+                    <h3>📈 Top 5 Phim Doanh Thu Cao Nhất</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <h3>🍩 Cơ Cấu Tỷ Trọng Doanh Thu</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="doughnutChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
             <div class="dashboard-row">
                 <div class="table-container">
-                    <h3 id="table-movie-title">🎬 Doanh thu theo phim</h3>
+                    <h3 id="table-movie-title">🎬 Bảng Phân Tích Doanh Thu Chi Tiết</h3>
                     <table id="table-by-movie">
                         <thead>
                             <tr>
-                                <th>Phim</th>
+                                <th>Tên Phim</th>
                                 <th>Số vé</th>
-                                <th>Doanh thu</th>
+                                <th>Doanh thu & Tỷ trọng</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -337,14 +212,14 @@
                 </div>
 
                 <div class="table-container">
-                    <h3>🕒 Giao dịch gần đây</h3>
+                    <h3>🕒 Lịch Sử Giao Dịch Gần Đây</h3>
                     <table id="table-recent">
                         <thead>
                             <tr>
                                 <th>Khách hàng</th>
-                                <th>Phim</th>
-                                <th>Thời gian</th>
+                                <th>Giao dịch</th>
                                 <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody></tbody>
@@ -359,6 +234,14 @@
         let currentMonth = '';
         let currentQuarter = '';
         let currentDate = '';
+        
+        // Khởi tạo biến lưu instance của biểu đồ để dễ dàng update khi chuyển bộ lọc
+        let barChartInstance = null;
+        let doughnutChartInstance = null;
+
+        // Cấu hình mặc định cho biểu đồ nền tối
+        Chart.defaults.color = '#9ca3af';
+        Chart.defaults.font.family = 'Inter, sans-serif';
 
         document.addEventListener('DOMContentLoaded', async () => {
             const authRes = await fetch('api/auth.php?action=check');
@@ -414,16 +297,83 @@
             loadStats();
         }
 
+        function renderCharts(movieData) {
+            // Lấy Top 5 phim để biểu diễn trên biểu đồ
+            const top5 = movieData.slice(0, 5);
+            const labels = top5.map(m => m.title);
+            const revenues = top5.map(m => Number(m.revenue));
+            
+            // Nếu có phim thứ 6 trở đi, gộp thành "Phim Khác" cho biểu đồ tròn
+            const othersData = movieData.slice(5);
+            const othersRevenue = othersData.reduce((sum, m) => sum + Number(m.revenue), 0);
+            
+            const doughnutLabels = [...labels];
+            const doughnutRevenues = [...revenues];
+            if (othersRevenue > 0) {
+                doughnutLabels.push('Các phim khác');
+                doughnutRevenues.push(othersRevenue);
+            }
+
+            const chartColors = ['#e50914', '#f5b942', '#34d399', '#38bdf8', '#c084fc', '#475569'];
+
+            // 1. Biểu đồ cột (Bar Chart)
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            if (barChartInstance) barChartInstance.destroy();
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: labels.map(l => l.length > 20 ? l.substring(0, 18) + '...' : l),
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: revenues,
+                        backgroundColor: 'rgba(229, 9, 20, 0.85)',
+                        borderColor: '#e50914',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // 2. Biểu đồ tròn (Doughnut Chart)
+            const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
+            if (doughnutChartInstance) doughnutChartInstance.destroy();
+            doughnutChartInstance = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: doughnutLabels,
+                    datasets: [{
+                        data: doughnutRevenues,
+                        backgroundColor: chartColors,
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'right', labels: { boxWidth: 12, padding: 15 } }
+                    }
+                }
+            });
+        }
+
         async function loadStats() {
             try {
                 let queryString = '';
-                if (currentDate) {
-                    queryString = `&date=${currentDate}`;
-                } else if (currentMonth) {
-                    queryString = `&month=${currentMonth}`;
-                } else if (currentQuarter) {
-                    queryString = `&quarter=${currentQuarter}`;
-                }
+                if (currentDate) queryString = `&date=${currentDate}`;
+                else if (currentMonth) queryString = `&month=${currentMonth}`;
+                else if (currentQuarter) queryString = `&quarter=${currentQuarter}`;
 
                 const sumRes = await fetch(`api/stats.php?action=summary${queryString}`);
                 const summary = await sumRes.json();
@@ -433,30 +383,42 @@
                 document.getElementById('stat-users').innerText = summary.total_users || 0;
 
                 const titleElem = document.getElementById('table-movie-title');
-                if (currentDate) {
-                    titleElem.innerText = `🎬 Doanh thu theo phim (Ngày ${currentDate})`;
-                } else if (currentMonth) {
-                    titleElem.innerText = `🎬 Doanh thu theo phim (Tháng ${currentMonth})`;
-                } else if (currentQuarter) {
-                    titleElem.innerText = `🎬 Doanh thu theo phim (Quý ${currentQuarter})`;
-                } else {
-                    titleElem.innerText = `🎬 Doanh thu theo phim (Toàn thời gian)`;
-                }
+                if (currentDate) titleElem.innerText = `🎬 Phân Tích Chi Tiết (Ngày ${currentDate})`;
+                else if (currentMonth) titleElem.innerText = `🎬 Phân Tích Chi Tiết (Tháng ${currentMonth})`;
+                else if (currentQuarter) titleElem.innerText = `🎬 Phân Tích Chi Tiết (Quý ${currentQuarter})`;
+                else titleElem.innerText = `🎬 Phân Tích Chi Tiết (Toàn thời gian)`;
 
                 const movieRes = await fetch(`api/stats.php?action=by_movie${queryString}`);
                 const byMovie = await movieRes.json();
                 const movieTbody = document.querySelector('#table-by-movie tbody');
 
                 if (!Array.isArray(byMovie) || byMovie.length === 0) {
-                    movieTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888; padding: 1.5rem;">Không có dữ liệu trong khoảng thời gian này</td></tr>`;
+                    movieTbody.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888; padding: 2rem;">Chưa có giao dịch nào trong khoảng thời gian này</td></tr>`;
+                    if(barChartInstance) barChartInstance.destroy();
+                    if(doughnutChartInstance) doughnutChartInstance.destroy();
                 } else {
-                    movieTbody.innerHTML = byMovie.map(m => `
+                    renderCharts(byMovie);
+                    
+                    // Tìm doanh thu cao nhất để vẽ Progress bar tỷ lệ
+                    const maxRevenue = Math.max(...byMovie.map(m => Number(m.revenue)));
+
+                    movieTbody.innerHTML = byMovie.map(m => {
+                        const rev = Number(m.revenue);
+                        const percent = maxRevenue > 0 ? (rev / maxRevenue * 100).toFixed(1) : 0;
+                        return `
                         <tr>
                             <td style="font-weight: 600; color: #fff;">${m.title}</td>
-                            <td style="color: var(--gold); font-weight: 600;">${m.tickets}</td>
-                            <td style="color: var(--mint); font-weight: 700; white-space: nowrap;">${Number(m.revenue).toLocaleString('vi-VN')}đ</td>
+                            <td style="color: var(--gold); font-weight: 600;">${m.tickets} <span style="color:#666;font-size:0.75rem;font-weight:normal">vé</span></td>
+                            <td>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+                                    <span style="color: var(--mint); font-weight: 700;">${rev.toLocaleString('vi-VN')}đ</span>
+                                </div>
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width: ${percent}%;"></div>
+                                </div>
+                            </td>
                         </tr>
-                    `).join('');
+                    `}).join('');
                 }
 
                 const recentRes = await fetch('api/stats.php?action=recent');
@@ -472,10 +434,13 @@
                         }
                         return `
                         <tr>
-                            <td style="font-weight: 600; color: #fff;">${r.full_name}</td>
-                            <td>${r.movie_title}</td>
-                            <td style="color: var(--text-muted); font-size: 0.85rem; white-space: nowrap;">${timeStr}</td>
+                            <td>
+                                <div style="font-weight: 600; color: #fff;">${r.full_name}</div>
+                                <div style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">${timeStr}</div>
+                            </td>
+                            <td style="color: #e2e8f0;">${r.movie_title}</td>
                             <td style="color: var(--mint); font-weight: 700; white-space: nowrap;">${Number(r.total_price).toLocaleString('vi-VN')}đ</td>
+                            <td><span class="badge-success">Đã thanh toán</span></td>
                         </tr>
                         `;
                     }).join('');
