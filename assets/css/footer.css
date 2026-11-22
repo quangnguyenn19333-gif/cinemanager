@@ -359,3 +359,8 @@
 body > footer:not(.site-footer) {
     display: none !important;
 }
+
+/* Dự phòng: ẩn mọi khối cha trực tiếp của body có chứa dải .cinema-types (footer cũ) */
+body > *:has(.cinema-types):not(.site-footer) {
+    display: none !important;
+}
