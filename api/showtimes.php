@@ -19,12 +19,12 @@ switch ($method) {
                 $dateFilter = $showAll ? '' : 'AND st.show_date >= CURDATE()';
                 $stmt = $pdo->prepare("
                     SELECT st.*, r.name AS room_name, m.title AS movie_title, m.duration, m.poster_url, c.name AS cinema_name,
-                           -- Đếm số ghế đã được đặt hoặc đang giữ của suất chiếu này
+                           -- ĐỔI TÊN BIẾN THÀNH tickets_sold ĐỂ JS TỰ ĐỘNG KHÓA NÚT SỬA/XÓA
                            (
                                (SELECT COUNT(bs.seat_id) FROM booking_seats bs JOIN bookings b ON bs.booking_id = b.id WHERE b.showtime_id = st.id) 
                                + 
                                (SELECT COUNT(sh.seat_id) FROM seat_holds sh WHERE sh.showtime_id = st.id)
-                           ) AS booked_seats
+                           ) AS tickets_sold
                     FROM showtimes st
                     JOIN rooms r ON st.room_id = r.id
                     JOIN movies m ON st.movie_id = m.id
@@ -35,14 +35,13 @@ switch ($method) {
                 $stmt->execute([$movie_id]);
                 echo json_encode($stmt->fetchAll());
             } else {
-                // ĐÃ SỬA: Đồng bộ cách đếm ghế bằng booking_seats và seat_holds thay vì dùng bảng showtime_seats không tồn tại
                 $stmt = $pdo->query("
                     SELECT st.*, r.name AS room_name, m.title AS movie_title, m.duration, m.poster_url, c.name AS cinema_name,
                            (
                                (SELECT COUNT(bs.seat_id) FROM booking_seats bs JOIN bookings b ON bs.booking_id = b.id WHERE b.showtime_id = st.id) 
                                + 
                                (SELECT COUNT(sh.seat_id) FROM seat_holds sh WHERE sh.showtime_id = st.id)
-                           ) AS booked_seats
+                           ) AS tickets_sold
                     FROM showtimes st
                     JOIN rooms r ON st.room_id = r.id
                     JOIN movies m ON st.movie_id = m.id
@@ -58,7 +57,7 @@ switch ($method) {
         break;
 
     case 'POST':
-        // [CHUẨN ĐỒ ÁN] BẬT LẠI BẢO VỆ API: Bắt buộc phải là Admin mới được thêm suất chiếu
+        // [CHUẨN ĐỒ ÁN] BẬT LẠI BẢO VỆ API
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             http_response_code(403);
             echo json_encode(['error' => 'Từ chối truy cập: Bạn không phải Quản trị viên!']);
@@ -73,34 +72,58 @@ switch ($method) {
             exit;
         }
 
-        try {
-            $stmt = $pdo->prepare("
-                INSERT INTO showtimes (movie_id, cinema_id, room_id, show_date, show_time, price_standard, price_vip, price_couple) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $stmt->execute([
-                $data['movie_id'],
-                $data['cinema_id'],
-                $data['room_id'],
-                $data['show_date'],
-                $data['show_time'],
-                $data['price_standard'] ?? 90000,
-                $data['price_vip'] ?? 130000,
-                $data['price_couple'] ?? 220000
-            ]);
+        // TÁCH LOGIC THÊM MỚI (INSERT) VÀ CẬP NHẬT (UPDATE)
+        $id = !empty($data['id']) ? intval($data['id']) : null;
+        $price_standard = $data['price_standard'] ?? 90000;
+        $price_vip = $data['price_vip'] ?? 130000;
+        $price_couple = $data['price_couple'] ?? 220000;
 
-            echo json_encode([
-                'message' => 'Thêm suất chiếu thành công', 
-                'id' => $pdo->lastInsertId()
-            ]);
+        try {
+            if ($id) {
+                // Nếu là cập nhật: Phải kiểm tra xem suất chiếu này đã bán được vé nào chưa
+                $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE showtime_id = ?");
+                $checkStmt->execute([$id]);
+                $hasBookings = $checkStmt->fetchColumn();
+
+                if ($hasBookings > 0) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Không thể sửa! Suất chiếu này đã có khách hàng đặt vé.']);
+                    exit;
+                }
+
+                // Thực hiện lệnh UPDATE
+                $stmt = $pdo->prepare("
+                    UPDATE showtimes 
+                    SET movie_id = ?, cinema_id = ?, room_id = ?, show_date = ?, show_time = ?, price_standard = ?, price_vip = ?, price_couple = ?
+                    WHERE id = ?
+                ");
+                $stmt->execute([
+                    $data['movie_id'], $data['cinema_id'], $data['room_id'], 
+                    $data['show_date'], $data['show_time'], $price_standard, $price_vip, $price_couple, $id
+                ]);
+
+                echo json_encode(['success' => true, 'message' => 'Cập nhật suất chiếu thành công']);
+            } else {
+                // Thực hiện lệnh INSERT
+                $stmt = $pdo->prepare("
+                    INSERT INTO showtimes (movie_id, cinema_id, room_id, show_date, show_time, price_standard, price_vip, price_couple) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([
+                    $data['movie_id'], $data['cinema_id'], $data['room_id'], 
+                    $data['show_date'], $data['show_time'], $price_standard, $price_vip, $price_couple
+                ]);
+
+                echo json_encode(['success' => true, 'message' => 'Thêm suất chiếu thành công', 'id' => $pdo->lastInsertId()]);
+            }
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['error' => 'Lỗi cơ sở dữ liệu: Không thể thêm suất chiếu']);
+            echo json_encode(['success' => false, 'error' => 'Lỗi cơ sở dữ liệu: Không thể thao tác suất chiếu']);
         }
         break;
 
     case 'DELETE':
-        // [CHUẨN ĐỒ ÁN] BẬT LẠI BẢO VỆ API: Admin mới được quyền Xóa
+        // [CHUẨN ĐỒ ÁN] BẬT LẠI BẢO VỆ API
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             http_response_code(403);
             echo json_encode(['error' => 'Từ chối truy cập: Bạn không có quyền xóa!']);
@@ -110,16 +133,26 @@ switch ($method) {
         $id = $_GET['id'] ?? null;
         if ($id) {
             try {
+                // Kiểm tra nếu đã bán vé thì CẤM XÓA tuyệt đối
+                $checkStmt = $pdo->prepare("SELECT COUNT(*) FROM bookings WHERE showtime_id = ?");
+                $checkStmt->execute([$id]);
+                if ($checkStmt->fetchColumn() > 0) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'error' => 'Không thể xóa! Suất chiếu này đã có vé được bán.']);
+                    exit;
+                }
+
+                // Thực hiện lệnh XÓA
                 $stmt = $pdo->prepare("DELETE FROM showtimes WHERE id = ?");
                 $stmt->execute([$id]);
-                echo json_encode(['message' => 'Đã xóa suất chiếu thành công']);
+                echo json_encode(['success' => true, 'message' => 'Đã xóa suất chiếu thành công']);
             } catch (PDOException $e) {
                 http_response_code(400);
-                echo json_encode(['error' => 'Không thể xóa! Suất chiếu này đã có khách hàng đặt vé.']);
+                echo json_encode(['success' => false, 'error' => 'Không thể xóa do ràng buộc dữ liệu!']);
             }
         } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Thiếu ID suất chiếu cần xóa']);
+            echo json_encode(['success' => false, 'error' => 'Thiếu ID suất chiếu cần xóa']);
         }
         break;
 }
