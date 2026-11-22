@@ -9,7 +9,7 @@
     <style>
         :root {
             --primary: #e50914; 
-            --bg-dark: #0b0c10; /* Đen ánh xanh sâu tạo độ tương phản tốt hơn */
+            --bg-dark: #0b0c10;
             --card-bg: #15161c;
             --border-color: #262833;
             --text-main: #f8f9fa;
@@ -20,7 +20,7 @@
         .admin-layout { display: flex; min-height: 100vh; }
         
         /* Sidebar */
-        .sidebar { width: 260px; background: #0b0c10; border-right: 1px solid var(--border-color); padding: 2rem 0; display: flex; flex-direction: column; }
+        .sidebar { width: 260px; background: #0b0c10; border-right: 1px solid var(--border-color); padding: 2rem 0; display: flex; flex-direction: column; flex-shrink: 0; }
         .sidebar-logo { text-align: center; margin-bottom: 2rem; font-size: 1.8rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; text-shadow: 0 0 12px rgba(229,9,20,0.3); }
         .sidebar-logo span { color: #fff; text-shadow: none; }
         .nav-item { padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 12px; transition: 0.2s; font-size: 0.95rem; border-left: 3px solid transparent; }
@@ -29,122 +29,110 @@
 
         /* Main Content */
         .main-content { flex: 1; padding: 2rem 3rem; background: var(--bg-dark); overflow-y: auto; }
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 15px;}
         .page-header h2 { margin: 0; font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-
-        /* Khung Table Xịn */
-        .table-container { 
-            background: var(--card-bg); 
-            border-radius: 12px; 
-            border: 1px solid var(--border-color); 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-            overflow: hidden; 
-        }
         
+        /* Mini Dashboard */
+        .dashboard-cards { display: flex; gap: 15px; margin-bottom: 25px; }
+        .card-stat { background: var(--card-bg); border: 1px solid var(--border-color); padding: 15px 20px; border-radius: 10px; flex: 1; display: flex; align-items: center; justify-content: space-between; }
+        .card-stat .title { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+        .card-stat .value { font-size: 1.6rem; font-weight: 700; color: #fff; }
+        .card-stat.pending .value { color: #facc15; }
+        .card-stat.contacted .value { color: #4ade80; }
+        
+        /* Action Bar */
+        .action-bar { background: var(--card-bg); padding: 15px 20px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 25px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;}
+        .filter-group { display: flex; gap: 10px; flex: 1; }
+        
+        /* FIX CHUẨN: Giới hạn chiều rộng ô tìm kiếm */
+        .filter-input { background: var(--bg-dark); border: 1px solid var(--border-color); color: #fff; padding: 8px 12px; border-radius: 6px; outline: none; font-family: inherit; font-size: 0.85rem; min-width: 150px; }
+        #filter-search { max-width: 260px; } /* Giới hạn độ dài ô search */
+        .filter-input:focus { border-color: #3b82f6; }
+        
+        .btn-export { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; margin-left: auto; }
+        .btn-export:hover { background: rgba(16, 185, 129, 0.25); }
+
+        /* Table */
+        .table-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow: hidden; }
         table { width: 100%; border-collapse: collapse; }
-        th { 
-            background-color: #1a1b23; 
-            color: var(--text-muted); 
-            font-size: 0.75rem; 
-            text-transform: uppercase; 
-            font-weight: 700; 
-            letter-spacing: 0.05em; 
-            padding: 18px 20px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--border-color); 
-            white-space: nowrap;
-        }
-        td { 
-            padding: 16px 20px; 
-            border-bottom: 1px solid #1c1e26; 
-            vertical-align: middle; 
-            font-size: 0.9rem; 
-            transition: 0.2s; 
-        }
+        th { background-color: #1a1b23; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em; padding: 18px 20px; text-align: left; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        td { padding: 16px 20px; border-bottom: 1px solid #1c1e26; vertical-align: middle; font-size: 0.9rem; transition: 0.2s; }
         tr:hover td { background-color: #1a1b23; }
         tr:last-child td { border-bottom: none; }
 
-        /* Custom Elements */
         .app-name { font-weight: 600; color: #fff; font-size: 0.95rem; display: block; margin-bottom: 4px; }
         .app-time { font-size: 0.8rem; color: #71717a; }
-        
         .contact-info { display: flex; flex-direction: column; gap: 6px; }
         .contact-row { display: flex; align-items: center; gap: 8px; color: #d4d4d8; font-size: 0.85rem; }
         .contact-row svg { stroke: #9ca3af; }
 
-        /* Badge Vị trí - MÀU ĐỎ NỔI BẬT HƠN */
-        .badge-position { 
-            background: rgba(229, 9, 20, 0.15); 
-            color: #ff4d4d; /* Đỏ tươi sáng */
-            padding: 6px 12px; 
-            border-radius: 6px; 
-            font-size: 0.85rem; 
-            font-weight: 600; 
-            border: 1px solid rgba(229, 9, 20, 0.4); 
-            box-shadow: 0 0 10px rgba(229, 9, 20, 0.1); /* Glow nhẹ */
-            display: inline-block; 
-            white-space: nowrap;
-        }
+        .badge-position { background: rgba(229, 9, 20, 0.15); color: #ff4d4d; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; border: 1px solid rgba(229, 9, 20, 0.4); display: inline-block; white-space: nowrap; }
 
-        /* Nút Xem CV - XANH DƯƠNG SÁNG TẠO ĐIỂM NHẤN */
-        .btn-cv { 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center;
-            gap: 6px; 
-            color: #3b82f6; /* Xanh dương cực chói */
-            background: rgba(59, 130, 246, 0.1); 
-            padding: 8px 16px; 
-            border-radius: 6px; 
-            text-decoration: none; 
-            font-size: 0.85rem; 
-            font-weight: 600; 
-            transition: 0.3s; 
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            white-space: nowrap; 
-        }
-        .btn-cv:hover { 
-            background: rgba(59, 130, 246, 0.2); 
-            color: #60a5fa; 
-            box-shadow: 0 0 12px rgba(59, 130, 246, 0.2);
-            transform: translateY(-1px);
-        }
+        .btn-cv { display: inline-flex; align-items: center; justify-content: center; gap: 6px; color: #3b82f6; background: rgba(59, 130, 246, 0.1); padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; transition: 0.3s; border: 1px solid rgba(59, 130, 246, 0.3); white-space: nowrap; }
+        .btn-cv:hover { background: rgba(59, 130, 246, 0.2); transform: translateY(-1px); }
         .btn-cv svg { width: 14px; height: 14px; stroke: currentColor; }
 
-        /* Lời nhắn */
-        .message-text { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #a1a1aa; font-size: 0.85rem; }
-
-        /* Dropdown Trạng thái - MÀU NEON SÁNG BỪNG */
-        .status-wrapper { position: relative; width: 130px; }
-        .status-select { 
-            width: 100%;
-            padding: 8px 12px 8px 14px; 
-            border-radius: 6px; 
-            font-size: 0.8rem; 
-            font-weight: 700; 
-            cursor: pointer; 
-            outline: none; 
-            appearance: none; 
-            border: 1px solid transparent; 
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-            background-repeat: no-repeat; 
-            background-position: right 10px center; 
-            transition: 0.3s;
+        /* FIX CHUẨN 10 ĐIỂM: Giao diện Badge cho Ghi chú / Thư ngỏ */
+        .message-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 6px 12px;
+            border-radius: 6px;
+            color: #d4d4d8;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+            max-width: 180px; /* Giới hạn độ dài để không vỡ bảng */
         }
-        
+        .message-badge:hover:not(.empty) {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .message-badge.empty {
+            cursor: default;
+            opacity: 0.5;
+            background: transparent;
+            border-style: dashed;
+        }
+        .note-text-preview {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .message-badge svg {
+            flex-shrink: 0; /* Không cho icon bị móp */
+            stroke: currentColor;
+        }
+
+        /* Status Dropdown */
+        .status-wrapper { position: relative; width: 140px; }
+        .status-select { width: 100%; padding: 8px 12px 8px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; outline: none; appearance: none; border: 1px solid transparent; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; transition: 0.3s; }
         .status-select option { background: #15161c; color: #fff; }
-        
-        /* Bảng màu rực rỡ */
-        .status-select.pending { background-color: rgba(250, 204, 21, 0.12); color: #facc15; border-color: rgba(250, 204, 21, 0.3); } /* Vàng chanh */
-        .status-select.contacted { background-color: rgba(74, 222, 128, 0.12); color: #4ade80; border-color: rgba(74, 222, 128, 0.3); } /* Xanh lá */
-        .status-select.rejected { background-color: rgba(248, 113, 113, 0.12); color: #f87171; border-color: rgba(248, 113, 113, 0.3); } /* Đỏ hồng */
-        
-        .status-select:focus { box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+        .status-select.pending { background-color: rgba(250, 204, 21, 0.12); color: #facc15; border-color: rgba(250, 204, 21, 0.3); } 
+        .status-select.contacted { background-color: rgba(74, 222, 128, 0.12); color: #4ade80; border-color: rgba(74, 222, 128, 0.3); } 
+        .status-select.rejected { background-color: rgba(248, 113, 113, 0.12); color: #f87171; border-color: rgba(248, 113, 113, 0.3); } 
+
+        /* CSS Cho Modal Đọc Ghi Chú */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(3px); justify-content: center; align-items: center; z-index: 1000; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; width: 90%; max-width: 500px; position: relative; color: #fff; box-shadow: 0 15px 40px rgba(0,0,0,0.5); overflow: hidden; animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border-color); background: #1a1b23; }
+        .modal-header h3 { margin: 0; font-size: 1.1rem; color: #3b82f6; display: flex; align-items: center; gap: 8px;}
+        .modal-body { padding: 1.5rem; font-size: 0.95rem; line-height: 1.6; color: #e4e4e7; max-height: 400px; overflow-y: auto; white-space: pre-wrap; }
+        .close-modal { position: absolute; top: 1.2rem; right: 1.2rem; font-size: 1.2rem; line-height: 1; color: var(--text-muted); cursor: pointer; border: none; background: transparent; padding: 0; }
+        .close-modal:hover { color: #fff; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
     </style>
 </head>
 <body>
     <div class="admin-layout">
-        <!-- Sidebar Menu Emojis -->
+        <!-- Sidebar -->
         <div class="sidebar">
             <div class="sidebar-logo">Cine<span>Manager</span></div>
             <a href="dashboard.html" class="nav-item">📊 Thống kê doanh thu</a>
@@ -161,10 +149,43 @@
         <!-- Main Content -->
         <div class="main-content">
             <div class="page-header">
-                <h2>💼 Danh sách ứng viên</h2>
+                <h2>💼 Quản lý Ứng viên Tuyển dụng</h2>
                 <div style="font-size: 0.85rem; color: #888;">
                     Quản trị viên: <span id="display-username" style="color: #fff; font-weight: 600; margin-left: 4px;"></span>
                 </div>
+            </div>
+
+            <!-- Mini Dashboard -->
+            <div class="dashboard-cards">
+                <div class="card-stat">
+                    <div><div class="title">Tổng hồ sơ</div><div class="value" id="stat-total">0</div></div>
+                </div>
+                <div class="card-stat pending">
+                    <div><div class="title">Chờ duyệt (Mới)</div><div class="value" id="stat-pending">0</div></div>
+                </div>
+                <div class="card-stat contacted">
+                    <div><div class="title">Đã phỏng vấn</div><div class="value" id="stat-contacted">0</div></div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <div class="filter-group">
+                    <input type="text" id="filter-search" class="filter-input" placeholder="🔍 Tên, Email hoặc SĐT..." oninput="renderTable()">
+                    <select id="filter-position" class="filter-input" onchange="renderTable()">
+                        <option value="all">Tất cả vị trí</option>
+                    </select>
+                    <select id="filter-status" class="filter-input" onchange="renderTable()">
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="pending">Chờ duyệt</option>
+                        <option value="contacted">Đã liên hệ</option>
+                        <option value="rejected">Từ chối</option>
+                    </select>
+                </div>
+                <button class="btn-export" onclick="exportToCSV()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    Xuất CSV
+                </button>
             </div>
 
             <div class="table-container">
@@ -175,20 +196,35 @@
                             <th>Liên hệ</th>
                             <th>Vị trí ứng tuyển</th>
                             <th style="text-align: center;">Hồ sơ CV</th>
-                            <th>Ghi chú</th>
+                            <th>Thư ngỏ / Ghi chú</th>
                             <th>Trạng thái</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <!-- Render qua JS -->
+                    <tbody id="app-tbody">
+                        <!-- Dữ liệu -->
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <!-- Modal Đọc Ghi Chú Đầy Đủ -->
+    <div id="note-modal" class="modal" onclick="closeNoteModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="closeNoteModal()">&times;</button>
+            <div class="modal-header">
+                <h3><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Nội dung Thư ngỏ</h3>
+            </div>
+            <div class="modal-body" id="full-note-content">
+                <!-- Nội dung được js nạp vào -->
+            </div>
+        </div>
+    </div>
+
     <script src="assets/js/common.js"></script>
     <script>
+        let allApps = []; 
+
         document.addEventListener('DOMContentLoaded', async () => {
             try {
                 const authRes = await fetch('api/auth.php?action=check');
@@ -198,76 +234,146 @@
                     return;
                 }
                 document.getElementById('display-username').innerText = authData.username;
-                loadApplications();
+                
+                await fetchApplications();
             } catch (err) {
                 console.error("Lỗi xác thực:", err);
             }
         });
 
-        async function loadApplications() {
+        // Đóng Modal khi bấm nút Esc
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeNoteModal();
+            }
+        });
+
+        async function fetchApplications() {
             try {
                 const res = await fetch('api/applications.php?action=list');
-                const list = await res.json();
-                const tbody = document.querySelector('#table-applications tbody');
-
-                if (!Array.isArray(list) || list.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color:#555; font-size: 0.9rem;">Chưa có dữ liệu ứng viên</td></tr>`;
-                    return;
+                const data = await res.json();
+                if (Array.isArray(data)) {
+                    allApps = data;
+                    updateDashboardStats();
+                    populatePositionFilter();
+                    renderTable();
                 }
-
-                tbody.innerHTML = list.map(a => {
-                    let timeStr = '';
-                    if (a.created_at) {
-                        const d = new Date(a.created_at);
-                        timeStr = `${d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})} - ${d.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
-                    }
-
-                    const cvHtml = a.cv_link
-                        ? `<a href="${a.cv_link}" target="_blank" class="btn-cv">
-                             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                             Mở CV
-                           </a>`
-                        : `<span style="color:#555; font-size: 0.8rem;">Trống</span>`;
-
-                    return `
-                        <tr>
-                            <td>
-                                <span class="app-name">${a.full_name}</span>
-                                <span class="app-time">${timeStr}</span>
-                            </td>
-                            <td>
-                                <div class="contact-info">
-                                    <div class="contact-row">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                                        ${a.email}
-                                    </div>
-                                    <div class="contact-row">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
-                                        ${a.phone}
-                                    </div>
-                                </div>
-                            </td>
-                            <td><span class="badge-position">${a.position}</span></td>
-                            <td style="text-align: center;">${cvHtml}</td>
-                            <td><div class="message-text" title="${a.message || ''}">${a.message || '-'}</div></td>
-                            <td>
-                                <div class="status-wrapper">
-                                    <select class="status-select ${a.status}" onchange="updateStatus(${a.id}, this)">
-                                        <option value="pending" ${a.status === 'pending' ? 'selected' : ''}>Chờ duyệt</option>
-                                        <option value="contacted" ${a.status === 'contacted' ? 'selected' : ''}>Đã liên hệ</option>
-                                        <option value="rejected" ${a.status === 'rejected' ? 'selected' : ''}>Từ chối</option>
-                                    </select>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
             } catch (err) {
-                console.error("Lỗi:", err);
+                console.error("Lỗi tải data:", err);
             }
         }
 
-        async function updateStatus(id, selectEl) {
+        function updateDashboardStats() {
+            document.getElementById('stat-total').innerText = allApps.length;
+            document.getElementById('stat-pending').innerText = allApps.filter(a => a.status === 'pending').length;
+            document.getElementById('stat-contacted').innerText = allApps.filter(a => a.status === 'contacted').length;
+        }
+
+        function populatePositionFilter() {
+            const positions = [...new Set(allApps.map(a => a.position))].filter(Boolean);
+            const select = document.getElementById('filter-position');
+            select.innerHTML = '<option value="all">Tất cả vị trí</option>' + 
+                               positions.map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('app-tbody');
+            const fSearch = document.getElementById('filter-search').value.toLowerCase().trim();
+            const fPos = document.getElementById('filter-position').value;
+            const fStatus = document.getElementById('filter-status').value;
+
+            const filtered = allApps.filter(a => {
+                const matchSearch = fSearch === '' || (a.full_name||'').toLowerCase().includes(fSearch) || (a.email||'').toLowerCase().includes(fSearch) || (a.phone||'').includes(fSearch);
+                const matchPos = fPos === 'all' || a.position === fPos;
+                const matchStatus = fStatus === 'all' || a.status === fStatus;
+                return matchSearch && matchPos && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 40px; color:#555;">Không tìm thấy ứng viên phù hợp</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(a => {
+                let timeStr = '';
+                if (a.created_at) {
+                    const d = new Date(a.created_at);
+                    timeStr = `${d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})} - ${d.toLocaleDateString('vi-VN', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
+                }
+
+                const cvHtml = a.cv_link
+                    ? `<a href="${a.cv_link}" target="_blank" class="btn-cv" title="Mở file CV của ứng viên">
+                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                         Xem CV
+                       </a>`
+                    : `<span style="color:#555; font-size: 0.8rem;">Không có</span>`;
+
+                const gmailComposeLink = `https://mail.google.com/mail/?view=cm&fs=1&to=${a.email}`;
+
+                // --- GIAO DIỆN BADGE CHO GHI CHÚ CHUẨN 10 ĐIỂM ---
+                const rawNote = a.message && a.message.trim() !== '' ? a.message : 'Không có ghi chú';
+                const safeNote = rawNote.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                
+                let noteHtml = '';
+                if (rawNote === 'Không có ghi chú') {
+                    noteHtml = `<div class="message-badge empty"><span class="note-text-preview">Không có</span></div>`;
+                } else {
+                    noteHtml = `
+                        <div class="message-badge" onclick="openNoteModal('${safeNote}')" title="Click để đọc chi tiết">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                            <span class="note-text-preview">${rawNote}</span>
+                        </div>
+                    `;
+                }
+
+                const statusSelect = `
+                    <div class="status-wrapper">
+                        <select class="status-select ${a.status}" onchange="handleStatusChange(${a.id}, '${a.email}', '${a.full_name}', '${a.position}', this)">
+                            <option value="pending" ${a.status === 'pending' ? 'selected' : ''}>Chờ duyệt</option>
+                            <option value="contacted" ${a.status === 'contacted' ? 'selected' : ''}>Hẹn Phỏng Vấn</option>
+                            <option value="rejected" ${a.status === 'rejected' ? 'selected' : ''}>Từ chối</option>
+                        </select>
+                    </div>`;
+
+                return `
+                    <tr>
+                        <td>
+                            <span class="app-name">${a.full_name}</span>
+                            <span class="app-time">${timeStr}</span>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <div class="contact-row">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                    <a href="${gmailComposeLink}" target="_blank" style="color:inherit; text-decoration:none;" title="Gửi mail trực tiếp qua Gmail Web">${a.email}</a>
+                                </div>
+                                <div class="contact-row">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                    ${a.phone}
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge-position">${a.position}</span></td>
+                        <td style="text-align: center;">${cvHtml}</td>
+                        <td>${noteHtml}</td>
+                        <td>${statusSelect}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // --- CÁC HÀM XỬ LÝ MODAL GHI CHÚ ---
+        function openNoteModal(noteText) {
+            document.getElementById('full-note-content').innerText = noteText;
+            document.getElementById('note-modal').classList.add('active');
+        }
+
+        function closeNoteModal(e) {
+            if (e && e.target.classList.contains('modal-content')) return;
+            document.getElementById('note-modal').classList.remove('active');
+        }
+
+        async function handleStatusChange(id, email, name, position, selectEl) {
             const newStatus = selectEl.value;
             selectEl.className = `status-select ${newStatus}`;
 
@@ -280,17 +386,57 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    if(typeof showToast === 'function') showToast('Cập nhật trạng thái thành công!', 'success');
+                    const app = allApps.find(a => a.id === id);
+                    if(app) app.status = newStatus;
+                    updateDashboardStats();
+                    
+                    if (newStatus === 'contacted') {
+                        if(confirm(`Trạng thái đã cập nhật: HẸN PHỎNG VẤN.\n\nBạn có muốn mở Gmail để gửi thư mời phỏng vấn cho ${name} không?`)) {
+                            const subject = encodeURIComponent(`[CineManager] - Thư mời phỏng vấn vị trí ${position}`);
+                            const body = encodeURIComponent(`Chào ${name},\n\nCảm ơn bạn đã ứng tuyển vào vị trí ${position} tại CineManager.\nChúng tôi rất ấn tượng với hồ sơ của bạn và muốn mời bạn tham gia buổi phỏng vấn vào lúc [THỜI GIAN] tại [ĐỊA ĐIỂM/LINK GOOGLE MEET].\n\nVui lòng xác nhận lại email này nếu bạn có thể tham gia.\n\nTrân trọng,\nPhòng Nhân Sự CineManager`);
+                            window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`, '_blank');
+                        }
+                    } else if (newStatus === 'rejected') {
+                        if(confirm(`Trạng thái đã cập nhật: TỪ CHỐI.\n\nBạn có muốn mở Gmail để gửi thông báo kết quả (Thanks letter) cho ${name} không?`)) {
+                            const subject = encodeURIComponent(`[CineManager] - Thông báo kết quả ứng tuyển vị trí ${position}`);
+                            const body = encodeURIComponent(`Chào ${name},\n\nCảm ơn bạn đã quan tâm và ứng tuyển vào vị trí ${position} tại CineManager.\nTuy nhiên, sau khi xem xét kỹ lưỡng, chúng tôi rất tiếc phải thông báo hồ sơ của bạn hiện chưa phù hợp với định hướng của công ty ở thời điểm hiện tại.\n\nChúc bạn nhiều sức khỏe và thành công trong sự nghiệp.\n\nTrân trọng,\nPhòng Nhân Sự CineManager`);
+                            window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${email}&su=${subject}&body=${body}`, '_blank');
+                        }
+                    }
                 } else {
-                    if(typeof showToast === 'function') showToast(data.error || 'Lỗi', 'error');
-                    loadApplications(); 
+                    alert(data.error || 'Lỗi cập nhật');
+                    await fetchApplications(); 
                 }
             } catch (err) {
-                if(typeof showToast === 'function') showToast('Lỗi mạng', 'error');
-                loadApplications(); 
+                alert('Lỗi kết nối mạng');
+                await fetchApplications();
             }
         }
+
+        function exportToCSV() {
+            if (allApps.length === 0) {
+                alert("Không có dữ liệu để xuất!"); return;
+            }
+            let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
+            csvContent += "ID,Ho_Ten,Email,So_Dien_Thoai,Vi_Tri_Ung_Tuyen,Ngay_Nop,Trang_Thai\n";
+
+            allApps.forEach(a => {
+                const date = a.created_at ? a.created_at.split(' ')[0] : '';
+                const statusMap = { 'pending': 'Cho_Duyet', 'contacted': 'Da_Phong_Van', 'rejected': 'Tu_Choi' };
+                const st = statusMap[a.status] || a.status;
+                
+                let row = `${a.id},"${a.full_name}","${a.email}","=""${a.phone}""","${a.position}","=""${date}""","${st}"`;
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `DanhSachUngVien_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
-    <script src="assets/js/site-footer.js"></script>
 </body>
 </html>
