@@ -1,5 +1,12 @@
 <?php
-session_start();
+// [BẢO MẬT 1] Khởi tạo session an toàn, tránh lỗi "Session already started"
+if (session_status() === PHP_SESSION_NONE) {
+    // Ép trình duyệt bảo vệ Cookie Session
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    session_start();
+}
+
 $host = 'localhost';
 $db   = 'quan_ly_rap_phim';
 $user = 'root';
@@ -14,11 +21,16 @@ $options = [
 ];
 
 try {
-     $pdo = new PDO($dsn, $user, $pass, $options);
+    $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-     die("Kết nối database thất bại: " . $e->getMessage());
+    // [BẢO MẬT 2] Che giấu thông tin lỗi máy chủ và trả về định dạng JSON chuẩn
+    header('Content-Type: application/json; charset=utf-8');
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Lỗi máy chủ: Không thể kết nối cơ sở dữ liệu.']);
+    exit; // Lệnh exit để chặn đứng việc chạy tiếp các file API bên dưới
 }
-    // ==========================================
+
+// ==========================================
 // TÍCH ĐIỂM & HẠNG THÀNH VIÊN
 // ==========================================
 const POINT_RATE = 10000; // 10.000đ = 1 điểm

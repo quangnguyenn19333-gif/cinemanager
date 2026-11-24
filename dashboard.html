@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Thống Kê Doanh Thu | CineManager Admin</title>
+
+    <!-- CHỐT CHẶN BẢO MẬT UI TỪ XA -->
+    <script>
+        const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+        if (!userRole || userRole !== 'admin') {
+            alert('Cảnh báo: Bạn không có quyền truy cập trang Quản trị!');
+            window.location.replace('login.html');
+        }
+    </script>
+
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/chatbot.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -235,23 +245,26 @@
         let currentQuarter = '';
         let currentDate = '';
         
-        // Khởi tạo biến lưu instance của biểu đồ để dễ dàng update khi chuyển bộ lọc
         let barChartInstance = null;
         let doughnutChartInstance = null;
 
-        // Cấu hình mặc định cho biểu đồ nền tối
         Chart.defaults.color = '#9ca3af';
         Chart.defaults.font.family = 'Inter, sans-serif';
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const authRes = await fetch('api/auth.php?action=check');
-            const authData = await authRes.json();
-            if (!authData.isLoggedIn || authData.role !== 'admin') {
-                window.location.href = 'login.html';
-                return;
+            try {
+                const authRes = await fetch('api/auth.php?action=check');
+                const authData = await authRes.json();
+                if (!authData.isLoggedIn || authData.role !== 'admin') {
+                    window.location.replace('login.html');
+                    return;
+                }
+                const fullName = sessionStorage.getItem('full_name') || authData.username || 'Admin';
+                document.getElementById('display-username').innerText = fullName + ' (Admin)';
+                loadStats();
+            } catch (err) {
+                console.error("Lỗi xác thực:", err);
             }
-            document.getElementById('display-username').innerText = authData.username + ' (Admin)';
-            loadStats();
         });
 
         function handleMonthChange() {
@@ -298,12 +311,10 @@
         }
 
         function renderCharts(movieData) {
-            // Lấy Top 5 phim để biểu diễn trên biểu đồ
             const top5 = movieData.slice(0, 5);
             const labels = top5.map(m => m.title);
             const revenues = top5.map(m => Number(m.revenue));
             
-            // Nếu có phim thứ 6 trở đi, gộp thành "Phim Khác" cho biểu đồ tròn
             const othersData = movieData.slice(5);
             const othersRevenue = othersData.reduce((sum, m) => sum + Number(m.revenue), 0);
             
@@ -316,7 +327,6 @@
 
             const chartColors = ['#e50914', '#f5b942', '#34d399', '#38bdf8', '#c084fc', '#475569'];
 
-            // 1. Biểu đồ cột (Bar Chart)
             const ctxBar = document.getElementById('barChart').getContext('2d');
             if (barChartInstance) barChartInstance.destroy();
             barChartInstance = new Chart(ctxBar, {
@@ -343,7 +353,6 @@
                 }
             });
 
-            // 2. Biểu đồ tròn (Doughnut Chart)
             const ctxDoughnut = document.getElementById('doughnutChart').getContext('2d');
             if (doughnutChartInstance) doughnutChartInstance.destroy();
             doughnutChartInstance = new Chart(ctxDoughnut, {
@@ -376,7 +385,9 @@
                 else if (currentQuarter) queryString = `&quarter=${currentQuarter}`;
 
                 const sumRes = await fetch(`api/stats.php?action=summary${queryString}`);
-                const summary = await sumRes.json();
+                const sumJson = await sumRes.json();
+                const summary = sumJson.data || sumJson;
+
                 document.getElementById('stat-revenue').innerText = Number(summary.total_revenue || 0).toLocaleString('vi-VN') + 'đ';
                 document.getElementById('stat-tickets').innerText = summary.total_tickets || 0;
                 document.getElementById('stat-movies').innerText = summary.total_movies || 0;
@@ -389,7 +400,8 @@
                 else titleElem.innerText = `🎬 Phân Tích Chi Tiết (Toàn thời gian)`;
 
                 const movieRes = await fetch(`api/stats.php?action=by_movie${queryString}`);
-                const byMovie = await movieRes.json();
+                const movieJson = await movieRes.json();
+                const byMovie = movieJson.data ? movieJson.data : (Array.isArray(movieJson) ? movieJson : []);
                 const movieTbody = document.querySelector('#table-by-movie tbody');
 
                 if (!Array.isArray(byMovie) || byMovie.length === 0) {
@@ -399,7 +411,6 @@
                 } else {
                     renderCharts(byMovie);
                     
-                    // Tìm doanh thu cao nhất để vẽ Progress bar tỷ lệ
                     const maxRevenue = Math.max(...byMovie.map(m => Number(m.revenue)));
 
                     movieTbody.innerHTML = byMovie.map(m => {
@@ -422,7 +433,8 @@
                 }
 
                 const recentRes = await fetch('api/stats.php?action=recent');
-                const recent = await recentRes.json();
+                const recentJson = await recentRes.json();
+                const recent = recentJson.data ? recentJson.data : (Array.isArray(recentJson) ? recentJson : []);
                 const recentTbody = document.querySelector('#table-recent tbody');
 
                 if (Array.isArray(recent)) {

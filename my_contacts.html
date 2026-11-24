@@ -494,7 +494,7 @@
 
         function formatDateTime(dateStr) {
             if (!dateStr) return 'Không rõ thời gian';
-            const d = new Date(dateStr);
+            const d = new Date(String(dateStr).replace(' ', 'T'));
             if (isNaN(d.getTime())) return dateStr;
             const time = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
             const date = d.toLocaleDateString('vi-VN');
@@ -570,7 +570,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            // Xử lý nút lọc
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -582,9 +581,13 @@
 
             try {
                 const res = await fetch('api/get_my_contacts.php');
-                const data = await res.json();
+                const json = await res.json();
 
-                allContacts = Array.isArray(data) ? data : [];
+                allContacts = Array.isArray(json)
+                    ? json
+                    : (Array.isArray(json?.data) ? json.data
+                    : (Array.isArray(json?.contacts) ? json.contacts
+                    : (Array.isArray(json?.items) ? json.items : [])));
 
                 const resolvedCount = allContacts.filter(i => i.status === 'resolved').length;
                 const pendingCount = allContacts.length - resolvedCount;

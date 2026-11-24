@@ -8,22 +8,20 @@
     <link rel="stylesheet" href="assets/css/style.css?v=5">
     <link rel="stylesheet" href="assets/css/header.css?v=5">
     <link rel="stylesheet" href="assets/css/header-extra.css?v=5">
-    <link rel="stylesheet" href="assets/css/booking.css?v=5">
+    <link rel="stylesheet" href="assets/css/booking.css?v=7">
     <link rel="stylesheet" href="assets/css/chatbot.css">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/footer.css?v=7">
 </head>
 <body>
     <!-- HEADER MỚI DÙNG CHUNG -->
     <script src="assets/js/site-data.js?v=5"></script>
     <script src="assets/js/site-header.js?v=5"></script>
 
-    <main style="padding: 2rem 5%;">
-        <div style="margin-bottom: 2rem;">
-            <a href="index.html" style="text-decoration: none;">
-                <button class="secondary" style="padding: 0.5rem 1rem; border-radius: 50px;">← Thoát đặt vé</button>
-            </a>
+    <main>
+        <div style="margin-bottom: 1.5rem;">
+            <button type="button" id="btn-top-back" onclick="handleTopBack()">← Quay lại</button>
         </div>
+
         <div class="steps-bar">
             <div class="step active" id="step-indicator-1"><span>1</span> Suất chiếu</div>
             <div class="step-line"></div>
@@ -34,9 +32,11 @@
             <div class="step" id="step-indicator-4"><span>4</span> Xác nhận</div>
         </div>
 
+        <!-- BƯỚC 1: SUẤT CHIẾU -->
         <div id="step-1" class="step-content active">
             <h2>🎬 Chọn Suất Chiếu</h2>
             <div id="movie-info-banner" class="movie-banner"></div>
+
             <!-- CHỌN CƠ SỞ RẠP ĐỘNG -->
             <div style="margin: 15px 0;">
                 <label for="cinema-select" style="color: #ff3333; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;">
@@ -60,6 +60,7 @@
             </div>
         </div>
 
+        <!-- BƯỚC 2: CHỌN GHẾ -->
         <div id="step-2" class="step-content">
             <div class="step2-header">
                 <div>
@@ -89,60 +90,78 @@
             <div class="selected-seats-info">
                 <p>Ghế đã chọn: <span id="selected-seats-text" style="color:var(--primary)">Chưa có</span></p>
                 <p>Tạm tính: <span id="seats-subtotal" style="color:var(--primary); font-weight:bold">0 đ</span></p>
-                <button id="btn-go-combo" class="hidden" onclick="openAgeModal(3)">Tiếp tục → Chọn Combo</button>
+                <button type="button" id="btn-go-combo" class="hidden" onclick="openAgeModal(3)">Tiếp tục → Chọn Combo</button>
             </div>
         </div>
 
+        <!-- BƯỚC 3: COMBO -->
         <div id="step-3" class="step-content">
             <h2>🍿 Chọn Combo Bắp Nước</h2>
             <p style="color:var(--text-muted); margin-bottom: 1.5rem;">Không bắt buộc. Bạn có thể bỏ qua bước này.</p>
             <div id="combos-grid" class="combos-grid"></div>
-            <div style="margin-top:2rem; display:flex; justify-content:space-between;">
-                <button class="secondary" onclick="goToStep(2)">← Quay lại</button>
-                <button onclick="goToStep(4)">Tiếp tục → Xác nhận</button>
+            <div style="margin-top:2rem; display:flex; justify-content:flex-end;">
+                <button type="button" onclick="goToStep(4)" style="padding: 0.8rem 2.5rem; font-size: 1.05rem; border-radius: 8px;">Tiếp tục → Xác nhận</button>
             </div>
         </div>
 
+        <!-- BƯỚC 4: XÁC NHẬN - BỐ CỤC 2 CỘT CÂN ĐỐI -->
         <div id="step-4" class="step-content">
-            <h2>✅ Xác Nhận Đặt Vé</h2>
+            <h2 style="text-align: center; margin-bottom: 1.15rem; margin-top: 0.5rem; font-size: 1.35rem;">✅ Xác Nhận Đặt Vé</h2>
             <div class="confirm-card">
-                <div id="confirm-movie-info"></div>
-                <hr style="border-color: var(--glass); margin: 1rem 0;">
-                <div id="confirm-seats-info"></div>
-                <div id="confirm-combo-info"></div>
+                <div class="confirm-left">
+                    <div>
+                        <div id="confirm-movie-info"></div>
+                        <hr style="border-color: var(--glass); margin: 0.85rem 0;">
+                        <div id="confirm-seats-info"></div>
+                        <div id="confirm-combo-info" style="margin-top: 0.65rem;"></div>
+                    </div>
 
-                <div class="confirm-section payment-box" style="background: rgba(255,255,255,0.05); border: 1px dashed var(--glass); text-align: center; padding: 1.5rem; margin: 1rem 0;">
-                    <h3 style="color: var(--primary); margin-bottom: 1rem;">💳 Quét mã Thanh toán</h3>
-                    <div id="payment-qr-container"></div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Vui lòng quét mã và thanh toán <br> <strong><span id="payment-amount">0</span> đ</strong></p>
+                    <div>
+                        <hr style="border-color: var(--glass); margin: 0.9rem 0;">
+                        <div class="confirm-total" style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-size: 0.98rem; color: #ccc;">Tổng cộng:</span>
+                            <span id="confirm-total-price" style="color:var(--primary); font-size:1.35rem; font-weight:800;">0 đ</span>
+                        </div>
+                    </div>
                 </div>
 
-                <hr style="border-color: var(--glass); margin: 1rem 0;">
-                <div class="confirm-total">
-                    Tổng cộng: <span id="confirm-total-price" style="color:var(--primary); font-size:1.5rem; font-weight:800;">0 đ</span>
-                </div>
-                <div style="margin-top:1.5rem; display:flex; gap:1rem;">
-                    <button class="secondary" onclick="goToStep(3)" style="flex:1;">← Quay lại</button>
-                    <button id="btn-confirm" style="flex:2; background:#28a745;" onclick="confirmBooking()">🎫 Xác Nhận & Đặt Vé</button>
+                <div class="confirm-right">
+                    <div class="confirm-section payment-box">
+                        <h3 style="color: var(--primary); margin-bottom: 0.65rem; font-size: 0.9rem;">💳 Quét mã Thanh toán</h3>
+                        <div id="payment-qr-container"></div>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; line-height: 1.4;">
+                            Vui lòng quét mã và thanh toán<br>
+                            <strong style="font-size: 0.98rem; color: #fff;"><span id="payment-amount">0</span> đ</strong>
+                        </p>
+                    </div>
+
+                    <button
+                        type="button"
+                        id="btn-confirm"
+                        style="width: 100%; margin-top: 0.9rem; background: linear-gradient(145deg, #28a745, #1e7e34); padding: 0.8rem; font-size: 0.95rem; font-weight: 800; text-transform: uppercase; border-radius: 10px; box-shadow: 0 6px 15px rgba(40, 167, 69, 0.3); letter-spacing: 0.8px; border: none; color: white; cursor: pointer; transition: transform 0.2s ease, filter 0.2s ease;"
+                        onclick="confirmBooking()"
+                        onmouseover="this.style.filter='brightness(1.1)'; this.style.transform='translateY(-2px)';"
+                        onmouseout="this.style.filter='brightness(1)'; this.style.transform='translateY(0)';"
+                    >🎫 Xác Nhận & Đặt Vé</button>
                 </div>
             </div>
         </div>
 
-        <div id="step-success" class="step-content success-screen">
-            <div class="success-icon">🎉</div>
-            <h2>Đặt Vé Thành Công!</h2>
-            <p>Cảm ơn bạn đã sử dụng dịch vụ của CineManager.</p>
+        <!-- MÀN HÌNH ĐẶT VÉ THÀNH CÔNG -->
+<div id="step-success" class="step-content success-screen">
+    <div class="success-icon">🎉</div>
+    <h2>Đặt Vé Thành Công!</h2>
+    <p>Cảm ơn bạn đã sử dụng dịch vụ của CineManager.</p>
 
-            <div id="ticket-qr-container" style="background: white; padding: 10px; display: inline-block; border-radius: 10px; margin: 1.5rem 0;"></div>
+    <div id="ticket-qr-container" style="background: #ffffff; padding: 8px; display: inline-block; border-radius: 12px; margin: 1.1rem 0 0.85rem; box-shadow: 0 4px 14px rgba(0,0,0,0.35);"></div>
 
-            <div id="success-booking-id" style="font-weight: bold; margin-bottom: 1.5rem; color: var(--primary);">Mã vé: #...</div>
-            <div style="margin-top:2rem; display:flex; gap:1rem; justify-content:center;">
-                <a href="my-tickets.html"><button>🎫 Xem vé của tôi</button></a>
-                <a href="index.html"><button class="secondary">← Về trang chủ</button></a>
-            </div>
-        </div>
-    </main>
+    <div id="success-booking-id" style="font-weight: 700; font-size: 1rem; margin-bottom: 1.25rem; color: var(--primary);">Mã vé: #...</div>
 
+    <div style="display: flex; gap: 0.75rem; justify-content: center;">
+        <a href="my-tickets.html" style="flex: 1;"><button type="button" style="width: 100%; padding: 0.75rem 1rem; font-size: 0.92rem;">🎫 Xem vé của tôi</button></a>
+        <a href="index.html" style="flex: 1;"><button type="button" class="secondary" style="width: 100%; padding: 0.75rem 1rem; font-size: 0.92rem;">← Về trang chủ</button></a>
+    </div>
+</div>
     <!-- KHỐI GIAO DIỆN POP-UP MODAL XÁC NHẬN ĐỘ TUỔI -->
     <div id="age-confirm-modal" class="age-modal-overlay hidden">
         <div class="age-modal-box">
@@ -156,11 +175,27 @@
         </div>
     </div>
 
+    <!-- MODAL CHI TIẾT PHIM -->
+    <div id="movie-detail-modal" class="modal hidden">
+        <div class="modal-content large">
+            <span class="close-modal" onclick="closeMovieDetailModal()">&times;</span>
+            <h2 id="modal-movie-title" style="margin-bottom: 1rem; color: var(--primary);"></h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem 1.5rem; margin-bottom: 1.25rem; color: var(--text-muted); font-size: 0.95rem;">
+                <p><strong style="color: #fff;">Thể loại:</strong> <span id="m-genre"></span></p>
+                <p><strong style="color: #fff;">Thời lượng:</strong> <span id="m-duration"></span></p>
+                <p><strong style="color: #fff;">Đạo diễn:</strong> <span id="m-director"></span></p>
+                <p><strong style="color: #fff;">Ngôn ngữ:</strong> <span id="m-language"></span></p>
+                <p style="grid-column: 1 / -1;"><strong style="color: #fff;">Diễn viên:</strong> <span id="m-cast"></span></p>
+                <p style="grid-column: 1 / -1;"><strong style="color: #fff;">Khởi chiếu:</strong> <span id="m-release"></span></p>
+            </div>
+            <hr style="border-color: var(--glass); margin-bottom: 1rem;">
+            <p id="m-desc" style="line-height: 1.7; color: #ddd;"></p>
+        </div>
+    </div>
+
     <script src="assets/js/common.js"></script>
     <script src="assets/js/header.js?v=5"></script>
     <script src="assets/js/booking.js"></script>
     <script src="assets/js/chatbot.js"></script>
-
-    <script src="assets/js/site-footer.js?v=7"></script>
 </body>
 </html>

@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Góp Ý | CineManager Admin</title>
+    
+    <!-- CHỐT CHẶN BẢO MẬT UI TỪ XA -->
+    <script>
+        const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+        if (!userRole || userRole !== 'admin') {
+            alert('Cảnh báo: Bạn không có quyền truy cập trang Quản trị!');
+            window.location.replace('login.html'); // Dùng replace để không back lại được
+        }
+    </script>
+
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -459,7 +469,7 @@
             <form id="reply-form">
                 <input type="hidden" id="m-id">
                 <div class="form-group">
-                    <label>Nội dung phản hồi (Sẽ gửi qua Email cho khách hàng):</label>
+                    <label>Nội dung phản hồi (Sẽ lưu trữ và thông báo cho khách):</label>
                     <textarea id="m-reply" required placeholder="Nhập câu trả lời của bạn tại đây..."></textarea>
                 </div>
                 <div class="modal-actions">
@@ -475,25 +485,38 @@
         let allContacts = [];
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const authRes = await fetch('api/auth.php?action=check');
-            const authData = await authRes.json();
-            if (!authData.isLoggedIn || authData.role !== 'admin') {
-                window.location.href = 'login.html';
-                return;
+            try {
+                // Xác thực backend thêm 1 lớp nữa cho chắc chắn
+                const authRes = await fetch('api/auth.php?action=check');
+                const authData = await authRes.json();
+                
+                if (!authData.isLoggedIn || authData.role !== 'admin') {
+                    window.location.replace('login.html');
+                    return;
+                }
+                
+                const fullName = sessionStorage.getItem('full_name') || authData.username || 'Admin';
+                document.getElementById('display-username').innerText = fullName + ' (Admin)';
+                
+                fetchContacts();
+            } catch (err) {
+                console.error("Lỗi xác thực:", err);
             }
-            document.getElementById('display-username').innerText = authData.username + ' (Admin)';
-            fetchContacts();
         });
 
         async function fetchContacts() {
             try {
                 const res = await fetch('api/admin_contacts.php?action=list');
                 const data = await res.json();
-                allContacts = Array.isArray(data) ? data : [];
+                
+                // Hỗ trợ cả 2 định dạng: API trả về mảng trực tiếp [...] hoặc bọc trong { success: true, data: [...] }
+                allContacts = data.data ? data.data : (Array.isArray(data) ? data : []);
+                
                 updateDashboard();
                 renderTable();
             } catch (err) {
                 console.error("Lỗi tải dữ liệu: ", err);
+                alert("Không thể tải danh sách góp ý. Vui lòng kiểm tra lại kết nối.");
             }
         }
 
@@ -534,12 +557,10 @@
                     ? `<span class="badge-resolved">✔ Đã phản hồi</span>`
                     : `<span class="badge-pending">⏳ Chưa xử lý</span>`;
 
-                // Nút Sửa thay cho nút Xem
                 const actionBtn = isResolved
                     ? `<button class="btn-action btn-view" onclick="openModal(${c.id})">Sửa</button>`
                     : `<button class="btn-action" onclick="openModal(${c.id})">Phản hồi</button>`;
 
-                // Lồng thẻ text-truncate-2 vào bên trong reply-box để cắt chữ không lẹm viền
                 return `
                     <tr>
                         <td class="customer-name">${c.full_name}</td>
@@ -561,7 +582,6 @@
             }).join('');
         }
 
-        // Xử lý Modal
         function openModal(id) {
             const contact = allContacts.find(c => c.id === id);
             if (!contact) return;
@@ -584,7 +604,6 @@
             const submitBtn = document.getElementById('btn-submit-reply');
             const modalTitle = document.getElementById('modal-title');
 
-            // Mở khóa Form cho phép chỉnh sửa
             if (contact.status === 'resolved') {
                 modalTitle.innerText = "Cập nhật phản hồi";
                 replyInput.value = contact.admin_reply || '';
@@ -606,7 +625,6 @@
             document.getElementById('contact-modal').style.display = 'none';
         }
 
-        // Xử lý Gửi form
         document.getElementById('reply-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const id = document.getElementById('m-id').value;
@@ -622,9 +640,10 @@
                 });
                 const data = await res.json();
                 
-                if (data.success) {
+                // Nhận dạng chuẩn JSON bọc thép mới: data.success
+                if (data.success || data.success === undefined) { 
                     closeModal();
-                    fetchContacts(); // Tải lại data và render lại bảng
+                    fetchContacts(); 
                 } else {
                     alert('Lỗi: ' + (data.error || 'Không thể gửi phản hồi'));
                 }

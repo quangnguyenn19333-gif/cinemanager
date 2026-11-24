@@ -10,7 +10,7 @@ let state = {
     movie: null,
     selectedShowtime: null,
     selectedSeats: [],      // [{id, row, number, type, price}]
-    selectedCombos: {},     // {combo_id: {combo, qty}}
+    selectedCombos: {},     // {combo_id: {id, name, price, qty}}
     holdExpiresAt: null,
     countdownInterval: null,
     seatRefreshInterval: null,
@@ -19,6 +19,15 @@ let state = {
     cinemas: [],            // Danh sách cơ sở rạp
     selectedCinemaId: null  // Cơ sở rạp đang chọn
 };
+
+function extractList(payload, keys = []) {
+    if (Array.isArray(payload)) return payload;
+    if (!payload || typeof payload !== 'object') return [];
+    for (const k of ['data', ...keys]) {
+        if (Array.isArray(payload[k])) return payload[k];
+    }
+    return [];
+}
 
 // =============================================
 // KHỞI TẠO
@@ -37,7 +46,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.location.href = 'index.html';
             return;
         }
-        document.getElementById('display-username').innerText = authData.username;
+        const displayUserEl = document.getElementById('display-username');
+        if (displayUserEl) displayUserEl.innerText = authData.username;
 
         if (!MOVIE_ID) {
             alert('Thiếu thông tin phim!');
@@ -47,7 +57,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Lấy thông tin phim
         const movRes = await fetch('api/movies.php');
-        const movies = await movRes.json();
+        const movJson = await movRes.json();
+        const movies = extractList(movJson, ['movies']);
         state.movie = movies.find(m => String(m.id) === String(MOVIE_ID));
 
         if (!state.movie) {
@@ -70,13 +81,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 // BƯỚC 1: SUẤT CHIẾU & THANH NGÀY THÁNG ĐỘNG
 // =============================================
 function renderMovieBanner() {
-    document.getElementById('movie-info-banner').innerHTML = `
+    const bannerEl = document.getElementById('movie-info-banner');
+    if (!bannerEl || !state.movie) return;
+
+    bannerEl.innerHTML = `
         <img src="${state.movie.poster_url || ''}" alt="${state.movie.title}" onclick="openMovieDetailModal()" style="cursor: pointer;" title="Xem chi tiết phim">
         <div>
             <h3>${state.movie.title}</h3>
-            <p>🎭 ${state.movie.genre}</p>
-            <p>⏰ ${state.movie.duration} phút</p>
-            <button onclick="openMovieDetailModal()" style="margin-top: 10px; background-color: #e50914; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b80710'" onmouseout="this.style.background='#e50914'">
+            <p>🎭 ${state.movie.genre || 'Đang cập nhật'}</p>
+            <p>⏰ ${state.movie.duration || 120} phút</p>
+            <button type="button" onclick="openMovieDetailModal()" style="margin-top: 10px; background-color: #e50914; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background 0.2s;" onmouseover="this.style.background='#b80710'" onmouseout="this.style.background='#e50914'">
                 <i class="fa-solid fa-circle-info"></i> Chi tiết phim
             </button>
         </div>
@@ -89,22 +103,23 @@ function renderMovieBanner() {
 async function loadCinemas() {
     try {
         const res = await fetch('api/cinemas.php');
-        const cinemas = await res.json();
-        state.cinemas = Array.isArray(cinemas) ? cinemas : [];
+        const cinJson = await res.json();
+        state.cinemas = extractList(cinJson, ['cinemas']);
 
         const selectEl = document.getElementById('cinema-select');
         const addressEl = document.getElementById('cinema-address');
 
         if (!state.cinemas.length) {
-            selectEl.innerHTML = '<option value="">Hệ thống đang bảo trì, chưa có rạp</option>';
+            if (selectEl) selectEl.innerHTML = '<option value="">Hệ thống đang bảo trì, chưa có rạp</option>';
             return;
         }
 
-        selectEl.innerHTML = state.cinemas.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-        selectEl.value = state.cinemas[0].id;
+        if (selectEl) {
+            selectEl.innerHTML = state.cinemas.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            selectEl.value = state.cinemas[0].id;
+        }
         state.selectedCinemaId = state.cinemas[0].id;
-        addressEl.innerText = '📍 ' + state.cinemas[0].address;
+        if (addressEl) addressEl.innerText = '📍 ' + state.cinemas[0].address;
     } catch (error) {
         console.error('Lỗi khi tải danh sách rạp:', error);
     }
@@ -114,11 +129,12 @@ async function loadCinemas() {
 function changeCinema() {
     const selectEl = document.getElementById('cinema-select');
     const addressEl = document.getElementById('cinema-address');
+    if (!selectEl) return;
 
     state.selectedCinemaId = selectEl.value;
 
     const selectedCinema = state.cinemas.find(c => String(c.id) === String(state.selectedCinemaId));
-    if (selectedCinema) {
+    if (selectedCinema && addressEl) {
         addressEl.innerText = '📍 ' + selectedCinema.address;
     }
 
@@ -164,12 +180,38 @@ function renderDateTabs() {
     }
 }
 
-async function loadShowtimes() {
-    const res = await fetch(`api/showtimes.php?movie_id=${encodeURIComponent(MOVIE_ID)}`);
-    const showtimes = await res.json();
-    state.allShowtimes = Array.isArray(showtimes) ? showtimes : [];
+async function getBookedSeatsCountForShowtime(showtimeId) {
+    try {
+        const res = await fetch(`api/seats.php?action=map&showtime_id=${encodeURIComponent(showtimeId)}`);
+        const json = await res.json();
+        const seats = extractList(json, ['seats']);
+        return seats.filter(s => s.status === 'booked').length;
+    } catch (e) {
+        return 0;
+    }
+}
 
-    displayShowtimesForSelectedDate();
+async function loadShowtimes() {
+    try {
+        const res = await fetch(`api/showtimes.php?movie_id=${encodeURIComponent(MOVIE_ID)}`);
+        const stJson = await res.json();
+        const list = extractList(stJson, ['showtimes']);
+
+        state.allShowtimes = await Promise.all(list.map(async (st) => {
+            const apiSold = Number(
+                st.tickets_sold ?? st.booked_seats ?? st.booked_count ?? st.sold_count ?? st.occupied_seats ?? -1
+            );
+            if (apiSold >= 0) {
+                return { ...st, _bookedCount: apiSold };
+            }
+            const liveBooked = await getBookedSeatsCountForShowtime(st.id);
+            return { ...st, _bookedCount: liveBooked };
+        }));
+
+        displayShowtimesForSelectedDate();
+    } catch (err) {
+        console.error('Lỗi tải suất chiếu:', err);
+    }
 }
 
 function getRoomCapacityAndFormat(roomName = '') {
@@ -192,7 +234,6 @@ function displayShowtimesForSelectedDate() {
     const grid = document.getElementById('showtimes-grid');
     if (!grid) return;
 
-    // 1. Lọc theo ngày và cơ sở rạp
     const filteredList = state.allShowtimes.filter(st => {
         const matchDate = st.show_date === state.selectedDateStr;
         let matchCinema = true;
@@ -202,7 +243,6 @@ function displayShowtimesForSelectedDate() {
         return matchDate && matchCinema;
     });
 
-    // Lấy thời gian thực để ẩn các suất chiếu đã qua trong ngày hôm nay
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
@@ -228,7 +268,9 @@ function displayShowtimesForSelectedDate() {
 
     grid.innerHTML = validShowtimes.map(st => {
         const { format, totalSeats } = getRoomCapacityAndFormat(st.room_name);
-        const soldSeats = Number(st.tickets_sold ?? st.booked_seats ?? 0);
+        const soldSeats = Number(
+            st._bookedCount ?? st.tickets_sold ?? st.booked_seats ?? st.booked_count ?? st.sold_count ?? 0
+        );
         const availableSeats = Math.max(0, totalSeats - soldSeats);
 
         return `
@@ -243,12 +285,13 @@ function displayShowtimesForSelectedDate() {
 
 async function selectShowtime(id) {
     state.selectedShowtime = state.allShowtimes.find(s => String(s.id) === String(id));
+    if (!state.selectedShowtime) return;
 
     document.querySelectorAll('.showtime-card-cgv').forEach(c => c.classList.remove('selected'));
     const targetCard = document.getElementById(`st-${id}`);
     if (targetCard) targetCard.classList.add('selected');
 
-    setTimeout(() => goToStep(2), 250);
+    setTimeout(() => goToStep(2), 200);
 }
 
 // =============================================
@@ -256,19 +299,25 @@ async function selectShowtime(id) {
 // =============================================
 async function loadSeatMap() {
     const st = state.selectedShowtime;
-    document.getElementById('selected-showtime-info').innerText =
-        `${st.room_name} — ${String(st.show_time).slice(0, 5)} — ${new Date(st.show_date).toLocaleDateString('vi-VN')}`;
+    if (!st) return;
 
-    const res = await fetch(`api/seats.php?action=map&showtime_id=${st.id}`);
-    const seats = await res.json();
+    const infoEl = document.getElementById('selected-showtime-info');
+    if (infoEl) {
+        infoEl.innerText = `${st.room_name} — ${String(st.show_time).slice(0, 5)} — ${new Date(st.show_date).toLocaleDateString('vi-VN')}`;
+    }
+
+    const res = await fetch(`api/seats.php?action=map&showtime_id=${encodeURIComponent(st.id)}`);
+    const seatsJson = await res.json();
+    const seats = extractList(seatsJson, ['seats']);
 
     const rows = {};
-    (Array.isArray(seats) ? seats : []).forEach(s => {
+    seats.forEach(s => {
         if (!rows[s.row_label]) rows[s.row_label] = [];
         rows[s.row_label].push(s);
     });
 
     const mapEl = document.getElementById('seat-map');
+    if (!mapEl) return;
     mapEl.innerHTML = '';
 
     for (const [row, rowSeats] of Object.entries(rows).sort()) {
@@ -340,9 +389,10 @@ async function toggleSeat(btn, seat) {
     if (state.selectedSeats.length > 0) {
         await holdSeats();
     } else {
-        await fetch(`api/seats.php?action=release&showtime_id=${state.selectedShowtime.id}`, { method: 'DELETE' });
+        await fetch(`api/seats.php?action=release&showtime_id=${encodeURIComponent(state.selectedShowtime.id)}`, { method: 'DELETE' });
         stopCountdown();
-        document.getElementById('timer-box').classList.add('hidden');
+        const timerBox = document.getElementById('timer-box');
+        if (timerBox) timerBox.classList.add('hidden');
     }
 }
 
@@ -359,7 +409,8 @@ async function holdSeats() {
     if (res.ok) {
         state.holdExpiresAt = new Date(Date.now() + Number(data.expires_in || 300) * 1000);
         startCountdown();
-        document.getElementById('timer-box').classList.remove('hidden');
+        const timerBox = document.getElementById('timer-box');
+        if (timerBox) timerBox.classList.remove('hidden');
     } else {
         alert(data.error || 'Lỗi giữ ghế');
         await loadSeatMap();
@@ -373,12 +424,16 @@ function seatTypeLabel(type) {
 function updateSeatSummary() {
     const total = state.selectedSeats.reduce((s, seat) => s + seat.price, 0);
     const labels = state.selectedSeats.map(s => `${s.row}${s.number}`).join(', ');
-    document.getElementById('selected-seats-text').innerText = labels || 'Chưa có';
-    document.getElementById('seats-subtotal').innerText = total.toLocaleString('vi-VN') + ' đ';
+    const textEl = document.getElementById('selected-seats-text');
+    const subEl = document.getElementById('seats-subtotal');
+    if (textEl) textEl.innerText = labels || 'Chưa có';
+    if (subEl) subEl.innerText = total.toLocaleString('vi-VN') + ' đ';
 
     const btn = document.getElementById('btn-go-combo');
-    if (state.selectedSeats.length > 0) btn.classList.remove('hidden');
-    else btn.classList.add('hidden');
+    if (btn) {
+        if (state.selectedSeats.length > 0) btn.classList.remove('hidden');
+        else btn.classList.add('hidden');
+    }
 }
 
 // =============================================
@@ -391,15 +446,18 @@ function startCountdown() {
         const remaining = Math.max(0, state.holdExpiresAt - new Date());
         const mins = String(Math.floor(remaining / 60000)).padStart(2, '0');
         const secs = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
-        el.innerText = `${mins}:${secs}`;
-        el.style.color = remaining <= 60000 ? '#ff4444' : 'var(--primary)';
+        if (el) {
+            el.innerText = `${mins}:${secs}`;
+            el.style.color = remaining <= 60000 ? '#ff4444' : 'var(--primary)';
+        }
         if (remaining <= 0) {
             stopCountdown();
             state.selectedSeats = [];
             updateSeatSummary();
             loadSeatMap();
             alert('⏰ Thời gian giữ ghế đã hết!');
-            document.getElementById('timer-box').classList.add('hidden');
+            const timerBox = document.getElementById('timer-box');
+            if (timerBox) timerBox.classList.add('hidden');
         }
     }, 1000);
 }
@@ -412,23 +470,37 @@ function stopCountdown() {
 // =============================================
 // BƯỚC 3: COMBO
 // =============================================
+function escapeSingleQuote(str = '') {
+    return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+}
+
 async function loadCombos() {
-    const res = await fetch('api/combos.php');
-    const combos = await res.json();
-    const grid = document.getElementById('combos-grid');
-    grid.innerHTML = (Array.isArray(combos) ? combos : []).map(c => `
-        <div class="combo-card" id="combo-${c.id}">
-            <div class="combo-qty">
-                <button onclick="changeComboQty(${c.id}, -1, ${c.price}, '${c.name}')">−</button>
-                <span id="qty-${c.id}">0</span>
-                <button onclick="changeComboQty(${c.id}, 1, ${c.price}, '${c.name}')">+</button>
-            </div>
-            <div class="combo-icon">${c.icon}</div>
-            <h3>${c.name}</h3>
-            <p>${c.description}</p>
-            <div class="combo-price">${Number(c.price).toLocaleString('vi-VN')} đ</div>
-        </div>
-    `).join('');
+    try {
+        const res = await fetch('api/combos.php');
+        const combosJson = await res.json();
+        const combos = extractList(combosJson, ['combos']);
+        const grid = document.getElementById('combos-grid');
+        if (!grid) return;
+
+        grid.innerHTML = combos.map(c => {
+            const safeName = escapeSingleQuote(c.name);
+            return `
+                <div class="combo-card" id="combo-${c.id}">
+                    <div class="combo-qty">
+                        <button type="button" onclick="changeComboQty(${c.id}, -1, ${Number(c.price)}, '${safeName}')">−</button>
+                        <span id="qty-${c.id}">0</span>
+                        <button type="button" onclick="changeComboQty(${c.id}, 1, ${Number(c.price)}, '${safeName}')">+</button>
+                    </div>
+                    <div class="combo-icon">${c.icon}</div>
+                    <h3>${c.name}</h3>
+                    <p>${c.description}</p>
+                    <div class="combo-price">${Number(c.price).toLocaleString('vi-VN')} đ</div>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('Lỗi tải combo:', err);
+    }
 }
 
 function changeComboQty(id, delta, price, name) {
@@ -452,9 +524,17 @@ function changeComboQty(id, delta, price, name) {
 function renderConfirmation() {
     const st = state.selectedShowtime;
     const m = state.movie;
+    if (!st || !m) return;
+
     const seatsTotal = state.selectedSeats.reduce((s, seat) => s + seat.price, 0);
     const comboTotal = Object.values(state.selectedCombos).reduce((s, c) => s + c.price * c.qty, 0);
     const grandTotal = seatsTotal + comboTotal;
+
+    const btnConfirm = document.getElementById('btn-confirm');
+    if (btnConfirm) {
+        btnConfirm.disabled = false;
+        btnConfirm.innerText = '🎫 Xác Nhận & Đặt Vé';
+    }
 
     document.getElementById('confirm-movie-info').innerHTML = `
         <h3>Thông tin phim</h3>
@@ -479,8 +559,10 @@ function renderConfirmation() {
     document.getElementById('payment-amount').innerText = grandTotal.toLocaleString('vi-VN');
 
     const paymentData = encodeURIComponent(`CineManager Payment: ${grandTotal} VND`);
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${paymentData}&color=e50914&bgcolor=1a1a1a`;
-    document.getElementById('payment-qr-container').innerHTML = `<img src="${qrUrl}" alt="Payment QR" style="border: 4px solid white; border-radius: 8px;">`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${paymentData}&color=111111&bgcolor=ffffff`;
+    document.getElementById('payment-qr-container').innerHTML = `
+        <img src="${qrUrl}" alt="Payment QR" style="border: 6px solid #ffffff; border-radius: 10px; background: #ffffff;">
+    `;
 }
 
 async function confirmBooking() {
@@ -488,50 +570,82 @@ async function confirmBooking() {
     btn.disabled = true;
     btn.innerText = 'Đang xử lý...';
 
-    const combosArr = Object.values(state.selectedCombos).map(c => ({ id: c.id, name: c.name, price: c.price, qty: c.qty }));
-    const seatsTotal = state.selectedSeats.reduce((s, seat) => s + seat.price, 0);
-    const comboTotal = combosArr.reduce((s, c) => s + c.price * c.qty, 0);
+    try {
+        const combosArr = Object.values(state.selectedCombos).map(c => ({ id: c.id, name: c.name, price: c.price, qty: c.qty }));
+        const seatsTotal = state.selectedSeats.reduce((s, seat) => s + seat.price, 0);
+        const comboTotal = combosArr.reduce((s, c) => s + c.price * c.qty, 0);
 
-    const res = await fetch('api/bookings.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            showtime_id: state.selectedShowtime.id,
-            seat_ids: state.selectedSeats.map(s => s.id),
-            combos: combosArr,
-            total_price: seatsTotal + comboTotal
-        })
-    });
-    const data = await res.json();
+        const res = await fetch('api/bookings.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                showtime_id: state.selectedShowtime.id,
+                seat_ids: state.selectedSeats.map(s => s.id),
+                combos: combosArr,
+                total_price: seatsTotal + comboTotal
+            })
+        });
+        const data = await res.json();
+        const bookingId = data.booking_id ?? data.data?.booking_id ?? '';
 
-    if (res.ok) {
-        stopCountdown();
-        await loadShowtimes();
-        document.getElementById('success-booking-id').innerText = `Mã vé: #${data.booking_id}`;
-        const ticketData = encodeURIComponent(`CineManager Ticket #${data.booking_id}\nPhim: ${state.movie.title}\nGhế: ${state.selectedSeats.map(s => s.row + s.number).join(', ')}`);
-        const ticketQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${ticketData}`;
-        document.getElementById('ticket-qr-container').innerHTML = `<img src="${ticketQrUrl}" alt="Ticket QR">`;
-        showOnlyStep('success');
-    } else {
-        alert(data.error || 'Có lỗi xảy ra');
+        if (res.ok && data.success !== false) {
+            stopCountdown();
+            await loadShowtimes();
+            document.getElementById('success-booking-id').innerText = `Mã vé: #${bookingId}`;
+            const ticketData = encodeURIComponent(`CineManager Ticket #${bookingId}\nPhim: ${state.movie.title}\nGhế: ${state.selectedSeats.map(s => s.row + s.number).join(', ')}`);
+            const ticketQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${ticketData}`;
+            document.getElementById('ticket-qr-container').innerHTML = `<img src="${ticketQrUrl}" alt="Ticket QR">`;
+            showOnlyStep('success');
+        } else {
+            alert(data.error || 'Có lỗi xảy ra');
+            btn.disabled = false;
+            btn.innerText = '🎫 Xác Nhận & Đặt Vé';
+        }
+    } catch (err) {
+        console.error('Lỗi đặt vé:', err);
+        alert('Lỗi kết nối khi đặt vé!');
         btn.disabled = false;
         btn.innerText = '🎫 Xác Nhận & Đặt Vé';
     }
 }
 
 // =============================================
-// ĐIỀU HƯỚNG BƯỚC
+// ĐIỀU HƯỚNG BƯỚC & NÚT QUAY LẠI
 // =============================================
+function handleTopBack() {
+    const activeStepEl = document.querySelector('.step-content.active');
+    let currentStep = 1;
+
+    if (activeStepEl) {
+        if (activeStepEl.id === 'step-2') currentStep = 2;
+        else if (activeStepEl.id === 'step-3') currentStep = 3;
+        else if (activeStepEl.id === 'step-4') currentStep = 4;
+        else if (activeStepEl.id === 'step-success') currentStep = 'success';
+    }
+
+    if (currentStep > 1 && currentStep !== 'success') {
+        goToStep(currentStep - 1);
+    } else if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        window.location.href = 'index.html';
+    }
+}
+
 async function goToStep(num) {
     if (num === 2 && !state.selectedShowtime) { alert('Vui lòng chọn suất chiếu!'); return; }
     if (num === 4 && state.selectedSeats.length === 0) { alert('Vui lòng chọn ghế!'); return; }
 
-    const fromStep3 = document.getElementById('step-3').classList.contains('active');
-    if (num === 2 && fromStep3) {
-        // Giữ nguyên trạng thái ghế đang chọn
-    } else if (num === 2) {
-        state.selectedSeats = [];
-        await loadSeatMap();
+    try {
+        const fromStep3 = document.getElementById('step-3')?.classList.contains('active');
+        if (num === 2 && fromStep3) {
+            // Giữ nguyên trạng thái ghế đang chọn
+        } else if (num === 2) {
+            state.selectedSeats = [];
+            await loadSeatMap();
+        }
+    } catch (err) {
+        console.error('Lỗi khi chuyển bước:', err);
     }
 
     if (num === 4) renderConfirmation();
