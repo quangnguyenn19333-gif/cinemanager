@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Suất Chiếu | CineManager Admin</title>
+
+    <!-- CHỐT CHẶN BẢO MẬT UI TỪ XA -->
+    <script>
+        const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+        if (!userRole || userRole !== 'admin') {
+            alert('Cảnh báo: Bạn không có quyền truy cập trang Quản trị!');
+            window.location.replace('login.html');
+        }
+    </script>
+
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/chatbot.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -113,7 +123,7 @@
             position: relative; 
             box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(229, 9, 20, 0.12);
             animation: popIn 0.22s ease-out;
-            overflow: hidden;
+            overflow: visible;
             display: flex;
             flex-direction: column;
         }
@@ -125,6 +135,7 @@
             padding: 13px 18px;
             background: var(--elevated-bg);
             border-bottom: 1px solid var(--border-color);
+            border-radius: 14px 14px 0 0;
         }
         .modal-title-wrap { display: flex; align-items: center; gap: 10px; }
         .modal-title-icon {
@@ -145,28 +156,60 @@
         .close-modal { background: rgba(255,255,255,0.04); border: 1px solid transparent; color: var(--text-muted); width: 28px; height: 28px; border-radius: 7px; font-size: 1.15rem; line-height: 1; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; }
         .close-modal:hover { color: #fff; background: rgba(229, 9, 20, 0.18); border-color: rgba(229, 9, 20, 0.45); }
 
-        .modal-body { padding: 15px 18px; overflow-y: auto; max-height: 76vh;}
+        .modal-body { padding: 15px 18px; overflow: visible; max-height: 76vh;}
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .form-group { margin-bottom: 4px; }
+        .form-group { margin-bottom: 4px; position: relative; }
         .form-group.full { grid-column: span 2; }
         
-        /* Highlight nhẹ label để phân biệt luồng thao tác */
         .form-group label { display: block; margin-bottom: 0.32rem; color: #cbd5e1; font-size: 0.75rem; font-weight: 600;}
         .step-label { color: var(--primary-soft) !important; }
         
         .form-group input, .form-group select { width: 100%; background: #0d0e13; border: 1px solid var(--border-color); color: #fff; padding: 7.5px 10px; border-radius: 8px; box-sizing: border-box; outline: none; font-size: 0.82rem; transition: 0.2s; }
         .form-group input:hover, .form-group select:hover { border-color: #363a4c; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.16); background: #101118;}
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary-soft); box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.18); background: #101118;}
         
-        /* Disable select styling */
         select:disabled { opacity: 0.5; cursor: not-allowed; background: #15161c; }
+
+        /* Dropdown tìm phim bám ngay dưới ô nhập */
+        .movie-dropdown-list {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #14161e;
+            border: 1px solid #32374a;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1200;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75);
+        }
+        .movie-dropdown-item {
+            padding: 8px 12px;
+            font-size: 0.82rem;
+            color: #e5e7eb;
+            cursor: pointer;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            transition: background 0.15s ease;
+        }
+        .movie-dropdown-item:last-child { border-bottom: none; }
+        .movie-dropdown-item:hover {
+            background: rgba(229, 9, 20, 0.18);
+            color: #fff;
+        }
+        .movie-dropdown-empty {
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
 
         .price-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.02); padding: 11px 12px; border-radius: 9px; border: 1px dashed #2e3242; margin-top: 0.45rem;}
         .price-grid .form-group { margin-bottom: 0; }
         .price-grid label { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 5px;}
         .price-grid input { padding: 0.48rem 0.65rem; font-size: 0.8rem; font-weight: 600;}
         
-        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.2);}
+        .modal-footer { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--border-color); background: rgba(0,0,0,0.2); border-radius: 0 0 14px 14px;}
         .btn-cancel { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: #cbd5e1; padding: 7px 13px; border-radius: 7px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: 0.2s; }
         .btn-cancel:hover { background: rgba(255,255,255,0.07); color: #fff; }
         .btn-save { background: linear-gradient(135deg, #e50914 0%, #b90610 100%); border: 1px solid rgba(255, 107, 116, 0.35); color: #fff; padding: 7px 16px; border-radius: 7px; font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);}
@@ -261,16 +304,26 @@
                         <p class="modal-subtitle">Xếp lịch chiếu và thiết lập giá vé mở bán</p>
                     </div>
                 </div>
-                <button class="close-modal" onclick="closeModal()" title="Đóng">&times;</button>
+                <button type="button" class="close-modal" onclick="closeModal()" title="Đóng">&times;</button>
             </div>
             
             <form id="showtime-form">
                 <div class="modal-body">
                     <input type="hidden" id="st-id">
                     <div class="form-grid">
-                        <div class="form-group full">
-                            <label>🎬 Chọn Phim *</label>
-                            <select id="st-movie" required></select>
+                        <div class="form-group full movie-combobox">
+                            <label for="st-movie-input">🎬 Chọn Phim *</label>
+                            <input
+                                type="text"
+                                id="st-movie-input"
+                                placeholder="Gõ tên phim để tìm nhanh..."
+                                autocomplete="off"
+                                onfocus="openMovieDropdown()"
+                                oninput="filterMovieDropdown()"
+                                required
+                            >
+                            <input type="hidden" id="st-movie">
+                            <div id="st-movie-dropdown" class="movie-dropdown-list hidden"></div>
                         </div>
                         
                         <div class="form-group full">
@@ -330,9 +383,9 @@
     <script>
         let allShowtimes = [];
         let allCinemas = [];
-        let currentCinemaRooms = []; // Lưu trữ tạm thời danh sách phòng của rạp đang chọn
-        
-        // HÀM TỰ ĐỘNG SINH DANH SÁCH 25 PHÒNG CHO TỪNG CƠ SỞ
+        let allMovies = [];
+        let currentCinemaRooms = [];
+
         function generateRoomsForCinema(cinemaId) {
             const rooms = [];
             const baseId = (parseInt(cinemaId) || 1) * 100; 
@@ -352,55 +405,132 @@
             return rooms;
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const authRes = await fetch('api/auth.php?action=check');
-            const authData = await authRes.json();
-            if (!authData.isLoggedIn || authData.role !== 'admin') {
-                window.location.href = 'login.html';
+        function openMovieDropdown() {
+            const inputEl = document.getElementById('st-movie-input');
+            renderMovieDropdown(inputEl ? inputEl.value : '');
+        }
+
+        function filterMovieDropdown() {
+            const inputEl = document.getElementById('st-movie-input');
+            const hiddenIdEl = document.getElementById('st-movie');
+            const typed = (inputEl ? inputEl.value : '').trim().toLowerCase();
+
+            const exactMatch = allMovies.find(m => String(m.title || '').trim().toLowerCase() === typed);
+            if (hiddenIdEl) hiddenIdEl.value = exactMatch ? exactMatch.id : '';
+
+            renderMovieDropdown(inputEl ? inputEl.value : '');
+        }
+
+        function renderMovieDropdown(query = '') {
+            const dropdown = document.getElementById('st-movie-dropdown');
+            if (!dropdown) return;
+
+            const q = String(query).trim().toLowerCase();
+            const matches = allMovies.filter(m =>
+                !q || String(m.title || '').toLowerCase().includes(q)
+            );
+
+            if (!matches.length) {
+                dropdown.innerHTML = `<div class="movie-dropdown-empty">Không tìm thấy phim phù hợp</div>`;
+                dropdown.classList.remove('hidden');
                 return;
             }
-            document.getElementById('display-username').innerText = authData.username + ' (Admin)';
 
-            await loadFiltersAndFormData();
-            await fetchRealShowtimes();
+            dropdown.innerHTML = matches.map(m => `
+                <div class="movie-dropdown-item" onclick="selectMovieOption(${m.id})">
+                    ${m.title}
+                </div>
+            `).join('');
+
+            dropdown.classList.remove('hidden');
+        }
+
+        function selectMovieOption(movieId) {
+            const matched = allMovies.find(m => String(m.id) === String(movieId));
+            const inputEl = document.getElementById('st-movie-input');
+            const hiddenIdEl = document.getElementById('st-movie');
+            const dropdown = document.getElementById('st-movie-dropdown');
+
+            if (matched && inputEl && hiddenIdEl) {
+                inputEl.value = matched.title;
+                hiddenIdEl.value = matched.id;
+            }
+            if (dropdown) dropdown.classList.add('hidden');
+        }
+
+        function setMovieSelectionById(movieId) {
+            const inputEl = document.getElementById('st-movie-input');
+            const hiddenIdEl = document.getElementById('st-movie');
+            const matched = allMovies.find(m => String(m.id) === String(movieId));
+
+            if (matched) {
+                inputEl.value = matched.title;
+                hiddenIdEl.value = matched.id;
+            } else {
+                inputEl.value = '';
+                hiddenIdEl.value = '';
+            }
+        }
+
+        document.addEventListener('click', (e) => {
+            const combobox = document.querySelector('.movie-combobox');
+            const dropdown = document.getElementById('st-movie-dropdown');
+            if (dropdown && combobox && !combobox.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
         });
 
-        // BƯỚC 1: XỬ LÝ KHI CHỌN CƠ SỞ -> RENDER LOẠI PHÒNG
-function handleCinemaChange(selectedRoomId = null) {
-    const cinemaId = document.getElementById('st-cinema').value;
-    const typeSelect = document.getElementById('st-room-type');
-    const roomSelect = document.getElementById('st-room');
-    
-    typeSelect.innerHTML = '<option value="" disabled selected>-- Chọn phân khúc phòng --</option>';
-    roomSelect.innerHTML = '<option value="" disabled selected>-- Chọn phân khúc trước --</option>';
-    
-    if (!cinemaId) {
-        typeSelect.disabled = true;
-        roomSelect.disabled = true;
-        return;
-    }
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const authRes = await fetch('api/auth.php?action=check');
+                const authData = await authRes.json();
+                if (!authData.isLoggedIn || authData.role !== 'admin') {
+                    window.location.replace('login.html');
+                    return;
+                }
+                const fullName = sessionStorage.getItem('full_name') || authData.username || 'Admin';
+                document.getElementById('display-username').innerText = fullName + ' (Admin)';
 
-    typeSelect.disabled = false;
-    currentCinemaRooms = generateRoomsForCinema(cinemaId);
-    
-    // Lọc ra các loại phòng duy nhất
-    const uniqueTypes = [...new Set(currentCinemaRooms.map(r => r.type))];
-    
-    uniqueTypes.forEach(type => {
-        typeSelect.innerHTML += `<option value="${type}">${type}</option>`;
-    });
-    
-    // Xử lý khi bật Edit Mode (Đã xóa sạch phần fallback dữ liệu cũ)
-    if (selectedRoomId) {
-        const matchedRoom = currentCinemaRooms.find(r => String(r.id) === String(selectedRoomId));
-        if (matchedRoom) {
-            typeSelect.value = matchedRoom.type;
-            handleTypeChange(selectedRoomId); 
+                await loadFiltersAndFormData();
+                await fetchRealShowtimes();
+            } catch (err) {
+                console.error("Lỗi xác thực:", err);
+                window.location.replace('login.html');
+            }
+        });
+
+        function handleCinemaChange(selectedRoomId = null) {
+            const cinemaId = document.getElementById('st-cinema').value;
+            const typeSelect = document.getElementById('st-room-type');
+            const roomSelect = document.getElementById('st-room');
+            
+            typeSelect.innerHTML = '<option value="" disabled selected>-- Chọn phân khúc phòng --</option>';
+            roomSelect.innerHTML = '<option value="" disabled selected>-- Chọn phân khúc trước --</option>';
+            
+            if (!cinemaId) {
+                typeSelect.disabled = true;
+                roomSelect.disabled = true;
+                return;
+            }
+
+            typeSelect.disabled = false;
+            currentCinemaRooms = generateRoomsForCinema(cinemaId);
+            
+            const uniqueTypes = [...new Set(currentCinemaRooms.map(r => r.type))];
+            
+            uniqueTypes.forEach(type => {
+                typeSelect.innerHTML += `<option value="${type}">${type}</option>`;
+            });
+            
+            if (selectedRoomId) {
+                const matchedRoom = currentCinemaRooms.find(r => String(r.id) === String(selectedRoomId));
+                if (matchedRoom) {
+                    typeSelect.value = matchedRoom.type;
+                    handleTypeChange(selectedRoomId); 
+                }
+            }
         }
-    }
-}
 
-        // BƯỚC 2: XỬ LÝ KHI CHỌN LOẠI PHÒNG -> RENDER PHÒNG CỤ THỂ BÊN TRONG
         function handleTypeChange(selectedRoomId = null) {
             const selectedType = document.getElementById('st-room-type').value;
             const roomSelect = document.getElementById('st-room');
@@ -421,8 +551,12 @@ function handleCinemaChange(selectedRoomId = null) {
         async function fetchRealShowtimes() {
             try {
                 const res = await fetch('api/showtimes.php?all=1');
-                const data = await res.json();
-                allShowtimes = Array.isArray(data) ? data : [];
+                if (res.status === 401 || res.status === 403) {
+                    window.location.replace('login.html');
+                    return;
+                }
+                const json = await res.json();
+                allShowtimes = json.data ? json.data : (Array.isArray(json) ? json : []);
                 renderTable();
             } catch(e) { 
                 console.error("Lỗi tải suất chiếu từ DB:", e);
@@ -433,7 +567,8 @@ function handleCinemaChange(selectedRoomId = null) {
         async function loadFiltersAndFormData() {
             try {
                 const resCinemas = await fetch('api/cinemas.php');
-                allCinemas = await resCinemas.json();
+                const cinJson = await resCinemas.json();
+                allCinemas = cinJson.data ? cinJson.data : (Array.isArray(cinJson) ? cinJson : []);
                 
                 const filterCinema = document.getElementById('filter-cinema-select');
                 const formCinema = document.getElementById('st-cinema');
@@ -443,14 +578,13 @@ function handleCinemaChange(selectedRoomId = null) {
                 if(formCinema) formCinema.innerHTML = '<option value="" disabled selected>-- Chọn cơ sở rạp --</option>' + cinemaOptions;
 
                 const resMovies = await fetch('api/movies.php');
-                const movies = await resMovies.json();
+                const movJson = await resMovies.json();
+                allMovies = movJson.data ? movJson.data : (Array.isArray(movJson) ? movJson : []);
                 
                 const filterMovie = document.getElementById('filter-movie-select');
-                const formMovie = document.getElementById('st-movie');
-                let movieOptions = movies.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
-                
-                if(filterMovie) filterMovie.innerHTML += movieOptions;
-                if(formMovie) formMovie.innerHTML = '<option value="" disabled selected>-- Chọn phim xuất chiếu --</option>' + movieOptions;
+                if (filterMovie) {
+                    filterMovie.innerHTML += allMovies.map(m => `<option value="${m.id}">${m.title}</option>`).join('');
+                }
             } catch (err) {
                 console.error("Lỗi tải metadata:", err);
             }
@@ -571,16 +705,17 @@ function handleCinemaChange(selectedRoomId = null) {
             }).join('');
         }
 
-        // MỞ MODAL & RENDER ĐÚNG TIÊU ĐỀ
         function openModal(id = null) {
             const modal = document.getElementById('showtime-modal');
             const title = document.querySelector('.modal-title-wrap div h3');
             const subtitle = document.querySelector('.modal-subtitle');
             const form = document.getElementById('showtime-form');
+            const dropdown = document.getElementById('st-movie-dropdown');
             
             form.reset();
+            setMovieSelectionById(null);
+            if (dropdown) dropdown.classList.add('hidden');
             
-            // Trả các thẻ select về trạng thái gốc
             document.getElementById('st-room-type').innerHTML = '<option value="" disabled selected>-- Chọn cơ sở trước --</option>';
             document.getElementById('st-room').innerHTML = '<option value="" disabled selected>-- Chọn phân khúc trước --</option>';
             document.getElementById('st-room-type').disabled = true;
@@ -593,7 +728,7 @@ function handleCinemaChange(selectedRoomId = null) {
                     subtitle.innerText = `Chỉnh sửa giờ chiếu, giá vé hoặc điều chuyển phòng`;
                     
                     document.getElementById('st-id').value = st.id;
-                    document.getElementById('st-movie').value = st.movie_id;
+                    setMovieSelectionById(st.movie_id);
                     
                     const cinemaSelect = document.getElementById('st-cinema');
                     if(st.cinema_id) cinemaSelect.value = st.cinema_id;
@@ -619,6 +754,8 @@ function handleCinemaChange(selectedRoomId = null) {
 
         function closeModal() {
             const modal = document.getElementById('showtime-modal');
+            const dropdown = document.getElementById('st-movie-dropdown');
+            if (dropdown) dropdown.classList.add('hidden');
             modal.classList.add('hidden');
         }
 
@@ -634,13 +771,20 @@ function handleCinemaChange(selectedRoomId = null) {
 
         document.getElementById('showtime-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            filterMovieDropdown();
             
             const stId = document.getElementById('st-id').value;
+            const movieId = document.getElementById('st-movie').value;
             const roomId = document.getElementById('st-room').value;
             const date = document.getElementById('st-date').value;
             const time = document.getElementById('st-time').value;
 
-            // KIỂM TRA TRÙNG LỊCH BẰNG ID PHÒNG
+            if (!movieId) {
+                alert('Vui lòng chọn hoặc nhập đúng tên phim có trong danh sách!');
+                document.getElementById('st-movie-input').focus();
+                return;
+            }
+
             const conflict = checkTimeConflict(roomId, date, time, stId);
             if (conflict) {
                 alert(`⚠️ LỖI TRÙNG LỊCH!\n\nPhòng chiếu này (ID: ${roomId}) đã có lịch chiếu phim "${conflict.movie_title}" lúc ${conflict.show_time.substring(0,5)}.\nTheo quy định nghiệp vụ rạp, 2 suất chiếu trong cùng một phòng phải cách nhau ít nhất 2 tiếng.`);
@@ -649,7 +793,7 @@ function handleCinemaChange(selectedRoomId = null) {
 
             const formData = {
                 id: stId,
-                movie_id: document.getElementById('st-movie').value,
+                movie_id: movieId,
                 cinema_id: document.getElementById('st-cinema').value,
                 room_id: roomId,
                 show_date: date,

@@ -30,3 +30,16 @@ async function handleLogout() {
     showToast('Đã đăng xuất thành công', 'success');
     setTimeout(() => window.location.href = 'login.html', 800);
 }
+
+// Chỉ giữ footer ở trang index, gỡ trên các trang khác
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname.toLowerCase();
+    const isIndex = path.endsWith('/') || path.endsWith('/index.html') || path.endsWith('\\index.html');
+    if (!isIndex) {
+        const removeFooters = () => {
+            document.querySelectorAll('footer, .cinema-footer, .footer-content, .footer-bottom, .cinema-types').forEach(el => el.remove());
+        };
+        removeFooters();
+        setTimeout(removeFooters, 100);
+    }
+});

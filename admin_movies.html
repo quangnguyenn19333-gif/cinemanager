@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Phim | CineManager Admin</title>
+
+    <!-- CHỐT CHẶN BẢO MẬT UI TỪ XA -->
+    <script>
+        const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+        if (!userRole || userRole !== 'admin') {
+            alert('Cảnh báo: Bạn không có quyền truy cập trang Quản trị!');
+            window.location.replace('login.html');
+        }
+    </script>
+
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/chatbot.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -496,10 +506,11 @@
                 const authRes = await fetch('api/auth.php?action=check');
                 const authData = await authRes.json();
                 if (!authData.isLoggedIn || authData.role !== 'admin') {
-                    window.location.href = 'login.html';
+                    window.location.replace('login.html');
                     return;
                 }
-                document.getElementById('display-username').innerText = authData.username + ' (Admin)';
+                const fullName = sessionStorage.getItem('full_name') || authData.username || 'Admin';
+                document.getElementById('display-username').innerText = fullName + ' (Admin)';
                 await fetchMovies();
             } catch (err) {
                 console.error("Lỗi xác thực:", err);
@@ -518,11 +529,9 @@
             try {
                 const res = await fetch('api/movies.php');
                 const data = await res.json();
-                if (Array.isArray(data)) {
-                    allMovies = data;
-                    updateDashboardStats();
-                    renderTable();
-                }
+                allMovies = data.data ? data.data : (Array.isArray(data) ? data : []);
+                updateDashboardStats();
+                renderTable();
             } catch (err) {
                 console.error("Lỗi tải phim:", err);
             }

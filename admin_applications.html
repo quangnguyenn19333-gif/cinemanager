@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Tuyển Dụng | CineManager Admin</title>
+
+    <!-- CHỐT CHẶN BẢO MẬT UI TỪ XA -->
+    <script>
+        const userRole = sessionStorage.getItem('role') || localStorage.getItem('role');
+        if (!userRole || userRole !== 'admin') {
+            alert('Cảnh báo: Bạn không có quyền truy cập trang Quản trị!');
+            window.location.replace('login.html'); // Đá văng về trang đăng nhập
+        }
+    </script>
+
     <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -245,10 +255,11 @@
                 const authRes = await fetch('api/auth.php?action=check');
                 const authData = await authRes.json();
                 if (!authData.isLoggedIn || authData.role !== 'admin') {
-                    window.location.href = 'login.html';
+                    window.location.replace('login.html'); // Thay thế window.location.href bằng window.location.replace
                     return;
                 }
-                document.getElementById('display-username').innerText = authData.username + ' (Admin)';
+                const fullName = sessionStorage.getItem('full_name') || authData.username || 'Admin';
+                document.getElementById('display-username').innerText = fullName + ' (Admin)';
                 
                 await fetchApplications();
             } catch (err) {
@@ -267,12 +278,13 @@
             try {
                 const res = await fetch('api/applications.php?action=list');
                 const data = await res.json();
-                if (Array.isArray(data)) {
-                    allApps = data;
-                    updateDashboardStats();
-                    populatePositionFilter();
-                    renderTable();
-                }
+                
+                // Hỗ trợ cả 2 định dạng: API trả về mảng trực tiếp [...] hoặc bọc trong { success: true, data: [...] }
+                allApps = data.data ? data.data : (Array.isArray(data) ? data : []);
+                
+                updateDashboardStats();
+                populatePositionFilter();
+                renderTable();
             } catch (err) {
                 console.error("Lỗi tải data:", err);
             }
@@ -400,7 +412,8 @@
                 });
                 const data = await res.json();
                 
-                if (data.success) {
+                // Nhận dạng chuẩn JSON bọc thép mới: data.success
+                if (data.success || data.success === undefined) { 
                     const app = allApps.find(a => a.id === id);
                     if(app) app.status = newStatus;
                     updateDashboardStats();

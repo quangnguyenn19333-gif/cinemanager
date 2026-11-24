@@ -52,9 +52,12 @@
             if (logged && tab === 'points') {
                 try {
                     const vRes = await fetch('api/redeem.php');
-                    const vData = await vRes.json();
-                    if (Array.isArray(vData)) myVouchers = vData;
-                } catch (e) {}
+                    const vJson = await vRes.json();
+                    const list = Array.isArray(vJson) ? vJson : (Array.isArray(vJson?.data) ? vJson.data : []);
+                    myVouchers = list;
+                } catch (e) {
+                    console.error('Lỗi tải danh sách quà đã đổi:', e);
+                }
             }
 
             const tierCard = (t) => `
@@ -99,13 +102,13 @@
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;margin-top:1rem">
                         ${myVouchers.map(v => {
                             const qr = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(v.voucher_code)}`;
-                            const dt = new Date(v.created_at).toLocaleDateString('vi-VN');
+                            const dt = v.created_at ? new Date(String(v.created_at).replace(' ', 'T')).toLocaleDateString('vi-VN') : '';
                             return `
                             <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:1rem">
                                 <div>
                                     <div style="font-weight:700;color:#fff;margin-bottom:4px">${esc(v.reward_name)}</div>
                                     <div style="font-family:monospace;font-size:.95rem;font-weight:800;color:#ff4d57;letter-spacing:1px">${esc(v.voucher_code)}</div>
-                                    <div class="muted" style="font-size:.78rem;margin-top:4px">Đã đổi: -${fmt(v.points_spent)} điểm • ${dt}</div>
+                                    <div class="muted" style="font-size:.78rem;margin-top:4px">Đã đổi: -${fmt(v.points_spent)} điểm${dt ? ' • ' + dt : ''}</div>
                                 </div>
                                 <div style="background:#fff;padding:5px;border-radius:8px;flex-shrink:0">
                                     <img src="${qr}" alt="QR Quà" style="width:68px;height:68px;display:block">
@@ -221,7 +224,6 @@
                 <div class="tabbar">${TABS.map(t => `<a href="membership.html?tab=${t.key}" class="${t.key === tab ? 'active' : ''}">${esc(t.label)}</a>`).join('')}</div>
                 ${views[tab]()}`;
 
-            // Sao chép mã thành viên
             root.querySelectorAll('.btn-copy-code').forEach(btn => {
                 btn.addEventListener('click', () => {
                     navigator.clipboard.writeText(btn.dataset.code);
@@ -230,7 +232,6 @@
                 });
             });
 
-            // Xử lý bấm nút Đổi ngay
             root.querySelectorAll('.btn-redeem').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     const name = btn.dataset.name;
@@ -246,13 +247,13 @@
                             body: JSON.stringify({ reward_name: name, points: pts })
                         });
                         const data = await res.json();
-                        if (!res.ok) {
+                        if (!res.ok || data.success === false || data.error) {
                             alert(data.error || 'Đổi quà thất bại');
                             btn.disabled = false;
                             btn.textContent = 'Đổi ngay';
                             return;
                         }
-                        alert(data.message);
+                        alert(data.message || 'Đổi quà thành công!');
                         location.reload();
                     } catch (err) {
                         alert('Lỗi kết nối máy chủ');

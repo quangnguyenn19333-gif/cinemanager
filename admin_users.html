@@ -359,43 +359,75 @@
         let allUsers = [];
         const TIER_NAMES = { Bronze: 'Thường', Silver: 'Bạc', Gold: 'Vàng', Platinum: 'Bạch kim' };
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const authRes = await fetch('api/auth.php?action=check');
-            const authData = await authRes.json();
-            if (!authData.isLoggedIn || authData.role !== 'admin') {
-                window.location.href = 'login.html';
-                return;
-            }
-            document.getElementById('display-username').innerText = authData.username + ' (Admin)';
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[char]));
+        }
 
-            document.getElementById('search-input').addEventListener('input', renderTable);
-            document.getElementById('tier-filter').addEventListener('change', renderTable);
-            loadUsers();
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const authRes = await fetch('api/auth.php?action=check');
+                const authData = await authRes.json();
+                if (!authData.isLoggedIn || authData.role !== 'admin') {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                document.getElementById('display-username').innerText = `${authData.username || 'Admin'} (Admin)`;
+
+                document.getElementById('search-input').addEventListener('input', renderTable);
+                document.getElementById('tier-filter').addEventListener('change', renderTable);
+                await loadUsers();
+            } catch (err) {
+                console.error('Lỗi khởi tạo trang quản lý khách hàng:', err);
+                document.getElementById('users-tbody').innerHTML =
+                    `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: #ff5c66;">Không thể tải dữ liệu khách hàng.</td></tr>`;
+            }
         });
 
         async function loadUsers() {
+            const tbody = document.getElementById('users-tbody');
             const res = await fetch('api/users.php');
-            let users = await res.json();
+            const data = await res.json();
 
-            allUsers = users.map(u => ({
-                ...u,
-                member_code: 'CM-' + String(u.id).padStart(6, '0'),
-                display_name: (u.full_name && u.full_name.trim()) ? u.full_name : (u.role === 'admin' ? 'Quản Trị Viên' : u.username),
-                points: Number(u.points || 0),
-                tier_points: Number(u.tier_points ?? u.points ?? 0),
-                member_level: u.member_level || 'Bronze',
-                total_spent: Number(u.total_spent || 0)
-            })).sort((a, b) => {
+            if (!res.ok) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding: 2rem; color: #ff5c66;">${escapeHtml(data.error || 'Lỗi tải danh sách người dùng.')}</td></tr>`;
+                return;
+            }
+
+            const users = Array.isArray(data) ? data : (Array.isArray(data.data) ? data.data : []);
+            allUsers = users.map(u => {
+                const rawRole = String(u.role || 'customer').toLowerCase();
+                const normalizedRole = rawRole === 'admin' ? 'admin' : 'customer';
+                const rawName = (u.full_name && String(u.full_name).trim())
+                    ? String(u.full_name).trim()
+                    : (normalizedRole === 'admin' ? 'Quản Trị Viên' : (u.username || 'Khách hàng'));
+
+                return {
+                    ...u,
+                    role: normalizedRole,
+                    member_code: 'CM-' + String(u.id ?? 0).padStart(6, '0'),
+                    display_name: rawName,
+                    points: Number(u.points || 0),
+                    tier_points: Number(u.tier_points ?? u.points ?? 0),
+                    member_level: TIER_NAMES[u.member_level] ? u.member_level : 'Bronze',
+                    total_spent: Number(u.total_spent || 0)
+                };
+            }).sort((a, b) => {
                 if (a.role === 'admin' && b.role !== 'admin') return -1;
                 if (a.role !== 'admin' && b.role === 'admin') return 1;
                 return b.total_spent - a.total_spent;
             });
+
+            updateKPIs();
+            renderTable();
         }
 
-        function renderTable() {
-            const list = getFilteredUsers();
-            const tbody = document.getElementById('users-tbody');
-
+        function updateKPIs() {
             const customers = allUsers.filter(u => u.role !== 'admin');
             const vipCount = customers.filter(u => u.member_level === 'Gold' || u.member_level === 'Platinum').length;
             const totalRev = customers.reduce((sum, u) => sum + u.total_spent, 0);
@@ -403,8 +435,6 @@
             document.getElementById('kpi-total').innerText = customers.length.toLocaleString('vi-VN');
             document.getElementById('kpi-vip').innerText = vipCount.toLocaleString('vi-VN');
             document.getElementById('kpi-revenue').innerText = totalRev.toLocaleString('vi-VN') + ' đ';
-
-            renderTable();
         }
 
         function getFilteredUsers() {
@@ -416,8 +446,8 @@
                 const matchSearch = !q ||
                     u.member_code.toLowerCase().includes(q) ||
                     u.display_name.toLowerCase().includes(q) ||
-                    (u.email || '').toLowerCase().includes(q) ||
-                    (u.phone || '').toLowerCase().includes(q);
+                    String(u.email || '').toLowerCase().includes(q) ||
+                    String(u.phone || '').toLowerCase().includes(q);
                 return matchTier && matchSearch;
             });
         }
@@ -435,23 +465,31 @@
                 const tierLabel = TIER_NAMES[u.member_level] || u.member_level;
                 const tierHtml = u.role === 'admin'
                     ? `<span style="color:#666;font-size:0.82rem;">—</span>`
-                    : `<span class="tier-pill tier-${u.member_level}">${tierLabel}</span>
+                    : `<span class="tier-pill tier-${escapeHtml(u.member_level)}">${escapeHtml(tierLabel)}</span>
                        <div style="font-size:0.73rem;color:#9ca3af;margin-top:3px;line-height:1.35;">
                            Tích lũy: <b style="color:#fff">${u.tier_points.toLocaleString('vi-VN')}</b> • Khả dụng: <b style="color:#ff5c66">${u.points.toLocaleString('vi-VN')}</b>
                        </div>`;
 
+                const phoneHtml = u.phone
+                    ? escapeHtml(u.phone)
+                    : '<span style="color:#666;font-style:italic">Chưa cập nhật</span>';
+
+                const spentHtml = u.role === 'admin'
+                    ? '<span style="color:#666;font-size:0.82rem;font-weight:400;">—</span>'
+                    : `${u.total_spent.toLocaleString('vi-VN')} đ`;
+
                 return `
                 <tr>
-                    <td class="nowrap"><span class="member-code">${u.member_code}</span></td>
-                    <td class="nowrap" style="font-weight:700; color:white;">${u.display_name}</td>
-                    <td style="color:#d4d4d8;">${u.email || ''}</td>
-                    <td class="nowrap" style="color:#d4d4d8;">${u.phone ? u.phone : '<span style="color:#666;font-style:italic">Chưa cập nhật</span>'}</td>
+                    <td class="nowrap"><span class="member-code">${escapeHtml(u.member_code)}</span></td>
+                    <td class="nowrap" style="font-weight:700; color:white;">${escapeHtml(u.display_name)}</td>
+                    <td style="color:#d4d4d8;">${escapeHtml(u.email || '')}</td>
+                    <td class="nowrap" style="color:#d4d4d8;">${phoneHtml}</td>
                     <td class="nowrap">${tierHtml}</td>
                     <td class="nowrap">
-                        <span class="badge ${u.role}">${u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'}</span>
+                        <span class="badge ${escapeHtml(u.role)}">${u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'}</span>
                     </td>
                     <td class="nowrap" style="color:#34d399; font-weight:700; font-size:0.9rem;">
-                        ${u.role === 'admin' ? '<span style="color:#666;font-size:0.82rem;font-weight:400;">—</span>' : `${u.total_spent.toLocaleString('vi-VN')} đ`}
+                        ${spentHtml}
                     </td>
                 </tr>`;
             }).join('');
@@ -464,9 +502,9 @@
             const headers = ['Ma TV', 'Ten khach hang', 'Email', 'So dien thoai', 'Hang thanh vien', 'Diem tich luy', 'Diem kha dung', 'Vai tro', 'Tong chi tieu (VND)'];
             const rows = list.map(u => [
                 u.member_code,
-                `"${u.display_name.replace(/"/g, '""')}"`,
-                u.email || '',
-                u.phone ? `="${u.phone}"` : '',
+                `"${String(u.display_name).replace(/"/g, '""')}"`,
+                `"${String(u.email || '').replace(/"/g, '""')}"`,
+                u.phone ? `="${String(u.phone).replace(/"/g, '""')}"` : '',
                 u.role === 'admin' ? 'Admin' : (TIER_NAMES[u.member_level] || u.member_level),
                 u.role === 'admin' ? 0 : u.tier_points,
                 u.role === 'admin' ? 0 : u.points,

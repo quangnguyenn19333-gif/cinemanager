@@ -1,14 +1,30 @@
 <?php
+// [BẢO MẬT 1] Tắt hiển thị lỗi PHP ra ngoài làm hỏng JSON
+error_reporting(0);
+ini_set('display_errors', 0);
+
 header('Content-Type: application/json; charset=utf-8');
 
-$apiKey = 'AQ.Ab8RN6Jdc7B84-70bVPjlLbcK4l7TPDkPthRnnZfpXPLqH7rbg'; 
+// Yêu cầu file cấu hình hoặc khai báo API Key ở đây (Nếu bạn lưu trong db.php thì mở comment dòng dưới)
+// require_once 'db.php'; 
+$apiKey = 'NHẬP_API_KEY_GEMINI_CỦA_BẠN_VÀO_ĐÂY'; // Nhớ thay key thật nhé!
+
 $apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-8b:generateContent";
 
+// [BẢO MẬT 2] Chặn Method
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['reply' => 'Phương thức không được hỗ trợ.']);
+    exit;
+}
+
 $data = json_decode(file_get_contents('php://input'), true);
-$userMessage = $data['message'] ?? '';
+
+// [BẢO MẬT 3] Lột sạch thẻ HTML/JS chống XSS ngay từ cửa
+$userMessage = trim(strip_tags($data['message'] ?? ''));
 $userMessageLower = strtolower($userMessage);
 
-if (empty(trim($userMessage))) {
+if (empty($userMessage)) {
     echo json_encode(['reply' => 'Dạ bạn muốn hỏi gì về rạp chiếu phim CineManager ạ?']);
     exit;
 }
@@ -26,25 +42,26 @@ $ch = curl_init($apiUrl);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPHEADER, [
     'Content-Type: application/json',
-    'X-goog-api-key: ' . $apiKey
+    'x-goog-api-key: ' . $apiKey
 ]);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
 curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
+// [TỐI ƯU 1] Thêm Timeout (10 giây) để tránh treo Server nếu Google phản hồi chậm
+curl_setopt($ch, CURLOPT_TIMEOUT, 10); 
 
 $response = curl_exec($ch);
+$curlError = curl_errno($ch); // Bắt lỗi mất mạng
 curl_close($ch);
-
-$result = json_decode($response, true);
 
 // ==========================================
 // TÍNH NĂNG CHỐNG TRƯỢT MÔN: CỨU HỘ KHI API LỖI
 // ==========================================
 function getBackupReply($text) {
-    if (strpos($text, 'tư vấn phim') !== false || strpos($text, 'phim') !== false) {
+    if (strpos($text, 'tư vấn') !== false || strpos($text, 'phim') !== false) {
         return 'Dạ rạp CineManager đang chiếu các siêu phẩm: Chị Chị Em Em 3, Godzilla và Conan ạ. Bạn muốn xem thể loại nào để mình tư vấn thêm nhé!';
     }
-    if (strpos($text, 'giá vé') !== false || strpos($text, 'tiền') !== false) {
+    if (strpos($text, 'giá') !== false || strpos($text, 'tiền') !== false) {
         return 'Dạ vé 2D hiện tại là 85.000đ, còn vé 3D là 120.000đ ạ. Bạn đi mấy người để mình hỗ trợ chọn ghế đẹp nhé!';
     }
     if (strpos($text, 'bắp') !== false || strpos($text, 'nước') !== false || strpos($text, 'combo') !== false) {
@@ -56,25 +73,24 @@ function getBackupReply($text) {
     return 'Dạ hiện tại có rất nhiều khách đang nhờ tư vấn, bạn chờ mình xíu nhé, hoặc bạn có thể gọi hotline 1900 6017 để được hỗ trợ nhanh nhất ạ!';
 }
 
-// Kiểm tra nếu API báo lỗi "High Demand" hoặc "Quota"
+// Nếu cURL lỗi do mất mạng hoặc Timeout
+if ($curlError) {
+    echo json_encode(['reply' => getBackupReply($userMessageLower)]);
+    exit;
+}
+
+$result = json_decode($response, true);
+
+// [BẢO MẬT 4] Che giấu thông báo lỗi từ Google, kích hoạt phao cứu hộ ngay
 if (isset($result['error'])) {
-    $loiThatSu = $result['error']['message'] ?? '';
-    
-    if (strpos(strtolower($loiThatSu), 'high demand') !== false || strpos(strtolower($loiThatSu), 'quota') !== false) {
-        // AI bị kẹt -> Dùng hàm cứu hộ quét từ khóa khách gõ để trả lời giả mạo AI
-        $cauTraLoi = getBackupReply($userMessageLower);
-    } else {
-        $cauTraLoi = 'Dạ, hệ thống đang bảo trì một chút: ' . $loiThatSu;
-    }
-    
-    echo json_encode(['reply' => $cauTraLoi]);
+    echo json_encode(['reply' => getBackupReply($userMessageLower)]);
     exit;
 }
 
 if (isset($result['candidates'][0]['content']['parts'][0]['text'])) {
     $botReply = str_replace('*', '', $result['candidates'][0]['content']['parts'][0]['text']);
 } else {
-    // Nếu AI trả về trống trơn thì cũng lôi phao cứu hộ ra
+    // Nếu AI trả về trống trơn thì lôi phao cứu hộ ra
     $botReply = getBackupReply($userMessageLower);
 }
 
